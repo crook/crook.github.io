@@ -1,0 +1,155 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom"><title>Hello Stack</title><link href="http://hellostack.info/" rel="alternate"></link><link href="http://hellostack.info/feeds/openstack.atom.xml" rel="self"></link><id>http://hellostack.info/</id><updated>2014-05-12T23:59:00+08:00</updated><entry><title>Openstack Mistral 工作流组件介绍</title><link href="http://hellostack.info/openstack-mistral-intro.html" rel="alternate"></link><published>2014-05-12T23:59:00+08:00</published><author><name>Ray Chen</name></author><id>tag:hellostack.info,2014-05-12:openstack-mistral-intro.html</id><summary type="html">&lt;h2&gt;Mistral是什么&lt;/h2&gt;
+&lt;p&gt;Mistral是mirantis公司为openstack开发的工作流组件，提供WorkFlow as a service。 典型的用户用例包括云平台的任务计划服务（Cloud Cron），任务调度（Task Scheduling）， 复杂的运行时间长的业务流程服务。目前项目还在开始阶段。对应的是AWS的SWS（Simple WorkFlow Service）。&lt;/p&gt;
+&lt;p&gt;项目wiki: &lt;a href="https://wiki.openstack.org/wiki/Mistral"&gt;https://wiki.openstack.org/wiki/Mistral&lt;/a&gt;
+项目Code: &lt;a href="https://github.com/stackforge/mistral"&gt;https://github.com/stackforge/mistral&lt;/a&gt;&lt;/p&gt;
+&lt;h2&gt;基本术语&lt;/h2&gt;
+&lt;p&gt;Workbook: 工作本，用户的工作流接口，可以理解成一篇任务文档用来录入用户的工作流程，步骤，需要完成的任务。每个任务的执行顺序，依赖关系，以及每个任务完成之后产生的事件。站在用户的角度，这篇文档完整的记录了某项任务的流程，让执行者能够清楚怎么完成。站在开发人员的角度，为了方便编程。定义了一种新的语言DSL（下面会有介绍），用来描述整个工作流。&lt;/p&gt;
+&lt;p&gt;Task: 即工作流的具体步骤。可以是Action的集合。&lt;/p&gt;
+&lt;p&gt;Action: Mistral的最小单位。特指一个具体的工作，比如说发送一个HTTP请求，或者运行某条命令。&lt;/p&gt;
+&lt;p&gt;Flow：工作流。 指的是Mistral系统中如何执行task，解析task的依赖关系等等，从而让task顺利结束，并返回状态。&lt;/p&gt;
+&lt;p&gt;WorkFlow Execution: 工作流执行纪录。就是指某次具体的Flow，每次执行task产成的WorkFlow Execution会永久保存在数据库中，方便后续查询，或者重新执行Flow。&lt;/p&gt;
+&lt;h2&gt;DSL 介绍&lt;/h2&gt;
+&lt;p&gt;这是Mistral自定义的工作流定义语言。在业界，工作流程管理 已经存在某些语言，可参考:&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;a href="http://en.wikipedia.org/wiki/Business_Process_Execution_Language"&gt;http://en.wikipedia.org/wiki/Business_Process_Execution_Language&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href="http://en.wikipedia.org/wiki/YAWL"&gt;http://en.wikipedia.org/wiki/YAWL&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;Mistral 使用YAML 来定义工作流 wiki: &lt;a href="https://wiki.openstack.org/wiki/Mistral/DSL"&gt;https://wiki.openstack.org/wiki/Mistral/DSL&lt;/a&gt;&lt;/p&gt;
+&lt;h2&gt;实战&lt;/h2&gt;
+&lt;p&gt;从Github下载最新的代码，安装好运行环境。同时启动API和executor服务&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;tox -evenv -- python mistral/cmd/launch.py --server executor --config-file etc/mistral.conf
+tox -evenv -- python mistral/cmd/launch.py --server api --config-file etc/mistral.conf
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;然后运行“scripts/upload_workbook_and_run.py” 脚本，可以清楚看到整个流程。&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="o"&gt;[&lt;/span&gt;ray@fedora mistral&lt;span class="o"&gt;]&lt;/span&gt;$ python scripts/upload_workbook_and_run.py 
+Created workbook: Workbook &lt;span class="o"&gt;[&lt;/span&gt;&lt;span class="nv"&gt;description&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="s1"&gt;&amp;#39;My test workbook&amp;#39;&lt;/span&gt;, &lt;span class="nv"&gt;name&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="s1"&gt;&amp;#39;my_workbook&amp;#39;&lt;/span&gt;, &lt;span class="nv"&gt;tags&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="s1"&gt;&amp;#39;[u&amp;#39;&lt;/span&gt;test&lt;span class="s1"&gt;&amp;#39;]&amp;#39;&lt;/span&gt;&lt;span class="o"&gt;]&lt;/span&gt;
+
+Uploaded workbook:
+&lt;span class="s2"&gt;&amp;quot;&lt;/span&gt;
+&lt;span class="s2"&gt;Services:&lt;/span&gt;
+&lt;span class="s2"&gt;   MyRest:&lt;/span&gt;
+&lt;span class="s2"&gt;     type: REST_API&lt;/span&gt;
+&lt;span class="s2"&gt;     parameters:&lt;/span&gt;
+&lt;span class="s2"&gt;         baseUrl: http://localhost:8989/v1/&lt;/span&gt;
+&lt;span class="s2"&gt;     actions:&lt;/span&gt;
+&lt;span class="s2"&gt;         my-action:&lt;/span&gt;
+&lt;span class="s2"&gt;           parameters:&lt;/span&gt;
+&lt;span class="s2"&gt;               url: workbooks&lt;/span&gt;
+&lt;span class="s2"&gt;               method: GET&lt;/span&gt;
+
+&lt;span class="s2"&gt;Workflow:&lt;/span&gt;
+&lt;span class="s2"&gt;   tasks:&lt;/span&gt;
+&lt;span class="s2"&gt;     my_task:&lt;/span&gt;
+&lt;span class="s2"&gt;         action: MyRest:my-action&lt;/span&gt;
+
+&lt;span class="s2"&gt;#   events:&lt;/span&gt;
+&lt;span class="s2"&gt;#     my_event:&lt;/span&gt;
+&lt;span class="s2"&gt;#        type: periodic&lt;/span&gt;
+&lt;span class="s2"&gt;#        tasks: my_task&lt;/span&gt;
+&lt;span class="s2"&gt;#        parameters:&lt;/span&gt;
+&lt;span class="s2"&gt;#            cron-pattern: &amp;quot;&lt;/span&gt;* * * * *&lt;span class="s2"&gt;&amp;quot;&lt;/span&gt;
+&lt;span class="s2"&gt;&amp;quot;&lt;/span&gt;
+
+execution: Execution &lt;span class="o"&gt;[&lt;/span&gt;&lt;span class="nv"&gt;state&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="s1"&gt;&amp;#39;RUNNING&amp;#39;&lt;/span&gt;, &lt;span class="nv"&gt;task&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="s1"&gt;&amp;#39;my_task&amp;#39;&lt;/span&gt;, &lt;span class="nv"&gt;id&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="s1"&gt;&amp;#39;b5cf7e00-ef5d-46d7-b505-2d23809d29d0&amp;#39;&lt;/span&gt;, &lt;span class="nv"&gt;context&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="s1"&gt;&amp;#39;None&amp;#39;&lt;/span&gt;, &lt;span class="nv"&gt;workbook_name&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="s1"&gt;&amp;#39;my_workbook&amp;#39;&lt;/span&gt;&lt;span class="o"&gt;]&lt;/span&gt;
+execution: Execution &lt;span class="o"&gt;[&lt;/span&gt;&lt;span class="nv"&gt;state&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="s1"&gt;&amp;#39;RUNNING&amp;#39;&lt;/span&gt;, &lt;span class="nv"&gt;task&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="s1"&gt;&amp;#39;my_task&amp;#39;&lt;/span&gt;, &lt;span class="nv"&gt;id&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="s1"&gt;&amp;#39;b5cf7e00-ef5d-46d7-b505-2d23809d29d0&amp;#39;&lt;/span&gt;, &lt;span class="nv"&gt;context&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="s1"&gt;&amp;#39;None&amp;#39;&lt;/span&gt;, &lt;span class="nv"&gt;workbook_name&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="s1"&gt;&amp;#39;my_workbook&amp;#39;&lt;/span&gt;&lt;span class="o"&gt;]&lt;/span&gt;
+execution: Execution &lt;span class="o"&gt;[&lt;/span&gt;&lt;span class="nv"&gt;state&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="s1"&gt;&amp;#39;SUCCESS&amp;#39;&lt;/span&gt;, &lt;span class="nv"&gt;task&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="s1"&gt;&amp;#39;my_task&amp;#39;&lt;/span&gt;, &lt;span class="nv"&gt;id&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="s1"&gt;&amp;#39;b5cf7e00-ef5d-46d7-b505-2d23809d29d0&amp;#39;&lt;/span&gt;, &lt;span class="nv"&gt;context&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="s1"&gt;&amp;#39;None&amp;#39;&lt;/span&gt;, &lt;span class="nv"&gt;workbook_name&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="s1"&gt;&amp;#39;my_workbook&amp;#39;&lt;/span&gt;&lt;span class="o"&gt;]&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;我们可以装上&lt;a href="https://github.com/stackforge/python-mistralclient"&gt;Misttral client&lt;/a&gt;来看看到底发生了什么。首先看看系统中存在哪些workbook，已经刚刚运行的my-wokbook&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="o"&gt;[&lt;/span&gt;ray@fedora mistral&lt;span class="o"&gt;]&lt;/span&gt;$ mistral workbook-list
+Starting new HTTP connection &lt;span class="o"&gt;(&lt;/span&gt;1&lt;span class="o"&gt;)&lt;/span&gt;: localhost
++---------------+------------------+------+
+&lt;span class="p"&gt;|&lt;/span&gt; Name          &lt;span class="p"&gt;|&lt;/span&gt; Description      &lt;span class="p"&gt;|&lt;/span&gt; Tags &lt;span class="p"&gt;|&lt;/span&gt;
++---------------+------------------+------+
+&lt;span class="p"&gt;|&lt;/span&gt; echo_workbook &lt;span class="p"&gt;|&lt;/span&gt; My &lt;span class="nb"&gt;test&lt;/span&gt; workbook &lt;span class="p"&gt;|&lt;/span&gt; &lt;span class="nb"&gt;test&lt;/span&gt; &lt;span class="p"&gt;|&lt;/span&gt;
+&lt;span class="p"&gt;|&lt;/span&gt; my_workbook   &lt;span class="p"&gt;|&lt;/span&gt; My &lt;span class="nb"&gt;test&lt;/span&gt; workbook &lt;span class="p"&gt;|&lt;/span&gt; &lt;span class="nb"&gt;test&lt;/span&gt; &lt;span class="p"&gt;|&lt;/span&gt;
++---------------+------------------+------+
+&lt;span class="o"&gt;[&lt;/span&gt;ray@fedora mistral&lt;span class="o"&gt;]&lt;/span&gt;$ mistral workbook-get-definition my_workbook
+Starting new HTTP connection &lt;span class="o"&gt;(&lt;/span&gt;1&lt;span class="o"&gt;)&lt;/span&gt;: localhost
+Services:
+   MyRest:
+     type: REST_API
+     parameters:
+         baseUrl: http://localhost:8989/v1/
+     actions:
+         my-action:
+           parameters:
+               url: workbooks
+               method: GET
+
+Workflow:
+   tasks:
+     my_task:
+         action: MyRest:my-action
+
+&lt;span class="c1"&gt;#   events:&lt;/span&gt;
+&lt;span class="c1"&gt;#     my_event:&lt;/span&gt;
+&lt;span class="c1"&gt;#        type: periodic&lt;/span&gt;
+&lt;span class="c1"&gt;#        tasks: my_task&lt;/span&gt;
+&lt;span class="c1"&gt;#        parameters:&lt;/span&gt;
+&lt;span class="c1"&gt;#            cron-pattern: &amp;quot;* * * * *&amp;quot;&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;这个workbook，首先定义了一个服务（在系统中注册个新的服务，服务一般都包含定义好的action，这样用户就可以在task flow中指定运行这个action），这个服务类型是REST，然后参数有哪些等等。然后定义了一个工作流，其中的任务列表（tasks）第一个是my_task （taks名字），这个task做了一件事情，就是运行一次MyRest服务中的my_action动作。&lt;/p&gt;
+&lt;p&gt;在看看另外一个workbook， 就简单定义个一个ECHO type的服务。这个服务仅在内部测试使用，就直接返回ECHO值。&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="o"&gt;[&lt;/span&gt;ray@fedora mistral&lt;span class="o"&gt;]&lt;/span&gt;$ mistral workbook-get-definition echo_workbook
+Starting new HTTP connection &lt;span class="o"&gt;(&lt;/span&gt;1&lt;span class="o"&gt;)&lt;/span&gt;: localhost
+Services:
+  MyEcho:
+    type: ECHO
+    actions:
+        EchoWords:        
+          parameters:
+            word:
+                optional: False
+
+
+Workflow:
+    tasks:
+        logPassTask:
+            action: MyEcho:EchoWords
+            parameters:
+               word: &lt;span class="s2"&gt;&amp;quot;log pass&amp;quot;&lt;/span&gt; 
+        MyEchoTask:
+            action: MyEcho:EchoWords
+            parameters:
+               word: &lt;span class="s2"&gt;&amp;quot;hello, world&amp;quot;&lt;/span&gt; 
+            on-success: logPassTask
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;具体的运行log：&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="o"&gt;[&lt;/span&gt;ray@fedora mistral&lt;span class="o"&gt;]&lt;/span&gt;$ mistral execution-get echo_workbook bcf47b8c-6d44-4732-b32d-ebef92662f38
+Starting new HTTP connection &lt;span class="o"&gt;(&lt;/span&gt;1&lt;span class="o"&gt;)&lt;/span&gt;: localhost
++----------+--------------------------------------+
+&lt;span class="p"&gt;|&lt;/span&gt; Field    &lt;span class="p"&gt;|&lt;/span&gt; Value                                &lt;span class="p"&gt;|&lt;/span&gt;
++----------+--------------------------------------+
+&lt;span class="p"&gt;|&lt;/span&gt; ID       &lt;span class="p"&gt;|&lt;/span&gt; bcf47b8c-6d44-4732-b32d-ebef92662f38 &lt;span class="p"&gt;|&lt;/span&gt;
+&lt;span class="p"&gt;|&lt;/span&gt; Workbook &lt;span class="p"&gt;|&lt;/span&gt; echo_workbook                        &lt;span class="p"&gt;|&lt;/span&gt;
+&lt;span class="p"&gt;|&lt;/span&gt; Target   &lt;span class="p"&gt;|&lt;/span&gt; MyEchoTask                           &lt;span class="p"&gt;|&lt;/span&gt;
+&lt;span class="p"&gt;|&lt;/span&gt; State    &lt;span class="p"&gt;|&lt;/span&gt; SUCCESS                              &lt;span class="p"&gt;|&lt;/span&gt;
++----------+--------------------------------------+
+&lt;span class="o"&gt;[&lt;/span&gt;ray@fedora mistral&lt;span class="o"&gt;]&lt;/span&gt;$ mistral task-list echo_workbook bcf47b8c-6d44-4732-b32d-ebef92662f38
+Starting new HTTP connection &lt;span class="o"&gt;(&lt;/span&gt;1&lt;span class="o"&gt;)&lt;/span&gt;: localhost
++--------------------------------------+---------------+--------------------------------------+-------------+-------------+---------+--------+
+&lt;span class="p"&gt;|&lt;/span&gt; ID                                   &lt;span class="p"&gt;|&lt;/span&gt; Workbook      &lt;span class="p"&gt;|&lt;/span&gt; Execution                            &lt;span class="p"&gt;|&lt;/span&gt; Name        &lt;span class="p"&gt;|&lt;/span&gt; Description &lt;span class="p"&gt;|&lt;/span&gt; State   &lt;span class="p"&gt;|&lt;/span&gt; Tags   &lt;span class="p"&gt;|&lt;/span&gt;
++--------------------------------------+---------------+--------------------------------------+-------------+-------------+---------+--------+
+&lt;span class="p"&gt;|&lt;/span&gt; e5cb4a7a-b6c6-46ec-b62b-aa385bd3f8c2 &lt;span class="p"&gt;|&lt;/span&gt; echo_workbook &lt;span class="p"&gt;|&lt;/span&gt; bcf47b8c-6d44-4732-b32d-ebef92662f38 &lt;span class="p"&gt;|&lt;/span&gt; MyEchoTask  &lt;span class="p"&gt;|&lt;/span&gt; &amp;lt;none&amp;gt;      &lt;span class="p"&gt;|&lt;/span&gt; SUCCESS &lt;span class="p"&gt;|&lt;/span&gt; &amp;lt;none&amp;gt; &lt;span class="p"&gt;|&lt;/span&gt;
+&lt;span class="p"&gt;|&lt;/span&gt; 1c99cc02-e1b0-44c2-b961-8589164bb851 &lt;span class="p"&gt;|&lt;/span&gt; echo_workbook &lt;span class="p"&gt;|&lt;/span&gt; bcf47b8c-6d44-4732-b32d-ebef92662f38 &lt;span class="p"&gt;|&lt;/span&gt; logPassTask &lt;span class="p"&gt;|&lt;/span&gt; &amp;lt;none&amp;gt;      &lt;span class="p"&gt;|&lt;/span&gt; SUCCESS &lt;span class="p"&gt;|&lt;/span&gt; &amp;lt;none&amp;gt; &lt;span class="p"&gt;|&lt;/span&gt;
++--------------------------------------+---------------+--------------------------------------+-------------+-------------+---------+--------+
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;h2&gt;最近进展&lt;/h2&gt;
+&lt;p&gt;上面的实战例子可能没让大家意识到mistral跟openstack的关系，然后相信这个workbook 会让大家明白。&lt;/p&gt;
+&lt;p&gt;&lt;a href="https://wiki.openstack.org/wiki/Mistral/DSL#Full_YAML_example"&gt;https://wiki.openstack.org/wiki/Mistral/DSL#Full_YAML_example&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;关于VM的工作流，创建NOVA VM。 Mistral开发组正在实现这种类型的workbook，即集成openstack服务。这样用户就不需要用openstack CLI or API来操作，可以直接编写workbook（&lt;em&gt;简单编写文档，而不是写code&lt;/em&gt;），让mistral帮你做完整个工作流程。&lt;/p&gt;
+&lt;p&gt;另外关于Mistral和taskflow的集成：&lt;/p&gt;
+&lt;p&gt;Mistral在实现的过程中，需要开发大量的工作流代码。这跟openstack项目库中TaskFlow 目的有些类似。为了避免重复劳动，两边的开发者已经在讨论，在Mistral代码中，后端的工作流代码尽量采用taskflow作为后端。&lt;/p&gt;
+&lt;p&gt;这里有最近的讨论记录 &lt;a href="https://github.com/enykeev/mistral/pull/1"&gt;https://github.com/enykeev/mistral/pull/1&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;全文完。 转载请保留出处。&lt;/p&gt;</summary><category term="openstack"></category><category term="python"></category></entry></feed>

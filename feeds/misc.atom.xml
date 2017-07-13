@@ -1,0 +1,367 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom"><title>Hello Stack</title><link href="http://hellostack.info/" rel="alternate"></link><link href="http://hellostack.info/feeds/misc.atom.xml" rel="self"></link><id>http://hellostack.info/</id><updated>2014-07-03T23:32:00+08:00</updated><entry><title>openstack默认关闭文件注入功能</title><link href="http://hellostack.info/openstack-disable-file-injection.html" rel="alternate"></link><published>2014-07-03T23:32:00+08:00</published><author><name>Ray Chen</name></author><id>tag:hellostack.info,2014-07-03:openstack-disable-file-injection.html</id><summary type="html">&lt;p&gt;openstack 从H版本默认不再支持文件注入，推荐使用ConfigDrive或metadata服务。如果要继续使用，
+需要配置inject_key=true，inject_partition，inject_password=true&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;inject_partition = -1 表示只注入文件&lt;/li&gt;
+&lt;li&gt;inject_partition = -2 表示disable此功能&lt;/li&gt;
+&lt;li&gt;inject_partition = $number 表示分区号码&lt;/li&gt;
+&lt;/ol&gt;
+&lt;h2&gt;Config Drive&lt;/h2&gt;
+&lt;p&gt;Config Drive的目的是，当nova实例启动后，可以mount一个元数据的文件系统，方便交换数据。&lt;/p&gt;
+&lt;p&gt;例如这样的命令行：&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;nova boot --config-drive=true --file test_file=/home/ray/.ssh/known_hosts --meta name=Ray --flavor 1 --key-name mykey --block-device-mapping vda=4f1f0e06-4bdf-4af3-b301-dd24d8395e5b --security_group default myOSWithKey2
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;想对应的log。 用到&lt;code&gt;genisoimage&lt;/code&gt;命令生成一个新的iso&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;2000 2014-07-03 22:39:16.244 INFO nova.virt.libvirt.driver [req-4d01bb41-3689-4143-a4c4-961fc86b3dd8 admin demo] [instance: af475750-2c58-48c8-9c2d-bd     13d2d0fb7f] Creating config drive at /opt/stack/data/nova/instances/af475750-2c58-48c8-9c2d-bd13d2d0fb7f/disk.config
+2001 2014-07-03 22:39:16.245 DEBUG nova.openstack.common.processutils [req-4d01bb41-3689-4143-a4c4-961fc86b3dd8 admin demo] Running cmd (subprocess):      genisoimage -o /opt/stack/data/nova/instances/af475750-2c58-48c8-9c2d-bd13d2d0fb7f/disk.config -ldots -allow-lowercase -allow-multidot -l -publis     her OpenStack Nova 2014.2 -quiet -J -r -V config-2 /tmp/cd_gen_oKkFq3 execute /opt/stack/nova/nova/openstack/common/processutils.py:160
+2002 2014-07-03 22:39:16.311 DEBUG nova.openstack.common.processutils [req-4d01bb41-3689-4143-a4c4-961fc86b3dd8 admin demo] Result was 0 execute /opt/     stack/nova/nova/openstack/common/processutils.py:194
+......
+2004 2014-07-03 22:39:16.623 DEBUG nova.openstack.common.processutils [req-4d01bb41-3689-4143-a4c4-961fc86b3dd8 admin demo] Running cmd (subprocess):      env LC_ALL=C LANG=C qemu-img info /opt/stack/data/nova/instances/af475750-2c58-48c8-9c2d-bd13d2d0fb7f/disk.config execute /opt/stack/nova/nova/op     enstack/common/processutils.py:160
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;等实例启动之后，登陆进去,可以mount这个config drive。 默认的disk label 是&lt;code&gt;config-2&lt;/code&gt;&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;$ sudo mkdir -p /mnt/config
+$ sudo mount /dev/disk/by-label/config-2 /mnt/config
+mount: mounting /dev/disk/by-label/config-2 on /mnt/config failed: No such file or directory
+$ sudo blkid -t LABEL=&amp;quot;config-2&amp;quot; -odevice
+/dev/sr0
+$ sudo mount /dev/sr0 /mnt/config
+$ cd /mnt/config
+$ ls -l
+total 4
+dr-xr-xr-x    4 root     root          2048 Jul  3 10:20 ec2
+dr-xr-xr-x    7 root     root          2048 Jul  3 10:20 openstack
+$ cat latest/meta_data.json 
+{&amp;quot;files&amp;quot;: [{&amp;quot;path&amp;quot;: &amp;quot;test_file&amp;quot;, &amp;quot;content_path&amp;quot;: &amp;quot;/content/0000&amp;quot;}], &amp;quot;admin_pass&amp;quot;: &amp;quot;uogP9pqkr9Tz&amp;quot;, &amp;quot;random_seed&amp;quot;: &amp;quot;wGxbuZ2CVfQpKvF5IoHLDss2YwQEBudGGSxhLXz0JWtF+FEBKnVPbudfNPJIINwPSrUPxsHbX1YUg+pnUv9Lqxc6YWjxsIDoxfh4Ybh/LVUjTIcr+AletrPF5/3DKvwjquqHN218LmEPx/l4H6eryf2S2GPE2CUJHjnEjIFL0cqb2EcCTFSVEw9Eve1RELVPpPMmIpPowumEz+ML0IvnLXpgyhUA4WsDIUCEXScPsnE7GuuLEJAN2D0NpggXZzMj2/kM6dr6ox07w7UMaLBzTwzrvqRgg6W+4oARk40IXp2j8KGRaoFAh6gO4eO2PzmrRSGDqXTTwpa5vBBXgy4qMHOWldaOdaA0p9+JrwqEbsPEceMPrUGEkqS/kiEqa2hUCp9uwTzeRkp19FSJ19FqqoSav6n5wDnsgnFB7JJ5pR037YM56riNOcmS8Xjh5Gg72rqz43I8mADqVCau84IqgIEVBqPWnE0CRYpinJhmslXdfg/GY13B7rtXtZKazt2W14zlHuHMa9R612C6hCYXams0bOWYIlGso81ae01TVH5p6f/4fm0Kq8GTz6YVeDl+mjYdp+6p75GXa0QdsvzbjNjAb/2hNmhpZ7tx26E3QMjJrNDC4DBNA81U5IoZxG8Ppwj8SiC2qtTpNDlKb7OuiQmpmGTBRAjdJ+/KVLPsmb0=&amp;quot;, &amp;quot;uuid&amp;quot;: &amp;quot;84c73cad-d8ec-4dad-aa75-a89b0ef11266&amp;quot;, &amp;quot;availability_zone&amp;quot;: &amp;quot;nova&amp;quot;, &amp;quot;hostname&amp;quot;: &amp;quot;myoswithkey2.novalocal&amp;quot;, &amp;quot;launch_index&amp;quot;: 0, &amp;quot;meta&amp;quot;: {&amp;quot;name&amp;quot;: &amp;quot;Ray&amp;quot;}, &amp;quot;public_keys&amp;quot;: {&amp;quot;mykey&amp;quot;: &amp;quot;ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQC3pipuritq3xYAy2dpGULD9jw+6IKJwe1UI/tuy5hsbgjOLjUU1xMjF00BsmRMnXu/W8G+l58yNsncwXc1TS8eq3brm9692cZmweJv23BcWRfVtVhqmsRsyA6FZf/fOGKJ/OlYt1/7pWZEiftQiLB2jusRBeGn0kWb9oD/q1O2Ii9eTI2Wzrtd3dSzGLP8PMqb0qwEfdYr7PJYO9LjcDqptk0yNTodsPpPyuuySwsdXu/qcV3+2aJBR32wB0z8GQ2vP1MeHpttsaze5462s36XtnYWaDmFTZl5GmlWg7izYNQovzplzWOmruF6S/v/S3sIK4PKcYwdwE6LnKgF2uYz ray@fedora20\n&amp;quot;}, &amp;quot;name&amp;quot;: &amp;quot;myOSWithKey2&amp;quot;}$ 
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;更多官方文档介绍：&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;a href="http://docs.openstack.org/grizzly/openstack-compute/admin/content/config-drive.html"&gt;http://docs.openstack.org/grizzly/openstack-compute/admin/content/config-drive.html&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href="http://docs.openstack.org/grizzly/openstack-compute/admin/content/instance-data.html"&gt;http://docs.openstack.org/grizzly/openstack-compute/admin/content/instance-data.html&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h2&gt;Metadata Service&lt;/h2&gt;
+&lt;p&gt;openstack元数据服务，用来给虚拟机实例传递数据。 服务端口地址是写死的： http://169.254.169.254 &lt;/p&gt;
+&lt;p&gt;为什么是这个地址，&lt;a href="http://www.pubyun.com/blog/openstack/%E4%BB%80%E4%B9%88%E6%98%AFopenstack%E7%9A%84-metadata/"&gt;再这里有介绍&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;官方文档有详细介绍用法。
+&lt;a href="http://docs.openstack.org/grizzly/openstack-compute/admin/content/metadata-service.html"&gt;http://docs.openstack.org/grizzly/openstack-compute/admin/content/metadata-service.html&lt;/a&gt;&lt;/p&gt;
+&lt;h2&gt;参考资料&lt;/h2&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;a href="https://blueprints.launchpad.net/nova/+spec/disable-file-injection-by-default"&gt;https://blueprints.launchpad.net/nova/+spec/disable-file-injection-by-default&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href="https://review.openstack.org/#/c/70239/"&gt;https://review.openstack.org/#/c/70239/&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href="https://bugzilla.redhat.com/show_bug.cgi?id=1056381"&gt;https://bugzilla.redhat.com/show_bug.cgi?id=1056381&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href="https://bugs.launchpad.net/nova/+bug/1221985"&gt;https://bugs.launchpad.net/nova/+bug/1221985&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;</summary><category term="python"></category><category term="openstack"></category></entry><entry><title>click介绍</title><link href="http://hellostack.info/click-intro.html" rel="alternate"></link><published>2014-06-18T21:12:00+08:00</published><author><name>Ray Chen</name></author><id>tag:hellostack.info,2014-06-18:click-intro.html</id><summary type="html">&lt;h2&gt;Click介绍&lt;/h2&gt;
+&lt;p&gt;&lt;a href="http://click.pocoo.org"&gt;Click&lt;/a&gt;是一个python库，用来写命令行接口的。默认python自带了&lt;a href="https://docs.python.org/2.7/library/argparse.html"&gt;argparse&lt;/a&gt;和&lt;a href="https://docs.python.org/2.7/library/optparse.html#module-optparse"&gt;optparse&lt;/a&gt;两个library来帮助用户很方便的写出用户友好的命令行接口。&lt;/p&gt;
+&lt;p&gt;&lt;a href="http://click.pocoo.org/why/"&gt;这里&lt;/a&gt; 解释了为什么推荐大家用Click。主要亮点是可以类似搭积木组合那样，生成复杂的类似UNix命令行。而且自带了很多辅助参数类似，比如说&lt;a href="http://click.pocoo.org/arguments/#file-arguments"&gt;文件参数&lt;/a&gt;， 还有彩色输出格式等等。&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;is lazily composable without restrictions&lt;/li&gt;
+&lt;li&gt;fully follows the Unix command line conventions&lt;/li&gt;
+&lt;li&gt;supports loading values from environment variables out of the box&lt;/li&gt;
+&lt;li&gt;supports for prompting of custom values&lt;/li&gt;
+&lt;li&gt;is fully nestable and composable&lt;/li&gt;
+&lt;li&gt;works the same in Python 2 and 3&lt;/li&gt;
+&lt;li&gt;supports file handling out of the box&lt;/li&gt;
+&lt;li&gt;comes with useful common helpers (getting terminal dimensions, ANSI colors, fetching direct keyboard input, screen clearing, finding config paths, launching apps and editors, etc.)&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;Click的作者&lt;a href="http://lucumr.pocoo.org/"&gt;Armin Ronacher&lt;/a&gt;其实就是&lt;a href="http://flask.pocoo.org"&gt;Flask&lt;/a&gt; Web开发框架的作者。所以Click的文档看起来跟&lt;a href="http://flask.pocoo.org/docs/"&gt;Flask&lt;/a&gt;的在线文档格式一样。文档看起来漂亮得很。&lt;/p&gt;
+&lt;h2&gt;实例&lt;/h2&gt;
+&lt;p&gt;&lt;a href="http://click.pocoo.org/"&gt;click文档首页&lt;/a&gt;写了一个例子。我根据文档说明很快也写出了包含子命令的接口程序。
+代码就这样。创建了一个命令组，可以理解成Base，有一些子命令共同的参数。然后建立了子命令，每个子命令添加自己的参数。&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="ch"&gt;#!/usr/bin/python&lt;/span&gt;
+
+&lt;span class="kn"&gt;import&lt;/span&gt; &lt;span class="nn"&gt;click&lt;/span&gt;
+
+
+&lt;span class="nd"&gt;@click.group&lt;/span&gt;&lt;span class="p"&gt;()&lt;/span&gt;
+&lt;span class="nd"&gt;@click.option&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s1"&gt;&amp;#39;--force&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="s1"&gt;&amp;#39;-f&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;is_flag&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="bp"&gt;True&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;help&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="s2"&gt;&amp;quot;Specify flavor name&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+&lt;span class="k"&gt;def&lt;/span&gt; &lt;span class="nf"&gt;flavor&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;force&lt;/span&gt;&lt;span class="p"&gt;):&lt;/span&gt;
+    &lt;span class="n"&gt;click&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;echo&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s2"&gt;&amp;quot;this is group cli&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+    &lt;span class="k"&gt;if&lt;/span&gt; &lt;span class="n"&gt;force&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;
+        &lt;span class="n"&gt;click&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;echo&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s2"&gt;&amp;quot;--force is set to &lt;/span&gt;&lt;span class="si"&gt;%s&lt;/span&gt;&lt;span class="s2"&gt;&amp;quot;&lt;/span&gt; &lt;span class="o"&gt;%&lt;/span&gt; &lt;span class="n"&gt;force&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+
+
+&lt;span class="nd"&gt;@flavor.command&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s1"&gt;&amp;#39;flavor-list&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;help&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="s2"&gt;&amp;quot;list flavor object&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+&lt;span class="nd"&gt;@click.option&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s1"&gt;&amp;#39;--name&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;help&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="s2"&gt;&amp;quot;specify flavor name&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+&lt;span class="k"&gt;def&lt;/span&gt; &lt;span class="nf"&gt;flavor_list&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;name&lt;/span&gt;&lt;span class="p"&gt;):&lt;/span&gt;
+    &lt;span class="k"&gt;if&lt;/span&gt; &lt;span class="n"&gt;name&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;
+        &lt;span class="n"&gt;click&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;echo&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s2"&gt;&amp;quot;only list &lt;/span&gt;&lt;span class="si"&gt;%s&lt;/span&gt;&lt;span class="s2"&gt; flavor&amp;quot;&lt;/span&gt; &lt;span class="o"&gt;%&lt;/span&gt; &lt;span class="n"&gt;name&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+    &lt;span class="k"&gt;else&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;
+        &lt;span class="n"&gt;click&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;echo&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s2"&gt;&amp;quot;list all flavor&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+
+
+&lt;span class="nd"&gt;@flavor.command&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s1"&gt;&amp;#39;flavor-create&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;help&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="s2"&gt;&amp;quot;create flavor object&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+&lt;span class="nd"&gt;@click.argument&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s1"&gt;&amp;#39;name&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+&lt;span class="nd"&gt;@click.argument&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s1"&gt;&amp;#39;cpu&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+&lt;span class="nd"&gt;@click.argument&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s1"&gt;&amp;#39;ram&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+&lt;span class="k"&gt;def&lt;/span&gt; &lt;span class="nf"&gt;flavor_create&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;name&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;cpu&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;ram&lt;/span&gt;&lt;span class="p"&gt;):&lt;/span&gt;
+    &lt;span class="n"&gt;click&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;echo&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s2"&gt;&amp;quot;flavor-create with param: &lt;/span&gt;&lt;span class="si"&gt;%s&lt;/span&gt;&lt;span class="s2"&gt; &lt;/span&gt;&lt;span class="si"&gt;%s&lt;/span&gt;&lt;span class="s2"&gt; &lt;/span&gt;&lt;span class="si"&gt;%s&lt;/span&gt;&lt;span class="s2"&gt;&amp;quot;&lt;/span&gt; &lt;span class="o"&gt;%&lt;/span&gt; &lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;name&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;cpu&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;ram&lt;/span&gt;&lt;span class="p"&gt;))&lt;/span&gt;
+
+
+&lt;span class="nd"&gt;@flavor.command&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s1"&gt;&amp;#39;flavor-delete&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;help&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="s2"&gt;&amp;quot;delete flavor object&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+&lt;span class="nd"&gt;@click.argument&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s1"&gt;&amp;#39;name&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+&lt;span class="k"&gt;def&lt;/span&gt; &lt;span class="nf"&gt;flavor_delete&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;name&lt;/span&gt;&lt;span class="p"&gt;):&lt;/span&gt;
+    &lt;span class="n"&gt;click&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;echo&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s2"&gt;&amp;quot;flavor-delete &lt;/span&gt;&lt;span class="si"&gt;%s&lt;/span&gt;&lt;span class="s2"&gt;&amp;quot;&lt;/span&gt; &lt;span class="o"&gt;%&lt;/span&gt; &lt;span class="n"&gt;name&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+
+
+&lt;span class="k"&gt;if&lt;/span&gt; &lt;span class="n"&gt;__name__&lt;/span&gt; &lt;span class="o"&gt;==&lt;/span&gt; &lt;span class="s2"&gt;&amp;quot;__main__&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;
+    &lt;span class="n"&gt;flavor&lt;/span&gt;&lt;span class="p"&gt;()&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;这个例子的运行结果。&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;[ray@fedora click]$ ./hello.py 
+Usage: hello.py [OPTIONS] COMMAND [ARGS]...
+
+Options:
+  -f, --force  specify flavor name
+  --help       Show this message and exit.
+
+Commands:
+  flavor-create  create flavor object
+  flavor-delete  delete flavor object
+  flavor-list    list flavor object
+[ray@fedora click]$ ./hello.py ^C
+[ray@fedora click]$ vim hello.py 
+[ray@fedora click]$ ./hello.py 
+Usage: hello.py [OPTIONS] COMMAND [ARGS]...
+
+Options:
+  -f, --force  Specify flavor name
+  --help       Show this message and exit.
+
+Commands:
+  flavor-create  create flavor object
+  flavor-delete  delete flavor object
+  flavor-list    list flavor object
+[ray@fedora click]$ ./hello.py flavor-create
+this is group cli
+Usage: hello.py flavor-create [OPTIONS] NAME CPU RAM
+
+Error: Missing argument &amp;quot;name&amp;quot;.
+[ray@fedora click]$ ./hello.py flavor-create name 1 1024
+this is group cli
+flavor-create with param: name 1 1024
+[ray@fedora click]$ ./hello.py flavor-delete
+this is group cli
+Usage: hello.py flavor-delete [OPTIONS] NAME
+
+Error: Missing argument &amp;quot;name&amp;quot;.
+[ray@fedora click]$ ./hello.py flavor-delete myFlavor
+this is group cli
+flavor-delete myFlavor
+[ray@fedora click]$ ./hello.py flavor-list
+this is group cli
+list all flavor
+[ray@fedora click]$ ./hello.py flavor-list myFlavor
+this is group cli
+Usage: hello.py flavor-list [OPTIONS]
+
+Error: Got unexpected extra argument (myFlavor)
+[ray@fedora click]$ ./hello.py flavor-list --name myFlavor
+this is group cli
+only list myFlavor flavor
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;h2&gt;参考资料&lt;/h2&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;a href="https://pypi.python.org/pypi/click/2.1"&gt;https://pypi.python.org/pypi/click/2.1&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href="http://click.pocoo.org/"&gt;http://click.pocoo.org/&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;</summary><category term="python"></category></entry><entry><title>salt-ssh实现原理</title><link href="http://hellostack.info/salt-ssh-internal.html" rel="alternate"></link><published>2014-06-10T22:37:00+08:00</published><author><name>Ray Chen</name></author><id>tag:hellostack.info,2014-06-10:salt-ssh-internal.html</id><summary type="html">&lt;h2&gt;salt-ssh&lt;/h2&gt;
+&lt;p&gt;salt-ssh出现的理由是这么个逻辑。一般salt需要安装和启动minion，这样master才能控制minion。
+对于远程执行命令，最常见的方法是用ssh，因为直接启动远程的sshd服务即可。那么有没有一种方式
+可以集成两者的优点，同时免安装minion又同时可以使用saltstack的功能特点。salt-ssh的出现
+回答了这个问题。&lt;/p&gt;
+&lt;p&gt;salt-ssh基本上是零配置。你想控制哪个host，直接把host的ip和用户密码或者keys告诉salt。剩下的
+就直接执行:&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;code&gt;salt-ssh &amp;lt;ssh target&amp;gt; -r &amp;lt;raw cmd&amp;gt;&lt;/code&gt; 这个可以直接在远程机器运行命令&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;salt-ssh &amp;lt;ssh target&amp;gt; state.highstate&lt;/code&gt; 这个可以同步整个salt状态&lt;/li&gt;
+&lt;li&gt;更多的salt执行的模块命令&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;默认的配置文件位于&lt;code&gt;/etc/salt/roster&lt;/code&gt;, 添加ssh机器即可，例如：&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;web1:
+  host: 192.168.42.1 # The IP addr or DNS hostname
+  user: fred         # Remote executions will be executed as user fred
+  passwd: foobarbaz  # The password to use for login, if omitted, keys are used
+  sudo: True         # Whether to sudo to root, not enabled by default
+web2:
+  host: 192.168.42.2
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;更多文档在这里:&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;a href="http://docs.saltstack.com/en/latest/topics/ssh/"&gt;http://docs.saltstack.com/en/latest/topics/ssh/&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href="http://docs.saltstack.com/topics/ssh/roster.html"&gt;http://docs.saltstack.com/topics/ssh/roster.html&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h2&gt;原理&lt;/h2&gt;
+&lt;p&gt;salt-ssh主要的代码路径位于&lt;code&gt;&amp;lt;TOP&amp;gt;/salt/client/ssh&lt;/code&gt;目录&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;(vdev)[ray@fedora salt]$ tree salt/client/ssh/
+salt/client/ssh/
+|-- __init__.py
+|-- shell.py        # 利用ssh协议，安装部署key和shim脚本
+|-- ssh_py_shim.py  # shim脚本，在minion端实际运行。
+|-- state.py        # saltstack State的ssh方式现实
+`-- wrapper         # 此目录提供更多的salt支持
+    |-- config.py
+    |-- grains.py
+    |-- __init__.py
+    |-- pillar.py
+    |-- state.py
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;salt-ssh是不需要启动minion的，那么如何控制远程机器的呢？
+我们可以打开debug信息看看具体流程，&lt;code&gt;salt-ssh '*' test.ping&lt;/code&gt;&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;
+&lt;p&gt;从roster配置文件中找到所有的minion和ssh登陆信息。生成类似
+&lt;code&gt;ssh host command&lt;/code&gt;的命令行准备执行. 因为执行的命令很复杂，最好
+是用ssh执行一个脚本文件，那样自定义效果最好。这里其实就是&lt;code&gt;ssh_py_shim.py&lt;/code&gt;&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;salt-ssh会打包一份精简的包含大部分salt核心模块并压缩成salt-thin.tgz，
+并发送给minion的&lt;code&gt;/tmp/.salt/&lt;/code&gt;路径（默认路径，可以配置修改）。同时缓存一份
+在&lt;code&gt;/var/cache/salt/master/thin/&lt;/code&gt;以备后需之用。&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;为了让salt-ssh很顺利在远程机器执行&lt;code&gt;ssh_py_shim.py&lt;/code&gt;，初始化过程中包含
+一个小型的shell代码。 shell的主要内容可以在&lt;code&gt;SSH_SH_SHIM&lt;/code&gt;变量中看到。
+前期主要是探索python版本环境，进入到main函数后，实际上还是用python执行
+&lt;code&gt;ssh_py_shim.py&lt;/code&gt;并传入参数。&lt;/p&gt;
+&lt;/li&gt;
+&lt;/ol&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;main()
+{
+    local py_cmd
+    local py_cmd_path
+    for py_cmd in $PYTHON_CMDS; do
+        if &amp;quot;$py_cmd&amp;quot; -c &amp;#39;import sys; sys.exit(not sys.hexversion &amp;gt;= 0x02060000);&amp;#39; &amp;gt;/dev/null 2&amp;gt;&amp;amp;1; then
+            local py_cmd_path
+            py_cmd_path=`&amp;quot;$py_cmd&amp;quot; -c &amp;#39;import sys; print sys.executable;&amp;#39;`
+            exec $SUDO &amp;quot;$py_cmd_path&amp;quot; -c &amp;#39;exec &amp;quot;&amp;quot;&amp;quot;{{SSH_SHIM_PY_CODE}}
+&amp;quot;&amp;quot;&amp;quot;.decode(&amp;quot;base64&amp;quot;)&amp;#39; -- \-\-config \{id\:\ ssh\-saltvm\,\ root_dir\:\ \/tmp\/\.salt\/running_data\} \-\-delimeter _edbc7885e4f9aac9b83b35999b68d015148caf467b78fa39c05f669c0ff89878 \-\-saltdir \/tmp\/\.salt \-\-checksum bb9df33affeafa50849c1a906c04ac09e4b5f22a \-\-hashfunc sha1 \-\-version 2014\.1\.0\-6968\-ga1d939d \-\- test\.ping
+            exit 0
+        else
+            continue
+        fi
+    done
+
+    echo &amp;quot;ERROR: Unable to locate appropriate python command&amp;quot; &amp;gt;&amp;amp;2
+    exit $EX_PYTHON_OLD
+}
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;ol&gt;
+&lt;li&gt;&lt;code&gt;ssh_py_shim.py&lt;/code&gt;脚本是可以单独运行。看看help文档，就大致知道上面main
+函数传入参数的意思。&lt;/li&gt;
+&lt;/ol&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;(vdev)[ray@fedora ssh]$ python ssh_py_shim.py -- --help
+Usage: ssh_py_shim.py -- [SHIM_OPTIONS] -- [SALT_OPTIONS]
+
+Options:
+  -h, --help            show this help message and exit
+  -c CONFIG, --config=CONFIG
+                        YAML configuration for salt thin
+  -d DELIMETER, --delimeter=DELIMETER
+                        Delimeter string (viz. magic string) to indicate
+                        beginning of salt output
+  -s SALTDIR, --saltdir=SALTDIR
+                        Directory where salt thin is or will be installed.
+  --sum=CHECKSUM, --checksum=CHECKSUM
+                        Salt thin checksum
+  --hashfunc=HASHFUNC   Hash function for computing checksum
+  -v VERSION, --version=VERSION
+                        Salt thin version to be deployed/verified
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;ol&gt;
+&lt;li&gt;看看另外的例子&lt;code&gt;salt-ssh -l debug 'ssh-saltvm2' state.highstate test=True&lt;/code&gt;。
+很明显，salt-ssh的原理就在此。依然是在远程环境中运行salt-call命令，只不过这时的
+工作路径是&lt;code&gt;/tmp/.salt&lt;/code&gt;。结果返回给master端。两边的通信依赖ssh/scp协议。&lt;/li&gt;
+&lt;/ol&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;SALT_ARGV: [&amp;#39;/usr/bin/python2.7&amp;#39;, &amp;#39;/tmp/.salt/salt-call&amp;#39;, &amp;#39;--local&amp;#39;, &amp;#39;--out&amp;#39;, &amp;#39;json&amp;#39;, &amp;#39;-l&amp;#39;, &amp;#39;quiet&amp;#39;, &amp;#39;-c&amp;#39;, &amp;#39;/tmp/.salt&amp;#39;, &amp;#39;--&amp;#39;, &amp;#39;state.pkg /tmp/.salt/salt_state.tgz test=True pkg_sum=dd39c5804385befc3ac8d87aa5b40f56 hash_type=md5&amp;#39;]
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;h2&gt;总结&lt;/h2&gt;
+&lt;p&gt;salt-ssh的原理, 依然是在远程环境中运行salt-call命令，此时远程机器已经被部署了
+salt运行环境。这样salt的很多特性和模块功能可以在本地调用。运行的结果用过ssh协议
+返回给master。&lt;/p&gt;
+&lt;p&gt;这里附上我修改的一个salt-ssh bug。&lt;/p&gt;
+&lt;p&gt;&lt;a href="https://github.com/saltstack/salt/pull/13292"&gt;https://github.com/saltstack/salt/pull/13292&lt;/a&gt;&lt;/p&gt;</summary><category term="python"></category><category term="saltstack"></category></entry><entry><title>cloud init和fedora云镜像登陆问题</title><link href="http://hellostack.info/cloud-init-fedora-boot.html" rel="alternate"></link><published>2014-05-31T21:12:00+08:00</published><author><name>Ray Chen</name></author><id>tag:hellostack.info,2014-05-31:cloud-init-fedora-boot.html</id><summary type="html">&lt;h2&gt;Cloud-Init&lt;/h2&gt;
+&lt;p&gt;cloudinit最初是ubuntu用来给自己的cloud image制作的工具，主要是解决cloud实例的初始化问题。比如:&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;设置默认的语言环境&lt;/li&gt;
+&lt;li&gt;设置云实例的hostname&lt;/li&gt;
+&lt;li&gt;自动产生实例的ssh密钥&lt;/li&gt;
+&lt;li&gt;自动给登陆用户注入ssh key从而免密码登陆&lt;/li&gt;
+&lt;li&gt;初始化临时的mount点&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;基本来说，cloudinit可以在云实例启动的事情传入用户数据。最典型的例子，在AWS中，我们只能用过ssh key的方式
+来登陆云主机。这个ssh key可以是用户import进来的。利用cloudinit服务。实例在启动过程，主动向AWS获取传入的
+ssh key，写入到用户目录下。这样主实例启动之后，就可以用ssh key的方式免密码登陆。&lt;/p&gt;
+&lt;p&gt;后来这个工具逐步扩展其他的云实例，意味着除了ubuntu云镜像，大部分的cloud image会预安装cloud init服务。
+openstack云平台为了兼容AWS，提供metadata service API，进而完成openstack云实例的初始化工作。&lt;/p&gt;
+&lt;h2&gt;Fedora Cloud Image&lt;/h2&gt;
+&lt;p&gt;fedora社区提供了云镜像，方便EC2或者openstack。从这里可以下载：&lt;/p&gt;
+&lt;p&gt;&lt;a href="http://fedoraproject.org/en/get-fedora#clouds"&gt;http://fedoraproject.org/en/get-fedora#clouds&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;这个云镜像可以直接给openstack使用的。我们这里下载下来，主要是给local的kvm使用。问题在于默认
+fedora云镜像屏蔽了root登陆，而且root和普通用户fedora的密码都没有设置。&lt;/p&gt;
+&lt;p&gt;cloudinit文档特别说明这种情况：  如何在非云环境中使用&lt;/p&gt;
+&lt;p&gt;&lt;a href="http://cloudinit.readthedocs.org/en/latest/topics/datasources.html#no-cloud"&gt;http://cloudinit.readthedocs.org/en/latest/topics/datasources.html#no-cloud&lt;/a&gt;&lt;/p&gt;
+&lt;h2&gt;操作步骤&lt;/h2&gt;
+&lt;p&gt;根据文档说明，我们先产生&lt;code&gt;meta-data&lt;/code&gt;和&lt;code&gt;user-data&lt;/code&gt;&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;[ray@fedora cloud-init]$ { echo instance-id: saltvm-f20; echo local-hostname: fedora20; } &amp;gt; meta-data
+[ray@fedora cloud-init]$ cat meta-data 
+instance-id: saltvm-f20
+local-hostname: fedora20
+[ray@fedora cloud-init]$ printf &amp;quot;#cloud-config\npassword: passw0rd\nchpasswd: { expire: False }\nssh_pwauth: True\n&amp;quot; &amp;gt; user-data
+[ray@fedora cloud-init]$ cat user-data 
+#cloud-config
+password: password
+chpasswd: { expire: False }
+ssh_pwauth: True
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;第二步，生成一个辅助的iso传递data&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;[ray@fedora cloud-init]$ genisoimage  -output seed.iso -volid cidata -joliet -rock user-data meta-data
+I: -input-charset not specified, using utf-8 (detected in locale settings)
+Total translation table size: 0
+Total rockridge attributes bytes: 331
+Total directory bytes: 0
+Path table size(bytes): 10
+Max brk space used 0
+183 extents written (0 MB)
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;最后启动，输入前面设置的密码即可登陆。 这里fedora20.img就是云镜像&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;qemu-kvm -m 1024 -net nic -net user -drive file=fedora20.img,if=virtio -drive file=seed.iso,if=virtio
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;以上是直接修改密码的方式。我们也可以传入用户的ssh key，下面的内容加入到&lt;code&gt;user-data&lt;/code&gt;即可&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;ssh_authorized_keys:
+  - ssh-rsa ... foo@foo.com (insert ~/.ssh/id_rsa.pub here)
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;更多示例请参考:&lt;/p&gt;
+&lt;p&gt;&lt;a href="http://cloudinit.readthedocs.org/en/latest/topics/examples.html#configure-instances-ssh-keys"&gt;http://cloudinit.readthedocs.org/en/latest/topics/examples.html#configure-instances-ssh-keys&lt;/a&gt;&lt;/p&gt;
+&lt;h2&gt;参考资料&lt;/h2&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;a href="https://help.ubuntu.com/community/CloudInit"&gt;https://help.ubuntu.com/community/CloudInit&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href="https://www.technovelty.org/linux/running-cloud-images-locally.html"&gt;https://www.technovelty.org/linux/running-cloud-images-locally.html&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;</summary><category term="cloud"></category></entry><entry><title>Hello, World</title><link href="http://hellostack.info/hello-world.html" rel="alternate"></link><published>2014-05-11T00:12:00+08:00</published><author><name>Ray Chen</name></author><id>tag:hellostack.info,2014-05-11:hello-world.html</id><summary type="html">&lt;p&gt;Hello World from Ray Chen&lt;/p&gt;
+&lt;p&gt;&lt;a href="http://www.dongxf.com/3_Build_Personal_Blog_With_Pelican_And_GitHub_Pages.html"&gt;Pelican搭建静态博客&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;&lt;a href="http://wowubuntu.com/markdown/"&gt;Markdown 语法&lt;/a&gt;&lt;/p&gt;</summary><category term="python"></category></entry></feed>

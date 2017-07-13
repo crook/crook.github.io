@@ -1,0 +1,406 @@
+<!DOCTYPE html>
+<html lang="en" prefix="og: http://ogp.me/ns# fb: https://www.facebook.com/2008/fbml">
+<head>
+    <title>Run Docker on VMware Fusion Mac - Hello Stack</title>
+    <!-- Using the latest rendering mode for IE -->
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+
+
+<link rel="canonical" href="http://hellostack.info/run-docker-machine-vmware-fusion.html">
+
+        <meta name="author" content="Ray Chen" />
+        <meta name="keywords" content="docker" />
+        <meta name="description" content="Mac OS上安装部署docker以及troubleshooting" />
+
+        <meta property="og:site_name" content="Hello Stack" />
+        <meta property="og:type" content="article"/>
+        <meta property="og:title" content="Run Docker on VMware Fusion Mac"/>
+        <meta property="og:url" content="http://hellostack.info/run-docker-machine-vmware-fusion.html"/>
+        <meta property="og:description" content="Mac OS上安装部署docker以及troubleshooting"/>
+        <meta property="article:published_time" content="2016-10-08" />
+            <meta property="article:section" content="Docker" />
+            <meta property="article:tag" content="docker" />
+            <meta property="article:author" content="Ray Chen" />
+
+
+    <!-- Bootstrap -->
+        <link rel="stylesheet" href="http://hellostack.info/theme/css/bootstrap.min.css" type="text/css"/>
+    <link href="http://hellostack.info/theme/css/font-awesome.min.css" rel="stylesheet">
+
+    <link href="http://hellostack.info/theme/css/pygments/manni.css" rel="stylesheet">
+    <link rel="stylesheet" href="http://hellostack.info/theme/css/style.css" type="text/css"/>
+
+        <link href="http://hellostack.info/feeds/all.atom.xml" type="application/atom+xml" rel="alternate"
+              title="Hello Stack ATOM Feed"/>
+
+
+
+        <link href="http://hellostack.info/feeds/docker.atom.xml" type="application/atom+xml" rel="alternate"
+              title="Hello Stack Docker ATOM Feed"/>
+
+</head>
+<body>
+
+<div class="navbar navbar-inverse navbar-fixed-top" role="navigation">
+	<div class="container">
+        <div class="navbar-header">
+            <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-ex1-collapse">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a href="http://hellostack.info/" class="navbar-brand">
+Hello Stack            </a>
+        </div>
+        <div class="collapse navbar-collapse navbar-ex1-collapse">
+            <ul class="nav navbar-nav">
+                        <li >
+                            <a href="http://hellostack.info/category/cloud.html">Cloud</a>
+                        </li>
+                        <li class="active">
+                            <a href="http://hellostack.info/category/docker.html">Docker</a>
+                        </li>
+                        <li >
+                            <a href="http://hellostack.info/category/linux.html">Linux</a>
+                        </li>
+                        <li >
+                            <a href="http://hellostack.info/category/misc.html">Misc</a>
+                        </li>
+                        <li >
+                            <a href="http://hellostack.info/category/openstack.html">Openstack</a>
+                        </li>
+                        <li >
+                            <a href="http://hellostack.info/category/python.html">Python</a>
+                        </li>
+            </ul>
+            <ul class="nav navbar-nav navbar-right">
+            </ul>
+        </div>
+        <!-- /.navbar-collapse -->
+    </div>
+</div> <!-- /.navbar -->
+<!-- Banner -->
+<!-- End Banner -->
+<div class="container">
+    <div class="row">
+        <div class="col-sm-9">
+    <section id="content">
+        <article>
+            <header class="page-header">
+                <h1>
+                    <a href="http://hellostack.info/run-docker-machine-vmware-fusion.html"
+                       rel="bookmark"
+                       title="Permalink to Run Docker on VMware Fusion Mac">
+                        Run Docker on VMware Fusion Mac
+                    </a>
+                </h1>
+            </header>
+            <div class="entry-content">
+                <div class="panel">
+                    <div class="panel-body">
+<footer class="post-info">
+    <span class="label label-default">Date</span>
+    <span class="published">
+        <i class="fa fa-calendar"></i><time datetime="2016-10-08T16:49:00+08:00"> Sat, 08 Oct 2016</time>
+    </span>
+
+
+
+
+
+<span class="label label-default">Tags</span>
+	<a href="http://hellostack.info/tag/docker.html">docker</a>
+    
+</footer><!-- /.post-info -->                    </div>
+                </div>
+                <h2>What's docker-machine</h2>
+<p>Docker Machine is a tool that lets you install Docker Engine on virtual hosts, and manage the hosts with docker-machine commands. You can use Machine to create Docker hosts on your local Mac or Windows box, on your company network, in your data center, or on cloud providers like AWS or Digital Ocean.</p>
+<p>Using docker-machine commands, you can start, inspect, stop, and restart a managed host, upgrade the Docker client and daemon, and configure a Docker client to talk to your host.</p>
+<h2>Create docker machine</h2>
+<p>Create the default docker machine with 'vmwarefusion' driver:</p>
+<div class="highlight"><pre><span></span>docker-machine create --driver<span class="o">=</span>vmwarefusion default
+ranc-m01:~ ranc$ docker-machine create -d vmwarefusion default
+Creating CA: /Users/ranc/.docker/machine/certs/ca.pem
+Creating client certificate: /Users/ranc/.docker/machine/certs/cert.pem
+Running pre-create checks...
+<span class="o">(</span>default<span class="o">)</span> Image cache directory does not exist, creating it at /Users/ranc/.docker/machine/cache...
+<span class="o">(</span>default<span class="o">)</span> No default Boot2Docker ISO found locally, downloading the latest release...
+<span class="o">(</span>default<span class="o">)</span> Latest release <span class="k">for</span> github.com/boot2docker/boot2docker is v1.12.1
+<span class="o">(</span>default<span class="o">)</span> Downloading /Users/ranc/.docker/machine/cache/boot2docker.iso from https://github.com/boot2docker/boot2docker/releases/download/v1.12.1/boot2docker.iso...
+<span class="o">(</span>default<span class="o">)</span> 0%....10%....20%....30%....40%....50%....60%....70%....80%....90%....100%
+Creating machine...
+<span class="o">(</span>default<span class="o">)</span> Copying /Users/ranc/.docker/machine/cache/boot2docker.iso to /Users/ranc/.docker/machine/machines/default/boot2docker.iso...
+<span class="o">(</span>default<span class="o">)</span> Creating SSH key...
+<span class="o">(</span>default<span class="o">)</span> Creating VM...
+<span class="o">(</span>default<span class="o">)</span> Creating disk <span class="s1">&#39;/Users/ranc/.docker/machine/machines/default/default.vmdk&#39;</span>
+<span class="o">(</span>default<span class="o">)</span> Virtual disk creation successful.
+<span class="o">(</span>default<span class="o">)</span> Starting default...
+<span class="o">(</span>default<span class="o">)</span> Waiting <span class="k">for</span> VM to come online...
+Waiting <span class="k">for</span> machine to be running, this may take a few minutes...
+Detecting operating system of created instance...
+Waiting <span class="k">for</span> SSH to be available...
+Detecting the provisioner...
+Provisioning with boot2docker...
+Copying certs to the <span class="nb">local</span> machine directory...
+Copying certs to the remote machine...
+Setting Docker configuration on the remote daemon...
+Checking connection to Docker...
+Docker is up and running!
+To see how to connect your Docker Client to the Docker Engine running on this virtual machine, run: docker-machine env default
+ranc-m01:~ ranc$ docker-machine ls
+NAME      ACTIVE   DRIVER         STATE     URL                       SWARM   DOCKER    ERRORS
+default   -        vmwarefusion   Running   tcp://172.16.8.135:2376           v1.12.1
+ranc-m01:~ ranc$ docker-machine env default
+<span class="nb">export</span> <span class="nv">DOCKER_TLS_VERIFY</span><span class="o">=</span><span class="s2">&quot;1&quot;</span>
+<span class="nb">export</span> <span class="nv">DOCKER_HOST</span><span class="o">=</span><span class="s2">&quot;tcp://172.16.8.135:2376&quot;</span>
+<span class="nb">export</span> <span class="nv">DOCKER_CERT_PATH</span><span class="o">=</span><span class="s2">&quot;/Users/ranc/.docker/machine/machines/default&quot;</span>
+<span class="nb">export</span> <span class="nv">DOCKER_MACHINE_NAME</span><span class="o">=</span><span class="s2">&quot;default&quot;</span>
+<span class="c1"># Run this command to configure your shell:</span>
+<span class="c1"># eval $(docker-machine env default)</span>
+ranc-m01:~ ranc$ <span class="nb">eval</span> <span class="k">$(</span>docker-machine env default<span class="k">)</span>
+ranc-m01:~ ranc$ docker-machine ssh default
+                        <span class="c1">##         .</span>
+                  <span class="c1">## ## ##        ==</span>
+               <span class="c1">## ## ## ## ##    ===</span>
+           /<span class="s2">&quot;&quot;&quot;&quot;&quot;&quot;&quot;&quot;&quot;&quot;&quot;&quot;&quot;&quot;&quot;&quot;&quot;\___/ ===</span>
+<span class="s2">      ~~~ {~~ ~~~~ ~~~ ~~~~ ~~~ ~ /  ===- ~~~</span>
+<span class="s2">           \______ o           __/</span>
+<span class="s2">             \    \         __/</span>
+<span class="s2">              \____\_______/</span>
+<span class="s2"> _                 _   ____     _            _</span>
+<span class="s2">| |__   ___   ___ | |_|___ \ __| | ___   ___| | _____ _ __</span>
+<span class="s2">| &#39;_ \ / _ \ / _ \| __| __) / _` |/ _ \ / __| |/ / _ \ &#39;__|</span>
+<span class="s2">| |_) | (_) | (_) | |_ / __/ (_| | (_) | (__|   &lt;  __/ |</span>
+<span class="s2">|_.__/ \___/ \___/ \__|_____\__,_|\___/ \___|_|\_\___|_|</span>
+<span class="s2">Boot2Docker version 1.12.1, build HEAD : ef7d0b4 - Thu Aug 18 21:18:06 UTC 2016</span>
+<span class="s2">Docker version 1.12.1, build 23cf638</span>
+</pre></div>
+
+
+<h2>Run without proxy</h2>
+<p>Add the '--no-proxy' part to tell docker not to use proxy</p>
+<div class="highlight"><pre><span></span>ranc-m01:~ ranc$ docker-machine env --no-proxy
+<span class="nb">export</span> <span class="nv">DOCKER_TLS_VERIFY</span><span class="o">=</span><span class="s2">&quot;1&quot;</span>
+<span class="nb">export</span> <span class="nv">DOCKER_HOST</span><span class="o">=</span><span class="s2">&quot;tcp://172.16.8.135:2376&quot;</span>
+<span class="nb">export</span> <span class="nv">DOCKER_CERT_PATH</span><span class="o">=</span><span class="s2">&quot;/Users/ranc/.docker/machine/machines/default&quot;</span>
+<span class="nb">export</span> <span class="nv">DOCKER_MACHINE_NAME</span><span class="o">=</span><span class="s2">&quot;default&quot;</span>
+<span class="nb">export</span> <span class="nv">NO_PROXY</span><span class="o">=</span><span class="s2">&quot;172.16.8.135&quot;</span>
+<span class="c1"># Run this command to configure your shell:</span>
+<span class="c1"># eval $(docker-machine env --no-proxy)</span>
+</pre></div>
+
+
+<h2>Run with proxy</h2>
+<p>Mostly we need proxy to pull down the docker images.</p>
+<ol>
+<li>Use ssh to log in to the virtual machine (e.g., default).</li>
+</ol>
+<div class="highlight"><pre><span></span> $ docker-machine ssh default
+ docker@default:~$ sudo vi /var/lib/boot2docker/profile
+</pre></div>
+
+
+<ol>
+<li>Add a NO_PROXY setting to the end of the file similar to the example below.</li>
+</ol>
+<div class="highlight"><pre><span></span> <span class="c1"># replace with your office&#39;s proxy environment</span>
+ <span class="nb">export</span> <span class="s2">&quot;HTTP_PROXY=http://PROXY:PORT&quot;</span>
+ <span class="nb">export</span> <span class="s2">&quot;HTTPS_PROXY=http://PROXY:PORT&quot;</span>
+ <span class="c1"># you can add more no_proxy with your environment.</span>
+ <span class="nb">export</span> <span class="s2">&quot;NO_PROXY=192.168.99.*,*.local,169.254/16,*.example.com,192.168.59.*&quot;</span>
+</pre></div>
+
+
+<ol>
+<li>Restart Docker. After you modify the profile on your VM, restart Docker and log out of the machine.</li>
+</ol>
+<div class="highlight"><pre><span></span>docker@default:~$ sudo /etc/init.d/docker restart
+ docker@default:~$ <span class="nb">exit</span>
+</pre></div>
+
+
+<h2>Port Forward in VMware Fusion</h2>
+<p>Update the 'incomingtcp' secion in Vmware Fusion Nat conf file</p>
+<div class="highlight"><pre><span></span>sudo vi /Library/Preferences/VMware<span class="se">\ </span>Fusion/vmnet8/nat.conf
+ <span class="m">55</span> <span class="o">[</span>incomingtcp<span class="o">]</span>
+ 56
+ <span class="m">57</span> <span class="c1"># Use these with care - anyone can enter into your VM through these...</span>
+ <span class="m">58</span> <span class="c1"># The format and example are as follows:</span>
+ <span class="m">59</span> <span class="c1">#&lt;external port number&gt; = &lt;VM&#39;s IP address&gt;:&lt;VM&#39;s port number&gt;</span>
+ <span class="m">60</span> <span class="nv">8080</span> <span class="o">=</span> 172.16.3.128:80
+</pre></div>
+
+
+<p>and then restart the network service</p>
+<div class="highlight"><pre><span></span>ranc-m01:~ ranc$ sudo /Applications/VMware<span class="se">\ </span>Fusion.app/Contents/Library/vmnet-cli --stop
+Stopped DHCP service on vmnet1
+Disabled hostonly virtual adapter on vmnet1
+Stopped DHCP service on vmnet8
+Stopped NAT service on vmnet8
+Disabled hostonly virtual adapter on vmnet8
+Stopped all configured services on all networks
+ranc-m01:~ ranc$ sudo /Applications/VMware<span class="se">\ </span>Fusion.app/Contents/Library/vmnet-cli --start
+Enabled hostonly virtual adapter on vmnet1
+Started DHCP service on vmnet1
+Started NAT service on vmnet8
+Enabled hostonly virtual adapter on vmnet8
+Started DHCP service on vmnet8
+Started all configured services on all networks
+</pre></div>
+
+
+<h2>Reference</h2>
+<ol>
+<li><a href="https://docs.docker.com/toolbox/faqs/troubleshoot/">https://docs.docker.com/toolbox/faqs/troubleshoot/</a></li>
+<li><a href="https://github.com/docker/toolbox/issues/102">https://github.com/docker/toolbox/issues/102</a></li>
+<li><a href="https://github.com/docker/machine/issues/1351">https://github.com/docker/machine/issues/1351</a></li>
+<li><a href="https://github.com/docker/machine/issues/3099">https://github.com/docker/machine/issues/3099</a></li>
+<li><a href="https://docs.docker.com/machine/drivers/vm-fusion/">https://docs.docker.com/machine/drivers/vm-fusion/</a></li>
+</ol>
+            </div>
+            <!-- /.entry-content -->
+    <hr/>
+    <section class="comments" id="comments">
+        <h2>Comments</h2>
+
+        <div id="disqus_thread"></div>
+        <script type="text/javascript">
+            /* * * CONFIGURATION VARIABLES: EDIT BEFORE PASTING INTO YOUR WEBPAGE * * */
+            var disqus_shortname = 'hellostack'; // required: replace example with your forum shortname
+
+                    var disqus_identifier = 'run-docker-machine-vmware-fusion';
+                var disqus_url = 'http://hellostack.info/run-docker-machine-vmware-fusion.html';
+
+            var disqus_config = function () {
+                this.language = "en";
+            };
+
+            /* * * DON'T EDIT BELOW THIS LINE * * */
+            (function () {
+                var dsq = document.createElement('script');
+                dsq.type = 'text/javascript';
+                dsq.async = true;
+                dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+                (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+            })();
+        </script>
+        <noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by
+            Disqus.</a></noscript>
+        <a href="http://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+
+    </section>
+        </article>
+    </section>
+
+        </div>
+        <div class="col-sm-3" id="sidebar">
+            <aside>
+
+<section class="well well-sm">
+    <ul class="list-group list-group-flush">
+            <li class="list-group-item"><h4><i class="fa fa-home fa-lg"></i><span class="icon-label">Social</span></h4>
+              <ul class="list-group" id="social">
+                <li class="list-group-item"><a href="https://github.com/crook"><i class="fa fa-github-square fa-lg"></i> Github</a></li>
+                <li class="list-group-item"><a href="http://weibo.com/crookcrook/"><i class="fa fa-weibo fa-lg"></i> Weibo</a></li>
+                <li class="list-group-item"><a href="http://hellostack.info/feeds/all.atom.xml"><i class="fa fa-rss-square fa-lg"></i> RSS</a></li>
+              </ul>
+            </li>
+
+
+
+
+
+    <li class="list-group-item"><h4><i class="fa fa-external-link-square fa-lg"></i><span class="icon-label">Links</span></h4>
+      <ul class="list-group" id="links">
+        <li class="list-group-item">
+            <a href="http://chenrano2002.blog.chinaunix.net/" target="_blank">
+                小企鹅看大世界
+            </a>
+        </li>
+        <li class="list-group-item">
+            <a href="http://feisky.xyz" target="_blank">
+                Feisky's Blog
+            </a>
+        </li>
+        <li class="list-group-item">
+            <a href="http://wangxu.me" target="_blank">
+                Wang Xu's Blog
+            </a>
+        </li>
+        <li class="list-group-item">
+            <a href="http://www.hellospark.me/" target="_blank">
+                Lyndon's Blog
+            </a>
+        </li>
+        <li class="list-group-item">
+            <a href="http://www.openstack.org/" target="_blank">
+                Openstack
+            </a>
+        </li>
+      </ul>
+    </li>
+    </ul>
+</section>
+            </aside>
+        </div>
+    </div>
+</div>
+<footer>
+   <div class="container">
+      <hr>
+      <div class="row">
+         <div class="col-xs-10">&copy; 2016 Ray Chen
+            &middot; Powered by <a href="https://github.com/getpelican/pelican-themes/tree/master/pelican-bootstrap3" target="_blank">pelican-bootstrap3</a>,
+            <a href="http://docs.getpelican.com/" target="_blank">Pelican</a>,
+            <a href="http://getbootstrap.com" target="_blank">Bootstrap</a>         </div>
+         <div class="col-xs-2"><p class="pull-right"><i class="fa fa-arrow-up"></i> <a href="#">Back to top</a></p></div>
+      </div>
+   </div>
+</footer>
+<script src="http://hellostack.info/theme/js/jquery.min.js"></script>
+
+<!-- Include all compiled plugins (below), or include individual files as needed -->
+<script src="http://hellostack.info/theme/js/bootstrap.min.js"></script>
+
+<!-- Enable responsive features in IE8 with Respond.js (https://github.com/scottjehl/Respond) -->
+<script src="http://hellostack.info/theme/js/respond.min.js"></script>
+
+    <!-- Disqus -->
+    <script type="text/javascript">
+        /* * * CONFIGURATION VARIABLES: EDIT BEFORE PASTING INTO YOUR WEBPAGE * * */
+        var disqus_shortname = 'hellostack'; // required: replace example with your forum shortname
+
+        /* * * DON'T EDIT BELOW THIS LINE * * */
+        (function () {
+            var s = document.createElement('script');
+            s.async = true;
+            s.type = 'text/javascript';
+            s.src = '//' + disqus_shortname + '.disqus.com/count.js';
+            (document.getElementsByTagName('HEAD')[0] || document.getElementsByTagName('BODY')[0]).appendChild(s);
+        }());
+    </script>
+    <!-- End Disqus Code -->
+    <!-- Google Analytics -->
+    <script type="text/javascript">
+
+        var _gaq = _gaq || [];
+        _gaq.push(['_setAccount', 'UA-51314242-1']);
+        _gaq.push(['_trackPageview']);
+
+        (function () {
+            var ga = document.createElement('script');
+            ga.type = 'text/javascript';
+            ga.async = true;
+            ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+            var s = document.getElementsByTagName('script')[0];
+            s.parentNode.insertBefore(ga, s);
+        })();
+    </script>
+    <!-- End Google Analytics Code -->
+
+</body>
+</html>

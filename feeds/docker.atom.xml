@@ -1,0 +1,196 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom"><title>Hello Stack</title><link href="http://hellostack.info/" rel="alternate"></link><link href="http://hellostack.info/feeds/docker.atom.xml" rel="self"></link><id>http://hellostack.info/</id><updated>2016-10-08T16:49:00+08:00</updated><entry><title>Run Docker on VMware Fusion Mac</title><link href="http://hellostack.info/run-docker-machine-vmware-fusion.html" rel="alternate"></link><published>2016-10-08T16:49:00+08:00</published><author><name>Ray Chen</name></author><id>tag:hellostack.info,2016-10-08:run-docker-machine-vmware-fusion.html</id><summary type="html">&lt;h2&gt;What's docker-machine&lt;/h2&gt;
+&lt;p&gt;Docker Machine is a tool that lets you install Docker Engine on virtual hosts, and manage the hosts with docker-machine commands. You can use Machine to create Docker hosts on your local Mac or Windows box, on your company network, in your data center, or on cloud providers like AWS or Digital Ocean.&lt;/p&gt;
+&lt;p&gt;Using docker-machine commands, you can start, inspect, stop, and restart a managed host, upgrade the Docker client and daemon, and configure a Docker client to talk to your host.&lt;/p&gt;
+&lt;h2&gt;Create docker machine&lt;/h2&gt;
+&lt;p&gt;Create the default docker machine with 'vmwarefusion' driver:&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;docker-machine create --driver&lt;span class="o"&gt;=&lt;/span&gt;vmwarefusion default
+ranc-m01:~ ranc$ docker-machine create -d vmwarefusion default
+Creating CA: /Users/ranc/.docker/machine/certs/ca.pem
+Creating client certificate: /Users/ranc/.docker/machine/certs/cert.pem
+Running pre-create checks...
+&lt;span class="o"&gt;(&lt;/span&gt;default&lt;span class="o"&gt;)&lt;/span&gt; Image cache directory does not exist, creating it at /Users/ranc/.docker/machine/cache...
+&lt;span class="o"&gt;(&lt;/span&gt;default&lt;span class="o"&gt;)&lt;/span&gt; No default Boot2Docker ISO found locally, downloading the latest release...
+&lt;span class="o"&gt;(&lt;/span&gt;default&lt;span class="o"&gt;)&lt;/span&gt; Latest release &lt;span class="k"&gt;for&lt;/span&gt; github.com/boot2docker/boot2docker is v1.12.1
+&lt;span class="o"&gt;(&lt;/span&gt;default&lt;span class="o"&gt;)&lt;/span&gt; Downloading /Users/ranc/.docker/machine/cache/boot2docker.iso from https://github.com/boot2docker/boot2docker/releases/download/v1.12.1/boot2docker.iso...
+&lt;span class="o"&gt;(&lt;/span&gt;default&lt;span class="o"&gt;)&lt;/span&gt; 0%....10%....20%....30%....40%....50%....60%....70%....80%....90%....100%
+Creating machine...
+&lt;span class="o"&gt;(&lt;/span&gt;default&lt;span class="o"&gt;)&lt;/span&gt; Copying /Users/ranc/.docker/machine/cache/boot2docker.iso to /Users/ranc/.docker/machine/machines/default/boot2docker.iso...
+&lt;span class="o"&gt;(&lt;/span&gt;default&lt;span class="o"&gt;)&lt;/span&gt; Creating SSH key...
+&lt;span class="o"&gt;(&lt;/span&gt;default&lt;span class="o"&gt;)&lt;/span&gt; Creating VM...
+&lt;span class="o"&gt;(&lt;/span&gt;default&lt;span class="o"&gt;)&lt;/span&gt; Creating disk &lt;span class="s1"&gt;&amp;#39;/Users/ranc/.docker/machine/machines/default/default.vmdk&amp;#39;&lt;/span&gt;
+&lt;span class="o"&gt;(&lt;/span&gt;default&lt;span class="o"&gt;)&lt;/span&gt; Virtual disk creation successful.
+&lt;span class="o"&gt;(&lt;/span&gt;default&lt;span class="o"&gt;)&lt;/span&gt; Starting default...
+&lt;span class="o"&gt;(&lt;/span&gt;default&lt;span class="o"&gt;)&lt;/span&gt; Waiting &lt;span class="k"&gt;for&lt;/span&gt; VM to come online...
+Waiting &lt;span class="k"&gt;for&lt;/span&gt; machine to be running, this may take a few minutes...
+Detecting operating system of created instance...
+Waiting &lt;span class="k"&gt;for&lt;/span&gt; SSH to be available...
+Detecting the provisioner...
+Provisioning with boot2docker...
+Copying certs to the &lt;span class="nb"&gt;local&lt;/span&gt; machine directory...
+Copying certs to the remote machine...
+Setting Docker configuration on the remote daemon...
+Checking connection to Docker...
+Docker is up and running!
+To see how to connect your Docker Client to the Docker Engine running on this virtual machine, run: docker-machine env default
+ranc-m01:~ ranc$ docker-machine ls
+NAME      ACTIVE   DRIVER         STATE     URL                       SWARM   DOCKER    ERRORS
+default   -        vmwarefusion   Running   tcp://172.16.8.135:2376           v1.12.1
+ranc-m01:~ ranc$ docker-machine env default
+&lt;span class="nb"&gt;export&lt;/span&gt; &lt;span class="nv"&gt;DOCKER_TLS_VERIFY&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="s2"&gt;&amp;quot;1&amp;quot;&lt;/span&gt;
+&lt;span class="nb"&gt;export&lt;/span&gt; &lt;span class="nv"&gt;DOCKER_HOST&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="s2"&gt;&amp;quot;tcp://172.16.8.135:2376&amp;quot;&lt;/span&gt;
+&lt;span class="nb"&gt;export&lt;/span&gt; &lt;span class="nv"&gt;DOCKER_CERT_PATH&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="s2"&gt;&amp;quot;/Users/ranc/.docker/machine/machines/default&amp;quot;&lt;/span&gt;
+&lt;span class="nb"&gt;export&lt;/span&gt; &lt;span class="nv"&gt;DOCKER_MACHINE_NAME&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="s2"&gt;&amp;quot;default&amp;quot;&lt;/span&gt;
+&lt;span class="c1"&gt;# Run this command to configure your shell:&lt;/span&gt;
+&lt;span class="c1"&gt;# eval $(docker-machine env default)&lt;/span&gt;
+ranc-m01:~ ranc$ &lt;span class="nb"&gt;eval&lt;/span&gt; &lt;span class="k"&gt;$(&lt;/span&gt;docker-machine env default&lt;span class="k"&gt;)&lt;/span&gt;
+ranc-m01:~ ranc$ docker-machine ssh default
+                        &lt;span class="c1"&gt;##         .&lt;/span&gt;
+                  &lt;span class="c1"&gt;## ## ##        ==&lt;/span&gt;
+               &lt;span class="c1"&gt;## ## ## ## ##    ===&lt;/span&gt;
+           /&lt;span class="s2"&gt;&amp;quot;&amp;quot;&amp;quot;&amp;quot;&amp;quot;&amp;quot;&amp;quot;&amp;quot;&amp;quot;&amp;quot;&amp;quot;&amp;quot;&amp;quot;&amp;quot;&amp;quot;&amp;quot;&amp;quot;\___/ ===&lt;/span&gt;
+&lt;span class="s2"&gt;      ~~~ {~~ ~~~~ ~~~ ~~~~ ~~~ ~ /  ===- ~~~&lt;/span&gt;
+&lt;span class="s2"&gt;           \______ o           __/&lt;/span&gt;
+&lt;span class="s2"&gt;             \    \         __/&lt;/span&gt;
+&lt;span class="s2"&gt;              \____\_______/&lt;/span&gt;
+&lt;span class="s2"&gt; _                 _   ____     _            _&lt;/span&gt;
+&lt;span class="s2"&gt;| |__   ___   ___ | |_|___ \ __| | ___   ___| | _____ _ __&lt;/span&gt;
+&lt;span class="s2"&gt;| &amp;#39;_ \ / _ \ / _ \| __| __) / _` |/ _ \ / __| |/ / _ \ &amp;#39;__|&lt;/span&gt;
+&lt;span class="s2"&gt;| |_) | (_) | (_) | |_ / __/ (_| | (_) | (__|   &amp;lt;  __/ |&lt;/span&gt;
+&lt;span class="s2"&gt;|_.__/ \___/ \___/ \__|_____\__,_|\___/ \___|_|\_\___|_|&lt;/span&gt;
+&lt;span class="s2"&gt;Boot2Docker version 1.12.1, build HEAD : ef7d0b4 - Thu Aug 18 21:18:06 UTC 2016&lt;/span&gt;
+&lt;span class="s2"&gt;Docker version 1.12.1, build 23cf638&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;h2&gt;Run without proxy&lt;/h2&gt;
+&lt;p&gt;Add the '--no-proxy' part to tell docker not to use proxy&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;ranc-m01:~ ranc$ docker-machine env --no-proxy
+&lt;span class="nb"&gt;export&lt;/span&gt; &lt;span class="nv"&gt;DOCKER_TLS_VERIFY&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="s2"&gt;&amp;quot;1&amp;quot;&lt;/span&gt;
+&lt;span class="nb"&gt;export&lt;/span&gt; &lt;span class="nv"&gt;DOCKER_HOST&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="s2"&gt;&amp;quot;tcp://172.16.8.135:2376&amp;quot;&lt;/span&gt;
+&lt;span class="nb"&gt;export&lt;/span&gt; &lt;span class="nv"&gt;DOCKER_CERT_PATH&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="s2"&gt;&amp;quot;/Users/ranc/.docker/machine/machines/default&amp;quot;&lt;/span&gt;
+&lt;span class="nb"&gt;export&lt;/span&gt; &lt;span class="nv"&gt;DOCKER_MACHINE_NAME&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="s2"&gt;&amp;quot;default&amp;quot;&lt;/span&gt;
+&lt;span class="nb"&gt;export&lt;/span&gt; &lt;span class="nv"&gt;NO_PROXY&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="s2"&gt;&amp;quot;172.16.8.135&amp;quot;&lt;/span&gt;
+&lt;span class="c1"&gt;# Run this command to configure your shell:&lt;/span&gt;
+&lt;span class="c1"&gt;# eval $(docker-machine env --no-proxy)&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;h2&gt;Run with proxy&lt;/h2&gt;
+&lt;p&gt;Mostly we need proxy to pull down the docker images.&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;Use ssh to log in to the virtual machine (e.g., default).&lt;/li&gt;
+&lt;/ol&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt; $ docker-machine ssh default
+ docker@default:~$ sudo vi /var/lib/boot2docker/profile
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;ol&gt;
+&lt;li&gt;Add a NO_PROXY setting to the end of the file similar to the example below.&lt;/li&gt;
+&lt;/ol&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt; &lt;span class="c1"&gt;# replace with your office&amp;#39;s proxy environment&lt;/span&gt;
+ &lt;span class="nb"&gt;export&lt;/span&gt; &lt;span class="s2"&gt;&amp;quot;HTTP_PROXY=http://PROXY:PORT&amp;quot;&lt;/span&gt;
+ &lt;span class="nb"&gt;export&lt;/span&gt; &lt;span class="s2"&gt;&amp;quot;HTTPS_PROXY=http://PROXY:PORT&amp;quot;&lt;/span&gt;
+ &lt;span class="c1"&gt;# you can add more no_proxy with your environment.&lt;/span&gt;
+ &lt;span class="nb"&gt;export&lt;/span&gt; &lt;span class="s2"&gt;&amp;quot;NO_PROXY=192.168.99.*,*.local,169.254/16,*.example.com,192.168.59.*&amp;quot;&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;ol&gt;
+&lt;li&gt;Restart Docker. After you modify the profile on your VM, restart Docker and log out of the machine.&lt;/li&gt;
+&lt;/ol&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;docker@default:~$ sudo /etc/init.d/docker restart
+ docker@default:~$ &lt;span class="nb"&gt;exit&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;h2&gt;Port Forward in VMware Fusion&lt;/h2&gt;
+&lt;p&gt;Update the 'incomingtcp' secion in Vmware Fusion Nat conf file&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;sudo vi /Library/Preferences/VMware&lt;span class="se"&gt;\ &lt;/span&gt;Fusion/vmnet8/nat.conf
+ &lt;span class="m"&gt;55&lt;/span&gt; &lt;span class="o"&gt;[&lt;/span&gt;incomingtcp&lt;span class="o"&gt;]&lt;/span&gt;
+ 56
+ &lt;span class="m"&gt;57&lt;/span&gt; &lt;span class="c1"&gt;# Use these with care - anyone can enter into your VM through these...&lt;/span&gt;
+ &lt;span class="m"&gt;58&lt;/span&gt; &lt;span class="c1"&gt;# The format and example are as follows:&lt;/span&gt;
+ &lt;span class="m"&gt;59&lt;/span&gt; &lt;span class="c1"&gt;#&amp;lt;external port number&amp;gt; = &amp;lt;VM&amp;#39;s IP address&amp;gt;:&amp;lt;VM&amp;#39;s port number&amp;gt;&lt;/span&gt;
+ &lt;span class="m"&gt;60&lt;/span&gt; &lt;span class="nv"&gt;8080&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; 172.16.3.128:80
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;and then restart the network service&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;ranc-m01:~ ranc$ sudo /Applications/VMware&lt;span class="se"&gt;\ &lt;/span&gt;Fusion.app/Contents/Library/vmnet-cli --stop
+Stopped DHCP service on vmnet1
+Disabled hostonly virtual adapter on vmnet1
+Stopped DHCP service on vmnet8
+Stopped NAT service on vmnet8
+Disabled hostonly virtual adapter on vmnet8
+Stopped all configured services on all networks
+ranc-m01:~ ranc$ sudo /Applications/VMware&lt;span class="se"&gt;\ &lt;/span&gt;Fusion.app/Contents/Library/vmnet-cli --start
+Enabled hostonly virtual adapter on vmnet1
+Started DHCP service on vmnet1
+Started NAT service on vmnet8
+Enabled hostonly virtual adapter on vmnet8
+Started DHCP service on vmnet8
+Started all configured services on all networks
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;h2&gt;Reference&lt;/h2&gt;
+&lt;ol&gt;
+&lt;li&gt;&lt;a href="https://docs.docker.com/toolbox/faqs/troubleshoot/"&gt;https://docs.docker.com/toolbox/faqs/troubleshoot/&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href="https://github.com/docker/toolbox/issues/102"&gt;https://github.com/docker/toolbox/issues/102&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href="https://github.com/docker/machine/issues/1351"&gt;https://github.com/docker/machine/issues/1351&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href="https://github.com/docker/machine/issues/3099"&gt;https://github.com/docker/machine/issues/3099&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href="https://docs.docker.com/machine/drivers/vm-fusion/"&gt;https://docs.docker.com/machine/drivers/vm-fusion/&lt;/a&gt;&lt;/li&gt;
+&lt;/ol&gt;</summary><category term="docker"></category></entry><entry><title>超容器：虚拟机 or 容器</title><link href="http://hellostack.info/hyper-container-walk.html" rel="alternate"></link><published>2016-09-13T21:49:00+08:00</published><author><name>Ray Chen</name></author><id>tag:hellostack.info,2016-09-13:hyper-container-walk.html</id><summary type="html">&lt;h2&gt;什么是超容器&lt;/h2&gt;
+&lt;p&gt;容器大有取代虚拟机之势，但最大的缺点就是安全问题。要想从根本上解决安全问题，就是要做资源隔离，特别是共享的底层操作系统要做到逻辑上的隔离。然而这恰恰是docker容器引以为傲的特性之一：共享一个内核。&lt;/p&gt;
+&lt;p&gt;其实容器和虚拟机的应用场景大有不同。docker容器解决的问题就是部署，运维和分布软件的方式。VM在数据中心中依然占有统治地位，而且生态系统已经运行了很多年。docker容器出现之后，针对虚拟机的诟病是各大非标准化的iamge，而且体积巨大（上GB）。 hypervisor之间互不兼容。&lt;/p&gt;
+&lt;p&gt;可不可以既保证虚拟机的安全，又可以享用容器的轻便和方便部署。在我们平常的容器部署中，基本上是在虚拟机上运行容器。例如在AWS EC2上面搭建k8s集群。这种方式的缺点是资源浪费, 包含虚拟机的运行开销。比如申请了一台4GB的EC2.你在上面只跑了一个docker运行http服务。或者优化空间是在一台虚拟机上面多运行些容器。&lt;/p&gt;
+&lt;p&gt;另外一个优化方向是，申请虚拟机资源的时候，尽量申请小资源的EC2。 云服务提供商尽可能提供小的资源单位。例如virtustream的uVM &lt;a href="http://www.virtustream.com/software/micro-vms"&gt;http://www.virtustream.com/software/micro-vms&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;以上就是超容器这个概念出现的原因。 这里我看到一个新的方案 &lt;a href="http://www.hypercontainer.io/"&gt;http://www.hypercontainer.io/&lt;/a&gt;： &lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;* HyperContainer = Hypervisor + Guest Kernel + Data (image) *
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;容器利用虚拟机的硬件隔离提高安全系数，结合定制化的微内核，在hypervior直接运行Image（兼容docker image）。 容器启动运行之后，即是虚拟机又是容器。即可以继续使用虚拟机的生态工具，又可以提供容器运行环境。简单来说，就说用hypervisor带代替容器需要的运行时和命令空间。&lt;/p&gt;
+&lt;h2&gt;架构&lt;/h2&gt;
+&lt;p&gt;Hyper包含四个组件：&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;
+&lt;p&gt;HyperKernel:  定制化的linux kernel，可以直接被hypervior运行。可以理解成一个微型的container os&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;HyperDamon: 运行在主机上的后台agent。主要是提供REST API&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;CLI:  hyper的前端入口。通过REST跟Damon通信，调度后端具体哪个host来部署container&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;HyperStart: 基本就是initramfs 和 init服务&lt;/p&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;&lt;img alt="" src="http://thenewstack.io/wp-content/uploads/2015/07/image011.png" /&gt;&lt;/p&gt;
+&lt;p&gt;容器基础工作弄好之后，hyper基本就是一个docker的翻版。基本命令行跟docker一行，然后hyper可以直接运行docker hub上面的iamge。 为了更有效的管理hyper容器, 开发了支持k8s运行时的&lt;a href="https://github.com/hyperhq/hypernetes"&gt;https://github.com/hyperhq/hypernetes&lt;/a&gt;. 就是一个Caas，同时支持多租户。这个容器云已经开放，用户可以注册使用，按秒为单位计费。初始赠送20美元。有兴趣的可以去看看。&lt;/p&gt;
+&lt;h2&gt;容器标准化&lt;/h2&gt;
+&lt;p&gt;为了避免docker一家独大后的垄断行为（Docker的强推SWARM就好比微软捆绑IE销售，在容器编排器的百家争鸣下，google的k8s明显是开源社区的一致选择）， 开源社区推出标准化组织OCI&lt;a href="https://www.opencontainers.org/"&gt;https://www.opencontainers.org/&lt;/a&gt;, 在其&lt;a href="https://github.com/opencontainers/runtime-spec"&gt;github主页&lt;/a&gt;的自我介绍是： The Open Container Initiative develops specifications for standards on Operating System process and application containers.&lt;/p&gt;
+&lt;p&gt;hypercontainer有自己的实现： &lt;a href="https://blog.hyper.sh/a_step_towards_the_open_container_initiative.html"&gt;https://blog.hyper.sh/a_step_towards_the_open_container_initiative.html&lt;/a&gt;&lt;/p&gt;
+&lt;h2&gt;类似项目&lt;/h2&gt;
+&lt;ul&gt;
+&lt;li&gt;Interl的clearContainer: https://clearlinux.org/features/clear-containers&lt;/li&gt;
+&lt;li&gt;Vmware的VIC: https://github.com/vmware/vic &lt;a href="https://github.com/vmware/vic/blob/master/doc/design/arch/vic-container-abstraction.md"&gt;传统容器主机和VIC模式的比较&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h2&gt;黑马项目 unikernel/linuxkit (2017/06/04 update)&lt;/h2&gt;
+&lt;ul&gt;
+&lt;li&gt;介绍文章： &lt;a href="http://dockone.io/article/855"&gt;http://dockone.io/article/855&lt;/a&gt; &lt;/li&gt;
+&lt;li&gt;hyperd作者的点评&lt;a href="https://wangxu.me/container/2016/01/23/unikernel-critics/index.html"&gt;https://wangxu.me/container/2016/01/23/unikernel-critics/index.html&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;linuxkit: http://feisky.xyz/2017/04/19/LinuxKit/&lt;/li&gt;
+&lt;li&gt;https://yq.aliyun.com/articles/74440?spm=5176.100239.blogcont74404.46.x5hZPU&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h2&gt;资料&lt;/h2&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;a href="http://thenewstack.io/hyper-a-hypervisor-agnostic-docker-engine/"&gt;http://thenewstack.io/hyper-a-hypervisor-agnostic-docker-engine/&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href="https://blog.hyper.sh/hyper-and-the-art-of-containerization.html"&gt;https://blog.hyper.sh/hyper-and-the-art-of-containerization.html&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href="http://wangxu.me/zhihu/2016/05/20/how-about-hyper/index.html"&gt;http://wangxu.me/zhihu/2016/05/20/how-about-hyper/index.html&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href="https://m.douban.com/note/581584151/?bid=u39uR-VeuJs"&gt;https://m.douban.com/note/581584151/?bid=u39uR-VeuJs&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href="http://blog.kubernetes.io/2016/05/hypernetes-security-and-multi-tenancy-in-kubernetes.html"&gt;http://blog.kubernetes.io/2016/05/hypernetes-security-and-multi-tenancy-in-kubernetes.html&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;</summary><category term="docker"></category></entry></feed>

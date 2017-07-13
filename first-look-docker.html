@@ -1,0 +1,567 @@
+<!DOCTYPE html>
+<html lang="en" prefix="og: http://ogp.me/ns# fb: https://www.facebook.com/2008/fbml">
+<head>
+    <title>docker初探 - Hello Stack</title>
+    <!-- Using the latest rendering mode for IE -->
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+
+
+<link rel="canonical" href="http://hellostack.info/first-look-docker.html">
+
+        <meta name="author" content="Ray Chen" />
+        <meta name="keywords" content="docker" />
+        <meta name="description" content="初探docker，一个开源的应用容器引擎。" />
+
+        <meta property="og:site_name" content="Hello Stack" />
+        <meta property="og:type" content="article"/>
+        <meta property="og:title" content="docker初探"/>
+        <meta property="og:url" content="http://hellostack.info/first-look-docker.html"/>
+        <meta property="og:description" content="初探docker，一个开源的应用容器引擎。"/>
+        <meta property="article:published_time" content="2014-05-27" />
+            <meta property="article:section" content="Cloud" />
+            <meta property="article:tag" content="docker" />
+            <meta property="article:author" content="Ray Chen" />
+
+
+    <!-- Bootstrap -->
+        <link rel="stylesheet" href="http://hellostack.info/theme/css/bootstrap.min.css" type="text/css"/>
+    <link href="http://hellostack.info/theme/css/font-awesome.min.css" rel="stylesheet">
+
+    <link href="http://hellostack.info/theme/css/pygments/manni.css" rel="stylesheet">
+    <link rel="stylesheet" href="http://hellostack.info/theme/css/style.css" type="text/css"/>
+
+        <link href="http://hellostack.info/feeds/all.atom.xml" type="application/atom+xml" rel="alternate"
+              title="Hello Stack ATOM Feed"/>
+
+
+
+        <link href="http://hellostack.info/feeds/cloud.atom.xml" type="application/atom+xml" rel="alternate"
+              title="Hello Stack Cloud ATOM Feed"/>
+
+</head>
+<body>
+
+<div class="navbar navbar-inverse navbar-fixed-top" role="navigation">
+	<div class="container">
+        <div class="navbar-header">
+            <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-ex1-collapse">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a href="http://hellostack.info/" class="navbar-brand">
+Hello Stack            </a>
+        </div>
+        <div class="collapse navbar-collapse navbar-ex1-collapse">
+            <ul class="nav navbar-nav">
+                        <li class="active">
+                            <a href="http://hellostack.info/category/cloud.html">Cloud</a>
+                        </li>
+                        <li >
+                            <a href="http://hellostack.info/category/docker.html">Docker</a>
+                        </li>
+                        <li >
+                            <a href="http://hellostack.info/category/linux.html">Linux</a>
+                        </li>
+                        <li >
+                            <a href="http://hellostack.info/category/misc.html">Misc</a>
+                        </li>
+                        <li >
+                            <a href="http://hellostack.info/category/openstack.html">Openstack</a>
+                        </li>
+                        <li >
+                            <a href="http://hellostack.info/category/python.html">Python</a>
+                        </li>
+            </ul>
+            <ul class="nav navbar-nav navbar-right">
+            </ul>
+        </div>
+        <!-- /.navbar-collapse -->
+    </div>
+</div> <!-- /.navbar -->
+<!-- Banner -->
+<!-- End Banner -->
+<div class="container">
+    <div class="row">
+        <div class="col-sm-9">
+    <section id="content">
+        <article>
+            <header class="page-header">
+                <h1>
+                    <a href="http://hellostack.info/first-look-docker.html"
+                       rel="bookmark"
+                       title="Permalink to docker初探">
+                        docker初探
+                    </a>
+                </h1>
+            </header>
+            <div class="entry-content">
+                <div class="panel">
+                    <div class="panel-body">
+<footer class="post-info">
+    <span class="label label-default">Date</span>
+    <span class="published">
+        <i class="fa fa-calendar"></i><time datetime="2014-05-27T16:04:00+08:00"> Tue, 27 May 2014</time>
+    </span>
+
+
+
+
+
+<span class="label label-default">Tags</span>
+	<a href="http://hellostack.info/tag/docker.html">docker</a>
+    
+</footer><!-- /.post-info -->                    </div>
+                </div>
+                <h2>介绍</h2>
+<p>要理解docker, 必须看明白什么是容器。Docker的后端使用的是<a href="https://linuxcontainers.org/">LXC</a>. 后者是linux的系统虚拟化工具。容器不同于一般的虚拟化软件(KVM, XEN, Vmware)，它是基于linux cgroup二次开发的OS层面的虚拟化。LXC容器之间共享底层的OS，相对XEN/KVM/VMWARE等完全虚拟化一个硬件抽象的虚拟机。LXC的轻量特性就体现在资源隔离。容器内部只是一个文件系统级别的独立系统空间。</p>
+<p>Docker基于LXC做了大量的工作，不仅仅只是个LXC的管理工具。最大的亮点是定义了一个完整的容器生命周期，包含创建/删除容器，管理容器，还有共享和分发容器。docker index是个在线的容器APP共享站点。一个APP，里面可能只装上了wordpress，或者配置好了LAMP环境。比如这个例子mysql docker app： <a href="https://index.docker.io/u/panamax/panamax-docker-mysql/">Mysql Docker</a></p>
+<p>目前docker的三个组件：</p>
+<ul>
+<li>Docker container</li>
+<li>Docker images</li>
+<li>Docker registries</li>
+</ul>
+<p><a href="http://docs.docker.io/introduction/understanding-docker/#docker-versus-virtual-machines">docker和虚拟机的区别</a></p>
+<h2>安装</h2>
+<p>在Fedora平台，直接从yum仓库安装： <code>sudo yum install docker-io</code> 更多安装文档，请参考： <a href="http://docs.docker.io/installation/">http://docs.docker.io/installation/</a></p>
+<p>安装docker之后，把docker服务启动。 <code>/etc/init.d/docker start</code></p>
+<p>接着，运行<code>docker info</code>  验证是否成功安装。</p>
+<div class="highlight"><pre><span></span>[root@ncvm9087109 ~]# docker info
+Containers: 10
+Images: 41
+Storage Driver: devicemapper
+ Pool Name: docker-253:0-1332588-pool
+ Data file: /var/lib/docker/devicemapper/devicemapper/data
+ Metadata file: /var/lib/docker/devicemapper/devicemapper/metadata
+ Data Space Used: 3635.9 Mb
+ Data Space Total: 102400.0 Mb
+ Metadata Space Used: 4.1 Mb
+ Metadata Space Total: 2048.0 Mb
+Execution Driver: lxc-0.9.0
+Kernel Version: 2.6.32-431.el6.x86_64
+[root@ncvm9087109 ~]# ps -ef | grep lxc
+root      1518 32566  0 May26 pts/1    00:00:00 lxc-start -n d5ccfc971616c968e958f1d3bdfd3806b37f7159cf0a5d7cb1f6a7430f1e4d14 -f /var/lib/docker/containers/d5ccfc971616c968e958f1d3bdfd3806b37f7159cf0a5d7cb1f6a7430f1e4d14/config.lxc -- /.dockerinit -driver lxc -g 172.17.42.1 -i 172.17.0.2/16 -mtu 1500 -- /bin/bash
+</pre></div>
+
+
+<h2>Hello World</h2>
+<p>现在开始环境，从docker index下载一个base的fedora image： <a href="https://index.docker.io/_/fedora/">https://index.docker.io/_/fedora/</a>. 这个fedora image只有100多MB，只包含了了最基本的运行环境。</p>
+<div class="highlight"><pre><span></span>[ray@ncvm9087109 ~]$ sudo docker pull fedora
+Pulling repository fedora
+5cc9e91966f7: Download complete 
+b7de3133ff98: Download complete 
+511136ea3c5a: Download complete 
+ef52fb1fe610: Download complete 
+[root@ncvm9087109 devicemapper]# docker images fedora
+REPOSITORY          TAG                 IMAGE ID            CREATED             VIRTUAL SIZE
+fedora              rawhide             5cc9e91966f7        2 weeks ago         372.7 MB
+fedora              20                  b7de3133ff98        4 weeks ago         372.7 MB
+fedora              heisenbug           b7de3133ff98        4 weeks ago         372.7 MB
+fedora              latest              b7de3133ff98        4 weeks ago         372.7 MB
+</pre></div>
+
+
+<p>运行下面的命令：</p>
+<div class="highlight"><pre><span></span>[root@ncvm9087109 ~]# docker run fedora /bin/echo hello world
+hello world
+</pre></div>
+
+
+<h2>SSH示例</h2>
+<p>我们看一个复杂的例子，首先定义个<a href="http://docs.docker.io/reference/builder/">Dockerfile</a>。 跟其他的配置工具(puppet/saltstack)类似，docker定义了一系统的关键字语法，让用户自动化创建image的步骤。看下面的文件。先下载ubuntu这个base image，接着添加软件源后同步系统到最新release。然后用apt安装了sshd server，同时修改了root的密码。最后告诉docker，这个容器需要暴露22端口，最后的命令用来启动sshd。</p>
+<div class="highlight"><pre><span></span># sshd
+#
+# VERSION               0.0.1
+FROM     ubuntu
+MAINTAINER Thatcher R. Peskens &quot;thatcher@dotcloud.com&quot;
+# make sure the package repository is up to date
+RUN echo &quot;deb http://archive.ubuntu.com/ubuntu precise main universe&quot; &gt; /etc/apt/sources.list
+RUN apt-get update
+RUN apt-get install -y openssh-server
+RUN mkdir /var/run/sshd  &amp;&amp; chmod 755 /var/run/sshd
+RUN echo &#39;root:screencast&#39; |chpasswd
+EXPOSE 22
+CMD    /usr/sbin/sshd -D
+</pre></div>
+
+
+<p>注意<code>chmod 755 /var/run/sshd</code>不要忘记，不然会出现这个错误：可以用<code>docker logs &lt;container&gt;</code>检查错误。</p>
+<div class="highlight"><pre><span></span>root@95de4d97ee3a:/var/run# /usr/sbin/sshd -D
+/var/run/sshd must be owned by root and not group or world-writable.
+</pre></div>
+
+
+<p>dockerfile文件准备好之后，用<code>docker build</code>命令来build image</p>
+<div class="highlight"><pre><span></span>root@ncvm9087109 devicemapper]# docker build --rm -t eg_sshd - &lt; docker_sshd
+Uploading context 2.048 kB
+Uploading context 
+Step 0 : FROM     ubuntu
+ ---&gt; 99ec81b80c55
+Step 1 : MAINTAINER Thatcher R. Peskens &quot;thatcher@dotcloud.com&quot;
+ ---&gt; Running in d9e8a48ff85a
+ ---&gt; 5b880b2168aa
+Removing intermediate container d9e8a48ff85a
+Step 2 : RUN echo &quot;deb http://archive.ubuntu.com/ubuntu precise main universe&quot; &gt; /etc/apt/sources.list
+ ---&gt; Running in 5611f57e25e6
+ ---&gt; da2fa697d676
+Removing intermediate container 5611f57e25e6
+Step 3 : RUN apt-get update
+ ---&gt; Running in b313afedb3ad
+Ign http://archive.ubuntu.com precise InRelease
+Get:1 http://archive.ubuntu.com precise Release.gpg [198 B]
+Get:2 http://archive.ubuntu.com precise Release [49.6 kB]
+Get:3 http://archive.ubuntu.com precise/main amd64 Packages [1273 kB]
+Get:4 http://archive.ubuntu.com precise/universe amd64 Packages [4786 kB]
+Fetched 6109 kB in 5s (1182 kB/s)
+Reading package lists...
+ ---&gt; 0140b777b50b
+Removing intermediate container b313afedb3ad
+Step 4 : RUN apt-get install -y openssh-server
+ ---&gt; Running in e17e8919d7d1
+Reading package lists...
+Building dependency tree...
+Reading state information...
+The following extra packages will be installed:
+  ca-certificates krb5-locales libedit2 libgssapi-krb5-2 libidn11 libk5crypto3
+  libkeyutils1 libkrb5-3 libkrb5support0 libwrap0 libx11-6 libx11-data libxau6
+  libxcb1 libxdmcp6 libxext6 libxmuu1 openssh-client openssl ssh-import-id
+  tcpd wget xauth
+Suggested packages:
+  krb5-doc krb5-user ssh-askpass libpam-ssh keychain monkeysphere
+  openssh-blacklist openssh-blacklist-extra rssh molly-guard ufw
+The following NEW packages will be installed:
+  ca-certificates krb5-locales libedit2 libgssapi-krb5-2 libidn11 libk5crypto3
+  libkeyutils1 libkrb5-3 libkrb5support0 libwrap0 libx11-6 libx11-data libxau6
+  libxcb1 libxdmcp6 libxext6 libxmuu1 openssh-client openssl ssh-import-id
+  tcpd wget xauth
+Suggested packages:
+  krb5-doc krb5-user ssh-askpass libpam-ssh keychain monkeysphere
+  openssh-blacklist openssh-blacklist-extra rssh molly-guard ufw
+The following NEW packages will be installed:
+  ca-certificates krb5-locales libedit2 libgssapi-krb5-2 libidn11 libk5crypto3
+  libkeyutils1 libkrb5-3 libkrb5support0 libwrap0 libx11-6 libx11-data libxau6
+  libxcb1 libxdmcp6 libxext6 libxmuu1 openssh-client openssh-server openssl
+  ssh-import-id tcpd wget xauth
+0 upgraded, 24 newly installed, 0 to remove and 0 not upgraded.
+Need to get 4178 kB of archives.
+After this operation, 12.9 MB of additional disk space will be used.
+......
+Setting up tcpd (7.6.q-21) ...
+Setting up ssh-import-id (2.10-0ubuntu1) ...
+Processing triggers for libc-bin (2.19-0ubuntu6) ...
+Processing triggers for ureadahead (0.100.0-16) ...
+ ---&gt; 6e430d647352
+Removing intermediate container e17e8919d7d1
+Step 5 : RUN mkdir /var/run/sshd
+ ---&gt; Running in eee245ce4ee1
+ ---&gt; 468ba80bb857
+Removing intermediate container eee245ce4ee1
+Step 6 : RUN echo &#39;root:screencast&#39; |chpasswd
+ ---&gt; Running in bd6f65acaf7a
+ ---&gt; 4a9fb44bd5df
+Removing intermediate container bd6f65acaf7a
+Step 7 : EXPOSE 22
+ ---&gt; Running in dfccfd6cd0de
+ ---&gt; f5b10cde65f7
+Removing intermediate container dfccfd6cd0de
+Step 8 : CMD    /usr/sbin/sshd -D
+ ---&gt; Running in ffc41d6e7204
+ ---&gt; 107b63fd863e
+Removing intermediate container ffc41d6e7204
+Successfully built 107b63fd863e
+</pre></div>
+
+
+<p>创建好image之后，可以启动这个image。</p>
+<div class="highlight"><pre><span></span>[root@ncvm9087109 devicemapper]# docker run -d -P -name test_sshd eg_sshd
+Warning: &#39;-name&#39; is deprecated, it will be replaced by &#39;--name&#39; soon. See usage.
+f1b631682b58e2c72c1677703f96dcfe619afa3b61b9796abbd30010b0b28fd0
+[root@ncvm9087109 devicemapper]# docker ps
+CONTAINER ID        IMAGE               COMMAND                CREATED             STATUS              PORTS                   NAMES
+f1b631682b58        eg_sshd:latest      /bin/sh -c &#39;/usr/sbi   3 minutes ago       Up 3 minutes        0.0.0.0:49155-&gt;22/tcp   test_sshd      
+</pre></div>
+
+
+<p>ps可以看到刚才的container在运行，同时ssh的22 port映射到内部的49155， 也可以用<code>docker port</code>看出来。</p>
+<div class="highlight"><pre><span></span>[root@ncvm9087109 devicemapper]# docker port test_sshd 22
+0.0.0.0:49155
+[root@ncvm9087109 devicemapper]# docker inspect test_sshd
+[{
+    &quot;ID&quot;: &quot;f1b631682b58e2c72c1677703f96dcfe619afa3b61b9796abbd30010b0b28fd0&quot;,
+    &quot;Created&quot;: &quot;2014-05-27T06:50:11.800415844Z&quot;,
+    &quot;Path&quot;: &quot;/bin/sh&quot;,
+    &quot;Args&quot;: [
+        &quot;-c&quot;,
+        &quot;/usr/sbin/sshd -D&quot;
+    ],
+    &quot;Config&quot;: {
+        &quot;Hostname&quot;: &quot;f1b631682b58&quot;,
+        &quot;Domainname&quot;: &quot;&quot;,
+        &quot;User&quot;: &quot;&quot;,
+        &quot;Memory&quot;: 0,
+        &quot;MemorySwap&quot;: 0,
+        &quot;CpuShares&quot;: 0,
+        &quot;AttachStdin&quot;: false,
+        &quot;AttachStdout&quot;: false,
+        &quot;AttachStderr&quot;: false,
+        &quot;PortSpecs&quot;: null,
+        &quot;ExposedPorts&quot;: {
+            &quot;22/tcp&quot;: {}
+        },
+        &quot;Tty&quot;: false,
+        &quot;OpenStdin&quot;: false,
+        &quot;StdinOnce&quot;: false,
+        &quot;Env&quot;: [
+            &quot;HOME=/&quot;,
+            &quot;PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin&quot;
+        ],
+        &quot;Cmd&quot;: [
+            &quot;/bin/sh&quot;,
+            &quot;-c&quot;,
+            &quot;/usr/sbin/sshd -D&quot;
+        ],
+        &quot;Image&quot;: &quot;eg_sshd&quot;,
+        &quot;Volumes&quot;: null,
+        &quot;WorkingDir&quot;: &quot;&quot;,
+        &quot;Entrypoint&quot;: null,
+        &quot;NetworkDisabled&quot;: false,
+        &quot;OnBuild&quot;: null
+    },
+    &quot;State&quot;: {
+        &quot;Running&quot;: true,
+        &quot;Pid&quot;: 16375,
+        &quot;ExitCode&quot;: 0,
+        &quot;StartedAt&quot;: &quot;2014-05-27T06:50:12.007032752Z&quot;,
+        &quot;FinishedAt&quot;: &quot;0001-01-01T00:00:00Z&quot;
+    },
+    &quot;Image&quot;: &quot;923a1ba95ae16047a0bf3a5430fc4cc858267fdca90b3c939cbcf6747ccfd595&quot;,
+    &quot;NetworkSettings&quot;: {
+        &quot;IPAddress&quot;: &quot;172.17.0.2&quot;,
+        &quot;IPPrefixLen&quot;: 16,
+        &quot;Gateway&quot;: &quot;172.17.42.1&quot;,
+        &quot;Bridge&quot;: &quot;docker0&quot;,
+        &quot;PortMapping&quot;: null,
+        &quot;Ports&quot;: {
+            &quot;22/tcp&quot;: [
+                {
+                    &quot;HostIp&quot;: &quot;0.0.0.0&quot;,
+                    &quot;HostPort&quot;: &quot;49155&quot;
+                }
+            ]
+        }
+    },
+    &quot;ResolvConfPath&quot;: &quot;/etc/resolv.conf&quot;,
+    &quot;HostnamePath&quot;: &quot;/var/lib/docker/containers/f1b631682b58e2c72c1677703f96dcfe619afa3b61b9796abbd30010b0b28fd0/hostname&quot;,
+    &quot;HostsPath&quot;: &quot;/var/lib/docker/containers/f1b631682b58e2c72c1677703f96dcfe619afa3b61b9796abbd30010b0b28fd0/hosts&quot;,
+    &quot;Name&quot;: &quot;/test_sshd&quot;,
+    &quot;Driver&quot;: &quot;devicemapper&quot;,
+    &quot;ExecDriver&quot;: &quot;lxc-0.9.0&quot;,
+    &quot;MountLabel&quot;: &quot;&quot;,
+    &quot;ProcessLabel&quot;: &quot;&quot;,
+    &quot;Volumes&quot;: {},
+    &quot;VolumesRW&quot;: {},
+    &quot;HostConfig&quot;: {
+        &quot;Binds&quot;: null,
+        &quot;ContainerIDFile&quot;: &quot;&quot;,
+        &quot;LxcConf&quot;: [],
+        &quot;Privileged&quot;: false,
+        &quot;PortBindings&quot;: {
+            &quot;22/tcp&quot;: [
+                {
+                    &quot;HostIp&quot;: &quot;0.0.0.0&quot;,
+                    &quot;HostPort&quot;: &quot;49155&quot;
+                }
+            ]
+        },
+        &quot;Links&quot;: null,
+        &quot;PublishAllPorts&quot;: true,
+        &quot;Dns&quot;: null,
+        &quot;DnsSearch&quot;: null,
+        &quot;VolumesFrom&quot;: null,
+        &quot;NetworkMode&quot;: &quot;bridge&quot;
+    }
+}]
+</pre></div>
+
+
+<p>最后可以ssh连接到这个运行的容器。IP是docker在主机上daemon的ip，从ipconfig可以看出来：</p>
+<div class="highlight"><pre><span></span>[root@ncvm9087109 devicemapper]# ip a
+7: docker0: &lt;BROADCAST,MULTICAST,UP,LOWER_UP&gt; mtu 1500 qdisc noqueue state UNKNOWN 
+    link/ether fe:bc:7d:30:93:cb brd ff:ff:ff:ff:ff:ff
+    inet 172.17.42.1/16 scope global docker0
+    inet6 fe80::2c64:f0ff:feb8:d96e/64 scope link 
+       valid_lft forever preferred_lft forever
+[root@ncvm9087109 devicemapper]# ssh  root@172.17.42.1 -p 49155
+The authenticity of host &#39;[172.17.42.1]:49155 ([172.17.42.1]:49155)&#39; can&#39;t be established.
+RSA key fingerprint is d7:1c:11:ed:a2:03:76:54:7b:32:53:c6:b1:d3:ef:33.
+Are you sure you want to continue connecting (yes/no)? yes
+Warning: Permanently added &#39;[172.17.42.1]:49155&#39; (RSA) to the list of known hosts.
+root@172.17.42.1&#39;s password: 
+Last login: Tue May 27 06:55:29 2014 from 172.17.42.1
+root@f1b631682b58:~# netstat -anp
+Active Internet connections (servers and established)
+Proto Recv-Q Send-Q Local Address           Foreign Address         State       PID/Program name
+tcp        0      0 0.0.0.0:22              0.0.0.0:*               LISTEN      7/sshd          
+tcp        0      0 172.17.0.2:22           172.17.42.1:49690       ESTABLISHED 32/0            
+tcp6       0      0 :::22                   :::*                    LISTEN      7/sshd   
+</pre></div>
+
+
+<h2>总结</h2>
+<p>docker提供了一个迅速部署linux容器的方案。一份docker image，可以放在装有docker的任何平台运行。特别应用于部署开发测试环境。占用系统主机资源少的同时，达到了资源隔离的效果（归功于cgroup）。
+基于docker做了PAAS平台： https://github.com/deis/deis</p>
+<h2>参考</h2>
+<ul>
+<li><a href="http://docs.docker.io/">http://docs.docker.io/</a></li>
+<li><a href="https://log.qingcloud.com/?p=129">https://log.qingcloud.com/?p=129</a></li>
+<li><a href="http://www.vpsee.com/2013/07/use-docker-and-lxc-to-build-a-desktop/">http://www.vpsee.com/2013/07/use-docker-and-lxc-to-build-a-desktop/</a></li>
+<li><a href="https://www.docker.io/the_whole_story/">https://www.docker.io/the_whole_story/</a></li>
+</ul>
+            </div>
+            <!-- /.entry-content -->
+    <hr/>
+    <section class="comments" id="comments">
+        <h2>Comments</h2>
+
+        <div id="disqus_thread"></div>
+        <script type="text/javascript">
+            /* * * CONFIGURATION VARIABLES: EDIT BEFORE PASTING INTO YOUR WEBPAGE * * */
+            var disqus_shortname = 'hellostack'; // required: replace example with your forum shortname
+
+                    var disqus_identifier = 'first-look-docker';
+                var disqus_url = 'http://hellostack.info/first-look-docker.html';
+
+            var disqus_config = function () {
+                this.language = "en";
+            };
+
+            /* * * DON'T EDIT BELOW THIS LINE * * */
+            (function () {
+                var dsq = document.createElement('script');
+                dsq.type = 'text/javascript';
+                dsq.async = true;
+                dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+                (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+            })();
+        </script>
+        <noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by
+            Disqus.</a></noscript>
+        <a href="http://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+
+    </section>
+        </article>
+    </section>
+
+        </div>
+        <div class="col-sm-3" id="sidebar">
+            <aside>
+
+<section class="well well-sm">
+    <ul class="list-group list-group-flush">
+            <li class="list-group-item"><h4><i class="fa fa-home fa-lg"></i><span class="icon-label">Social</span></h4>
+              <ul class="list-group" id="social">
+                <li class="list-group-item"><a href="https://github.com/crook"><i class="fa fa-github-square fa-lg"></i> Github</a></li>
+                <li class="list-group-item"><a href="http://weibo.com/crookcrook/"><i class="fa fa-weibo fa-lg"></i> Weibo</a></li>
+                <li class="list-group-item"><a href="http://hellostack.info/feeds/all.atom.xml"><i class="fa fa-rss-square fa-lg"></i> RSS</a></li>
+              </ul>
+            </li>
+
+
+
+
+
+    <li class="list-group-item"><h4><i class="fa fa-external-link-square fa-lg"></i><span class="icon-label">Links</span></h4>
+      <ul class="list-group" id="links">
+        <li class="list-group-item">
+            <a href="http://chenrano2002.blog.chinaunix.net/" target="_blank">
+                小企鹅看大世界
+            </a>
+        </li>
+        <li class="list-group-item">
+            <a href="http://feisky.xyz" target="_blank">
+                Feisky's Blog
+            </a>
+        </li>
+        <li class="list-group-item">
+            <a href="http://wangxu.me" target="_blank">
+                Wang Xu's Blog
+            </a>
+        </li>
+        <li class="list-group-item">
+            <a href="http://www.hellospark.me/" target="_blank">
+                Lyndon's Blog
+            </a>
+        </li>
+        <li class="list-group-item">
+            <a href="http://www.openstack.org/" target="_blank">
+                Openstack
+            </a>
+        </li>
+      </ul>
+    </li>
+    </ul>
+</section>
+            </aside>
+        </div>
+    </div>
+</div>
+<footer>
+   <div class="container">
+      <hr>
+      <div class="row">
+         <div class="col-xs-10">&copy; 2016 Ray Chen
+            &middot; Powered by <a href="https://github.com/getpelican/pelican-themes/tree/master/pelican-bootstrap3" target="_blank">pelican-bootstrap3</a>,
+            <a href="http://docs.getpelican.com/" target="_blank">Pelican</a>,
+            <a href="http://getbootstrap.com" target="_blank">Bootstrap</a>         </div>
+         <div class="col-xs-2"><p class="pull-right"><i class="fa fa-arrow-up"></i> <a href="#">Back to top</a></p></div>
+      </div>
+   </div>
+</footer>
+<script src="http://hellostack.info/theme/js/jquery.min.js"></script>
+
+<!-- Include all compiled plugins (below), or include individual files as needed -->
+<script src="http://hellostack.info/theme/js/bootstrap.min.js"></script>
+
+<!-- Enable responsive features in IE8 with Respond.js (https://github.com/scottjehl/Respond) -->
+<script src="http://hellostack.info/theme/js/respond.min.js"></script>
+
+    <!-- Disqus -->
+    <script type="text/javascript">
+        /* * * CONFIGURATION VARIABLES: EDIT BEFORE PASTING INTO YOUR WEBPAGE * * */
+        var disqus_shortname = 'hellostack'; // required: replace example with your forum shortname
+
+        /* * * DON'T EDIT BELOW THIS LINE * * */
+        (function () {
+            var s = document.createElement('script');
+            s.async = true;
+            s.type = 'text/javascript';
+            s.src = '//' + disqus_shortname + '.disqus.com/count.js';
+            (document.getElementsByTagName('HEAD')[0] || document.getElementsByTagName('BODY')[0]).appendChild(s);
+        }());
+    </script>
+    <!-- End Disqus Code -->
+    <!-- Google Analytics -->
+    <script type="text/javascript">
+
+        var _gaq = _gaq || [];
+        _gaq.push(['_setAccount', 'UA-51314242-1']);
+        _gaq.push(['_trackPageview']);
+
+        (function () {
+            var ga = document.createElement('script');
+            ga.type = 'text/javascript';
+            ga.async = true;
+            ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+            var s = document.getElementsByTagName('script')[0];
+            s.parentNode.insertBefore(ga, s);
+        })();
+    </script>
+    <!-- End Google Analytics Code -->
+
+</body>
+</html>

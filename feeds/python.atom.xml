@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom"><title>Hello Stack</title><link href="http://hellostack.info/" rel="alternate"></link><link href="http://hellostack.info/feeds/python.atom.xml" rel="self"></link><id>http://hellostack.info/</id><updated>2014-05-13T00:12:00+08:00</updated><entry><title>yum-axelget插件更新</title><link href="http://hellostack.info/yum-axelget-update.html" rel="alternate"></link><published>2014-05-13T00:12:00+08:00</published><author><name>Ray Chen</name></author><id>tag:hellostack.info,2014-05-13:yum-axelget-update.html</id><summary type="html">&lt;p&gt;周末花了一天时间，把 yum-axelget更新到Fedora20. 实现的基本原理就是：在Yum Code下载之前，用axel把所有需要的RPM/DRPM提前下载好。之前的版本有问题，主要是因为presto（Delta RPM）现在直接merge到Yum Core Code。&lt;/p&gt;
+&lt;p&gt;远期计划支持多种下载工具，让用户自己选择&lt;/p&gt;
+&lt;p&gt;项目地址：&lt;a href="https://github.com/crook/yum-axelget/"&gt;https://github.com/crook/yum-axelget/&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;目前yum-axelget已经在Fedora官方库，可以直接&lt;code&gt;yum install yum-axelget&lt;/code&gt; 安装&lt;/p&gt;
+&lt;p&gt;截图：&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;(vdev)[ray@fedora yum-axelget]$ sudo yum install ddd
+Loaded plugins: axelget, fastestmirror, priorities
+No metadata available for fedora
+No metadata available for rpmfusion-free
+No metadata available for rpmfusion-free-updates
+No metadata available for rpmfusion-nonfree
+No metadata available for rpmfusion-nonfree-updates
+No metadata available for updates
+Loading mirror speeds from cached hostfile
+ * fedora: mirrors.hustunique.com
+ * rpmfusion-free: mirror.bjtu.edu.cn
+ * rpmfusion-free-updates: mirror.switch.ch
+ * rpmfusion-nonfree: mirror.bjtu.edu.cn
+ * rpmfusion-nonfree-updates: mirror.bjtu.edu.cn
+ * updates: mirrors.hustunique.com
+Resolving Dependencies
+--&amp;gt; Running transaction check
+---&amp;gt; Package ddd.x86_64 0:3.3.12-16.fc20 will be installed
+--&amp;gt; Finished Dependency Resolution
+
+Dependencies Resolved
+
+==============================================================================================================================================
+ Package                Arch                              Version                                    Repository                          Size
+==============================================================================================================================================
+Installing:
+ ddd                    x86_64                            3.3.12-16.fc20                             updates                            1.5 M
+
+Transaction Summary
+=============================================================================================================================================
+Install  1 Package
+
+Total download size: 1.5 M
+Installed size: 4.5 M
+Is this ok [y/d/N]: y
+Downloading packages:
+ddd-3.3.12-16.fc20.x86_64.rpm                                                                                             | 1.5 MB  00:00:05     
+Running transaction check
+Running transaction test
+Transaction test succeeded
+Running transaction
+  Installing : ddd-3.3.12-16.fc20.x86_64                                                                                                 1/1 
+  Verifying  : ddd-3.3.12-16.fc20.x86_64                                                                                                 1/1 
+
+Installed:
+  ddd.x86_64 0:3.3.12-16.fc20                                                                                                                         
+
+Complete!
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;跟没有axelget插件的安装界面完全一样。但是这里的ddd rpm实质是axel安装的。 可用&lt;code&gt;yum -d 3 install ddd&lt;/code&gt;看实际的效果。&lt;/p&gt;
+&lt;p&gt;全文完。&lt;/p&gt;</summary><category term="yum"></category><category term="python"></category></entry></feed>

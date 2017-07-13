@@ -1,0 +1,374 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom"><title>Hello Stack</title><link href="http://hellostack.info/" rel="alternate"></link><link href="http://hellostack.info/feeds/cloud.atom.xml" rel="self"></link><id>http://hellostack.info/</id><updated>2014-05-27T16:04:00+08:00</updated><entry><title>docker初探</title><link href="http://hellostack.info/first-look-docker.html" rel="alternate"></link><published>2014-05-27T16:04:00+08:00</published><author><name>Ray Chen</name></author><id>tag:hellostack.info,2014-05-27:first-look-docker.html</id><summary type="html">&lt;h2&gt;介绍&lt;/h2&gt;
+&lt;p&gt;要理解docker, 必须看明白什么是容器。Docker的后端使用的是&lt;a href="https://linuxcontainers.org/"&gt;LXC&lt;/a&gt;. 后者是linux的系统虚拟化工具。容器不同于一般的虚拟化软件(KVM, XEN, Vmware)，它是基于linux cgroup二次开发的OS层面的虚拟化。LXC容器之间共享底层的OS，相对XEN/KVM/VMWARE等完全虚拟化一个硬件抽象的虚拟机。LXC的轻量特性就体现在资源隔离。容器内部只是一个文件系统级别的独立系统空间。&lt;/p&gt;
+&lt;p&gt;Docker基于LXC做了大量的工作，不仅仅只是个LXC的管理工具。最大的亮点是定义了一个完整的容器生命周期，包含创建/删除容器，管理容器，还有共享和分发容器。docker index是个在线的容器APP共享站点。一个APP，里面可能只装上了wordpress，或者配置好了LAMP环境。比如这个例子mysql docker app： &lt;a href="https://index.docker.io/u/panamax/panamax-docker-mysql/"&gt;Mysql Docker&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;目前docker的三个组件：&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;Docker container&lt;/li&gt;
+&lt;li&gt;Docker images&lt;/li&gt;
+&lt;li&gt;Docker registries&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;&lt;a href="http://docs.docker.io/introduction/understanding-docker/#docker-versus-virtual-machines"&gt;docker和虚拟机的区别&lt;/a&gt;&lt;/p&gt;
+&lt;h2&gt;安装&lt;/h2&gt;
+&lt;p&gt;在Fedora平台，直接从yum仓库安装： &lt;code&gt;sudo yum install docker-io&lt;/code&gt; 更多安装文档，请参考： &lt;a href="http://docs.docker.io/installation/"&gt;http://docs.docker.io/installation/&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;安装docker之后，把docker服务启动。 &lt;code&gt;/etc/init.d/docker start&lt;/code&gt;&lt;/p&gt;
+&lt;p&gt;接着，运行&lt;code&gt;docker info&lt;/code&gt;  验证是否成功安装。&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;[root@ncvm9087109 ~]# docker info
+Containers: 10
+Images: 41
+Storage Driver: devicemapper
+ Pool Name: docker-253:0-1332588-pool
+ Data file: /var/lib/docker/devicemapper/devicemapper/data
+ Metadata file: /var/lib/docker/devicemapper/devicemapper/metadata
+ Data Space Used: 3635.9 Mb
+ Data Space Total: 102400.0 Mb
+ Metadata Space Used: 4.1 Mb
+ Metadata Space Total: 2048.0 Mb
+Execution Driver: lxc-0.9.0
+Kernel Version: 2.6.32-431.el6.x86_64
+[root@ncvm9087109 ~]# ps -ef | grep lxc
+root      1518 32566  0 May26 pts/1    00:00:00 lxc-start -n d5ccfc971616c968e958f1d3bdfd3806b37f7159cf0a5d7cb1f6a7430f1e4d14 -f /var/lib/docker/containers/d5ccfc971616c968e958f1d3bdfd3806b37f7159cf0a5d7cb1f6a7430f1e4d14/config.lxc -- /.dockerinit -driver lxc -g 172.17.42.1 -i 172.17.0.2/16 -mtu 1500 -- /bin/bash
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;h2&gt;Hello World&lt;/h2&gt;
+&lt;p&gt;现在开始环境，从docker index下载一个base的fedora image： &lt;a href="https://index.docker.io/_/fedora/"&gt;https://index.docker.io/_/fedora/&lt;/a&gt;. 这个fedora image只有100多MB，只包含了了最基本的运行环境。&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;[ray@ncvm9087109 ~]$ sudo docker pull fedora
+Pulling repository fedora
+5cc9e91966f7: Download complete 
+b7de3133ff98: Download complete 
+511136ea3c5a: Download complete 
+ef52fb1fe610: Download complete 
+[root@ncvm9087109 devicemapper]# docker images fedora
+REPOSITORY          TAG                 IMAGE ID            CREATED             VIRTUAL SIZE
+fedora              rawhide             5cc9e91966f7        2 weeks ago         372.7 MB
+fedora              20                  b7de3133ff98        4 weeks ago         372.7 MB
+fedora              heisenbug           b7de3133ff98        4 weeks ago         372.7 MB
+fedora              latest              b7de3133ff98        4 weeks ago         372.7 MB
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;运行下面的命令：&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;[root@ncvm9087109 ~]# docker run fedora /bin/echo hello world
+hello world
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;h2&gt;SSH示例&lt;/h2&gt;
+&lt;p&gt;我们看一个复杂的例子，首先定义个&lt;a href="http://docs.docker.io/reference/builder/"&gt;Dockerfile&lt;/a&gt;。 跟其他的配置工具(puppet/saltstack)类似，docker定义了一系统的关键字语法，让用户自动化创建image的步骤。看下面的文件。先下载ubuntu这个base image，接着添加软件源后同步系统到最新release。然后用apt安装了sshd server，同时修改了root的密码。最后告诉docker，这个容器需要暴露22端口，最后的命令用来启动sshd。&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;# sshd
+#
+# VERSION               0.0.1
+FROM     ubuntu
+MAINTAINER Thatcher R. Peskens &amp;quot;thatcher@dotcloud.com&amp;quot;
+# make sure the package repository is up to date
+RUN echo &amp;quot;deb http://archive.ubuntu.com/ubuntu precise main universe&amp;quot; &amp;gt; /etc/apt/sources.list
+RUN apt-get update
+RUN apt-get install -y openssh-server
+RUN mkdir /var/run/sshd  &amp;amp;&amp;amp; chmod 755 /var/run/sshd
+RUN echo &amp;#39;root:screencast&amp;#39; |chpasswd
+EXPOSE 22
+CMD    /usr/sbin/sshd -D
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;注意&lt;code&gt;chmod 755 /var/run/sshd&lt;/code&gt;不要忘记，不然会出现这个错误：可以用&lt;code&gt;docker logs &amp;lt;container&amp;gt;&lt;/code&gt;检查错误。&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;root@95de4d97ee3a:/var/run# /usr/sbin/sshd -D
+/var/run/sshd must be owned by root and not group or world-writable.
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;dockerfile文件准备好之后，用&lt;code&gt;docker build&lt;/code&gt;命令来build image&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;root@ncvm9087109 devicemapper]# docker build --rm -t eg_sshd - &amp;lt; docker_sshd
+Uploading context 2.048 kB
+Uploading context 
+Step 0 : FROM     ubuntu
+ ---&amp;gt; 99ec81b80c55
+Step 1 : MAINTAINER Thatcher R. Peskens &amp;quot;thatcher@dotcloud.com&amp;quot;
+ ---&amp;gt; Running in d9e8a48ff85a
+ ---&amp;gt; 5b880b2168aa
+Removing intermediate container d9e8a48ff85a
+Step 2 : RUN echo &amp;quot;deb http://archive.ubuntu.com/ubuntu precise main universe&amp;quot; &amp;gt; /etc/apt/sources.list
+ ---&amp;gt; Running in 5611f57e25e6
+ ---&amp;gt; da2fa697d676
+Removing intermediate container 5611f57e25e6
+Step 3 : RUN apt-get update
+ ---&amp;gt; Running in b313afedb3ad
+Ign http://archive.ubuntu.com precise InRelease
+Get:1 http://archive.ubuntu.com precise Release.gpg [198 B]
+Get:2 http://archive.ubuntu.com precise Release [49.6 kB]
+Get:3 http://archive.ubuntu.com precise/main amd64 Packages [1273 kB]
+Get:4 http://archive.ubuntu.com precise/universe amd64 Packages [4786 kB]
+Fetched 6109 kB in 5s (1182 kB/s)
+Reading package lists...
+ ---&amp;gt; 0140b777b50b
+Removing intermediate container b313afedb3ad
+Step 4 : RUN apt-get install -y openssh-server
+ ---&amp;gt; Running in e17e8919d7d1
+Reading package lists...
+Building dependency tree...
+Reading state information...
+The following extra packages will be installed:
+  ca-certificates krb5-locales libedit2 libgssapi-krb5-2 libidn11 libk5crypto3
+  libkeyutils1 libkrb5-3 libkrb5support0 libwrap0 libx11-6 libx11-data libxau6
+  libxcb1 libxdmcp6 libxext6 libxmuu1 openssh-client openssl ssh-import-id
+  tcpd wget xauth
+Suggested packages:
+  krb5-doc krb5-user ssh-askpass libpam-ssh keychain monkeysphere
+  openssh-blacklist openssh-blacklist-extra rssh molly-guard ufw
+The following NEW packages will be installed:
+  ca-certificates krb5-locales libedit2 libgssapi-krb5-2 libidn11 libk5crypto3
+  libkeyutils1 libkrb5-3 libkrb5support0 libwrap0 libx11-6 libx11-data libxau6
+  libxcb1 libxdmcp6 libxext6 libxmuu1 openssh-client openssl ssh-import-id
+  tcpd wget xauth
+Suggested packages:
+  krb5-doc krb5-user ssh-askpass libpam-ssh keychain monkeysphere
+  openssh-blacklist openssh-blacklist-extra rssh molly-guard ufw
+The following NEW packages will be installed:
+  ca-certificates krb5-locales libedit2 libgssapi-krb5-2 libidn11 libk5crypto3
+  libkeyutils1 libkrb5-3 libkrb5support0 libwrap0 libx11-6 libx11-data libxau6
+  libxcb1 libxdmcp6 libxext6 libxmuu1 openssh-client openssh-server openssl
+  ssh-import-id tcpd wget xauth
+0 upgraded, 24 newly installed, 0 to remove and 0 not upgraded.
+Need to get 4178 kB of archives.
+After this operation, 12.9 MB of additional disk space will be used.
+......
+Setting up tcpd (7.6.q-21) ...
+Setting up ssh-import-id (2.10-0ubuntu1) ...
+Processing triggers for libc-bin (2.19-0ubuntu6) ...
+Processing triggers for ureadahead (0.100.0-16) ...
+ ---&amp;gt; 6e430d647352
+Removing intermediate container e17e8919d7d1
+Step 5 : RUN mkdir /var/run/sshd
+ ---&amp;gt; Running in eee245ce4ee1
+ ---&amp;gt; 468ba80bb857
+Removing intermediate container eee245ce4ee1
+Step 6 : RUN echo &amp;#39;root:screencast&amp;#39; |chpasswd
+ ---&amp;gt; Running in bd6f65acaf7a
+ ---&amp;gt; 4a9fb44bd5df
+Removing intermediate container bd6f65acaf7a
+Step 7 : EXPOSE 22
+ ---&amp;gt; Running in dfccfd6cd0de
+ ---&amp;gt; f5b10cde65f7
+Removing intermediate container dfccfd6cd0de
+Step 8 : CMD    /usr/sbin/sshd -D
+ ---&amp;gt; Running in ffc41d6e7204
+ ---&amp;gt; 107b63fd863e
+Removing intermediate container ffc41d6e7204
+Successfully built 107b63fd863e
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;创建好image之后，可以启动这个image。&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;[root@ncvm9087109 devicemapper]# docker run -d -P -name test_sshd eg_sshd
+Warning: &amp;#39;-name&amp;#39; is deprecated, it will be replaced by &amp;#39;--name&amp;#39; soon. See usage.
+f1b631682b58e2c72c1677703f96dcfe619afa3b61b9796abbd30010b0b28fd0
+[root@ncvm9087109 devicemapper]# docker ps
+CONTAINER ID        IMAGE               COMMAND                CREATED             STATUS              PORTS                   NAMES
+f1b631682b58        eg_sshd:latest      /bin/sh -c &amp;#39;/usr/sbi   3 minutes ago       Up 3 minutes        0.0.0.0:49155-&amp;gt;22/tcp   test_sshd      
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;ps可以看到刚才的container在运行，同时ssh的22 port映射到内部的49155， 也可以用&lt;code&gt;docker port&lt;/code&gt;看出来。&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;[root@ncvm9087109 devicemapper]# docker port test_sshd 22
+0.0.0.0:49155
+[root@ncvm9087109 devicemapper]# docker inspect test_sshd
+[{
+    &amp;quot;ID&amp;quot;: &amp;quot;f1b631682b58e2c72c1677703f96dcfe619afa3b61b9796abbd30010b0b28fd0&amp;quot;,
+    &amp;quot;Created&amp;quot;: &amp;quot;2014-05-27T06:50:11.800415844Z&amp;quot;,
+    &amp;quot;Path&amp;quot;: &amp;quot;/bin/sh&amp;quot;,
+    &amp;quot;Args&amp;quot;: [
+        &amp;quot;-c&amp;quot;,
+        &amp;quot;/usr/sbin/sshd -D&amp;quot;
+    ],
+    &amp;quot;Config&amp;quot;: {
+        &amp;quot;Hostname&amp;quot;: &amp;quot;f1b631682b58&amp;quot;,
+        &amp;quot;Domainname&amp;quot;: &amp;quot;&amp;quot;,
+        &amp;quot;User&amp;quot;: &amp;quot;&amp;quot;,
+        &amp;quot;Memory&amp;quot;: 0,
+        &amp;quot;MemorySwap&amp;quot;: 0,
+        &amp;quot;CpuShares&amp;quot;: 0,
+        &amp;quot;AttachStdin&amp;quot;: false,
+        &amp;quot;AttachStdout&amp;quot;: false,
+        &amp;quot;AttachStderr&amp;quot;: false,
+        &amp;quot;PortSpecs&amp;quot;: null,
+        &amp;quot;ExposedPorts&amp;quot;: {
+            &amp;quot;22/tcp&amp;quot;: {}
+        },
+        &amp;quot;Tty&amp;quot;: false,
+        &amp;quot;OpenStdin&amp;quot;: false,
+        &amp;quot;StdinOnce&amp;quot;: false,
+        &amp;quot;Env&amp;quot;: [
+            &amp;quot;HOME=/&amp;quot;,
+            &amp;quot;PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin&amp;quot;
+        ],
+        &amp;quot;Cmd&amp;quot;: [
+            &amp;quot;/bin/sh&amp;quot;,
+            &amp;quot;-c&amp;quot;,
+            &amp;quot;/usr/sbin/sshd -D&amp;quot;
+        ],
+        &amp;quot;Image&amp;quot;: &amp;quot;eg_sshd&amp;quot;,
+        &amp;quot;Volumes&amp;quot;: null,
+        &amp;quot;WorkingDir&amp;quot;: &amp;quot;&amp;quot;,
+        &amp;quot;Entrypoint&amp;quot;: null,
+        &amp;quot;NetworkDisabled&amp;quot;: false,
+        &amp;quot;OnBuild&amp;quot;: null
+    },
+    &amp;quot;State&amp;quot;: {
+        &amp;quot;Running&amp;quot;: true,
+        &amp;quot;Pid&amp;quot;: 16375,
+        &amp;quot;ExitCode&amp;quot;: 0,
+        &amp;quot;StartedAt&amp;quot;: &amp;quot;2014-05-27T06:50:12.007032752Z&amp;quot;,
+        &amp;quot;FinishedAt&amp;quot;: &amp;quot;0001-01-01T00:00:00Z&amp;quot;
+    },
+    &amp;quot;Image&amp;quot;: &amp;quot;923a1ba95ae16047a0bf3a5430fc4cc858267fdca90b3c939cbcf6747ccfd595&amp;quot;,
+    &amp;quot;NetworkSettings&amp;quot;: {
+        &amp;quot;IPAddress&amp;quot;: &amp;quot;172.17.0.2&amp;quot;,
+        &amp;quot;IPPrefixLen&amp;quot;: 16,
+        &amp;quot;Gateway&amp;quot;: &amp;quot;172.17.42.1&amp;quot;,
+        &amp;quot;Bridge&amp;quot;: &amp;quot;docker0&amp;quot;,
+        &amp;quot;PortMapping&amp;quot;: null,
+        &amp;quot;Ports&amp;quot;: {
+            &amp;quot;22/tcp&amp;quot;: [
+                {
+                    &amp;quot;HostIp&amp;quot;: &amp;quot;0.0.0.0&amp;quot;,
+                    &amp;quot;HostPort&amp;quot;: &amp;quot;49155&amp;quot;
+                }
+            ]
+        }
+    },
+    &amp;quot;ResolvConfPath&amp;quot;: &amp;quot;/etc/resolv.conf&amp;quot;,
+    &amp;quot;HostnamePath&amp;quot;: &amp;quot;/var/lib/docker/containers/f1b631682b58e2c72c1677703f96dcfe619afa3b61b9796abbd30010b0b28fd0/hostname&amp;quot;,
+    &amp;quot;HostsPath&amp;quot;: &amp;quot;/var/lib/docker/containers/f1b631682b58e2c72c1677703f96dcfe619afa3b61b9796abbd30010b0b28fd0/hosts&amp;quot;,
+    &amp;quot;Name&amp;quot;: &amp;quot;/test_sshd&amp;quot;,
+    &amp;quot;Driver&amp;quot;: &amp;quot;devicemapper&amp;quot;,
+    &amp;quot;ExecDriver&amp;quot;: &amp;quot;lxc-0.9.0&amp;quot;,
+    &amp;quot;MountLabel&amp;quot;: &amp;quot;&amp;quot;,
+    &amp;quot;ProcessLabel&amp;quot;: &amp;quot;&amp;quot;,
+    &amp;quot;Volumes&amp;quot;: {},
+    &amp;quot;VolumesRW&amp;quot;: {},
+    &amp;quot;HostConfig&amp;quot;: {
+        &amp;quot;Binds&amp;quot;: null,
+        &amp;quot;ContainerIDFile&amp;quot;: &amp;quot;&amp;quot;,
+        &amp;quot;LxcConf&amp;quot;: [],
+        &amp;quot;Privileged&amp;quot;: false,
+        &amp;quot;PortBindings&amp;quot;: {
+            &amp;quot;22/tcp&amp;quot;: [
+                {
+                    &amp;quot;HostIp&amp;quot;: &amp;quot;0.0.0.0&amp;quot;,
+                    &amp;quot;HostPort&amp;quot;: &amp;quot;49155&amp;quot;
+                }
+            ]
+        },
+        &amp;quot;Links&amp;quot;: null,
+        &amp;quot;PublishAllPorts&amp;quot;: true,
+        &amp;quot;Dns&amp;quot;: null,
+        &amp;quot;DnsSearch&amp;quot;: null,
+        &amp;quot;VolumesFrom&amp;quot;: null,
+        &amp;quot;NetworkMode&amp;quot;: &amp;quot;bridge&amp;quot;
+    }
+}]
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;最后可以ssh连接到这个运行的容器。IP是docker在主机上daemon的ip，从ipconfig可以看出来：&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;[root@ncvm9087109 devicemapper]# ip a
+7: docker0: &amp;lt;BROADCAST,MULTICAST,UP,LOWER_UP&amp;gt; mtu 1500 qdisc noqueue state UNKNOWN 
+    link/ether fe:bc:7d:30:93:cb brd ff:ff:ff:ff:ff:ff
+    inet 172.17.42.1/16 scope global docker0
+    inet6 fe80::2c64:f0ff:feb8:d96e/64 scope link 
+       valid_lft forever preferred_lft forever
+[root@ncvm9087109 devicemapper]# ssh  root@172.17.42.1 -p 49155
+The authenticity of host &amp;#39;[172.17.42.1]:49155 ([172.17.42.1]:49155)&amp;#39; can&amp;#39;t be established.
+RSA key fingerprint is d7:1c:11:ed:a2:03:76:54:7b:32:53:c6:b1:d3:ef:33.
+Are you sure you want to continue connecting (yes/no)? yes
+Warning: Permanently added &amp;#39;[172.17.42.1]:49155&amp;#39; (RSA) to the list of known hosts.
+root@172.17.42.1&amp;#39;s password: 
+Last login: Tue May 27 06:55:29 2014 from 172.17.42.1
+root@f1b631682b58:~# netstat -anp
+Active Internet connections (servers and established)
+Proto Recv-Q Send-Q Local Address           Foreign Address         State       PID/Program name
+tcp        0      0 0.0.0.0:22              0.0.0.0:*               LISTEN      7/sshd          
+tcp        0      0 172.17.0.2:22           172.17.42.1:49690       ESTABLISHED 32/0            
+tcp6       0      0 :::22                   :::*                    LISTEN      7/sshd   
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;h2&gt;总结&lt;/h2&gt;
+&lt;p&gt;docker提供了一个迅速部署linux容器的方案。一份docker image，可以放在装有docker的任何平台运行。特别应用于部署开发测试环境。占用系统主机资源少的同时，达到了资源隔离的效果（归功于cgroup）。
+基于docker做了PAAS平台： https://github.com/deis/deis&lt;/p&gt;
+&lt;h2&gt;参考&lt;/h2&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;a href="http://docs.docker.io/"&gt;http://docs.docker.io/&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href="https://log.qingcloud.com/?p=129"&gt;https://log.qingcloud.com/?p=129&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href="http://www.vpsee.com/2013/07/use-docker-and-lxc-to-build-a-desktop/"&gt;http://www.vpsee.com/2013/07/use-docker-and-lxc-to-build-a-desktop/&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href="https://www.docker.io/the_whole_story/"&gt;https://www.docker.io/the_whole_story/&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;</summary><category term="docker"></category></entry><entry><title>把aliyun装进saltstack</title><link href="http://hellostack.info/aliyun-support-for-saltstack.html" rel="alternate"></link><published>2014-05-24T15:45:00+08:00</published><author><name>Ray Chen</name></author><id>tag:hellostack.info,2014-05-24:aliyun-support-for-saltstack.html</id><summary type="html">&lt;h2&gt;salt-cloud&lt;/h2&gt;
+&lt;p&gt;salt cloud 是一个轻量级的Cloud Orchestration工具，提供基于配置文件的云主机管理。利用它，我们可以在各个云服务提供商快速部署云主机。
+好处主要有：&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;可以自动安装salt到云主机，进而维护整个云主机的配置管理和生命流程&lt;/li&gt;
+&lt;li&gt;支持的云主机很多，常见看到的都支持。&lt;/li&gt;
+&lt;li&gt;轻量级配置简单, YAML格式。&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;下面的例子可以很快的启动一台openstack实例。&lt;/p&gt;
+&lt;p&gt;VM profile &lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;openstack_Fedora20:
+    provider: openstack-config
+    size: m1.small
+    image: Fedora20
+    ssh_key_name: myKey
+    ssh_key_file: /home/ray/.ssh/id_rsa.pub
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;cloud provider file&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;(vdev)[ray@fedora vdev]$ cat etc/salt/cloud.providers.d/openstack.conf 
+openstack-config:
+  # Configure the OpenStack driver
+  #
+  identity_url: http://192.168.1.111:5000
+  #compute_name: nova
+  protocol: ipv4
+
+  compute_region: RegionOne
+
+  # Configure Openstack authentication credentials
+  #
+  user: admin
+  password: password
+  # tenant is the project name
+  tenant: demo
+
+  provider: openstack
+
+  # skip SSL certificate validation (default false)
+  insecure: true
+
+  networks:
+      - fixed:
+          - a1ccde5d-6817-4c98-862b-f90bd0e8c922
+      - floating:
+          - public
+
+  ssh_interface: private_ips
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;更多的详细内容请参阅：
+&lt;a href="http://docs.saltstack.com/topics/cloud/"&gt;http://docs.saltstack.com/topics/cloud/&lt;/a&gt;&lt;/p&gt;
+&lt;h2&gt;aliyun&lt;/h2&gt;
+&lt;p&gt;阿里云应该算是国内市场上用户量最大的云主机厂商。基本架构和REST API设计跟AWS类似。市场上模仿AWS的一大堆，却从未超过AWS。
+这里能找到API文档： &lt;a href="http://help.aliyun.com/list/11113464.html?spm=5176.7224429.1997282881.55.J9XhVL"&gt;http://help.aliyun.com/list/11113464.html?spm=5176.7224429.1997282881.55.J9XhVL&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;我去申请了免费试用，只有5天的期限，跟亚马逊的一年免费使用比起来，呵呵呵。5天时间根本来不及体验更多的服务。
+没有ssh key的概念，API也没有支持。root访问密码直接发送到手机。支持WEB访问主机终端，应该是VNC做的。&lt;/p&gt;
+&lt;p&gt;再说Aliyun ECS API，官方的SDK只有java， PHP 版本的。有python版本的demo。官方给出的第三方工具很少，基本是一些主机管理工具
+和数据库管理工具，说明没有多少人在参与整个aliyun的生态建设。完全比不上taobao open API的规模。&lt;/p&gt;
+&lt;h2&gt;集成&lt;/h2&gt;
+&lt;p&gt;最近在看上面两个东西，所以很自然的想把aliyun集成到salt。salt的文档还行，照葫芦画瓢可以扩展salt cloud provider。大致的
+步骤都是发送http rest请求，然后分析返回的数据，整理成json格式的，让salt cloud输出。&lt;/p&gt;
+&lt;p&gt;除了查询aliyun的基本信息，最重要的功能当然是创建一个主机实例出来，根据模板信息。openstack heat和AWS cloudformation都是一样的东西。&lt;/p&gt;
+&lt;p&gt;saltstack社区相当活跃，code review流程很快，而且几个core commiter人品很赞，很积极的帮你检查代码，给comment，
+毫不吝啬给你代码点赞，鼓励你多给saltstack做贡献&lt;/p&gt;
+&lt;p&gt;提交的PR， 已经合并到上游，&lt;a href="https://github.com/saltstack/salt/pull/12888"&gt;https://github.com/saltstack/salt/pull/12888&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;顺便贡献了我写的文档： &lt;a href="http://docs.saltstack.com/en/latest/topics/cloud/aliyun.html"&gt;Get Started with Aliyun&lt;/a&gt;&lt;/p&gt;</summary><category term="saltstack"></category><category term="python"></category><category term="cloud"></category></entry></feed>

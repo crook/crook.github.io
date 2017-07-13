@@ -1,0 +1,391 @@
+<!DOCTYPE html>
+<html lang="en" prefix="og: http://ogp.me/ns# fb: https://www.facebook.com/2008/fbml">
+<head>
+    <title>salt-ssh实现原理 - Hello Stack</title>
+    <!-- Using the latest rendering mode for IE -->
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+
+
+<link rel="canonical" href="http://hellostack.info/salt-ssh-internal.html">
+
+        <meta name="author" content="Ray Chen" />
+        <meta name="keywords" content="python,saltstack" />
+        <meta name="description" content="salt-ssh最终还是在远程机器上本地执行salt-call" />
+
+        <meta property="og:site_name" content="Hello Stack" />
+        <meta property="og:type" content="article"/>
+        <meta property="og:title" content="salt-ssh实现原理"/>
+        <meta property="og:url" content="http://hellostack.info/salt-ssh-internal.html"/>
+        <meta property="og:description" content="salt-ssh最终还是在远程机器上本地执行salt-call"/>
+        <meta property="article:published_time" content="2014-06-10" />
+            <meta property="article:section" content="misc" />
+            <meta property="article:tag" content="python" />
+            <meta property="article:tag" content="saltstack" />
+            <meta property="article:author" content="Ray Chen" />
+
+
+    <!-- Bootstrap -->
+        <link rel="stylesheet" href="http://hellostack.info/theme/css/bootstrap.min.css" type="text/css"/>
+    <link href="http://hellostack.info/theme/css/font-awesome.min.css" rel="stylesheet">
+
+    <link href="http://hellostack.info/theme/css/pygments/manni.css" rel="stylesheet">
+    <link rel="stylesheet" href="http://hellostack.info/theme/css/style.css" type="text/css"/>
+
+        <link href="http://hellostack.info/feeds/all.atom.xml" type="application/atom+xml" rel="alternate"
+              title="Hello Stack ATOM Feed"/>
+
+
+
+        <link href="http://hellostack.info/feeds/misc.atom.xml" type="application/atom+xml" rel="alternate"
+              title="Hello Stack misc ATOM Feed"/>
+
+</head>
+<body>
+
+<div class="navbar navbar-inverse navbar-fixed-top" role="navigation">
+	<div class="container">
+        <div class="navbar-header">
+            <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-ex1-collapse">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a href="http://hellostack.info/" class="navbar-brand">
+Hello Stack            </a>
+        </div>
+        <div class="collapse navbar-collapse navbar-ex1-collapse">
+            <ul class="nav navbar-nav">
+                        <li >
+                            <a href="http://hellostack.info/category/cloud.html">Cloud</a>
+                        </li>
+                        <li >
+                            <a href="http://hellostack.info/category/docker.html">Docker</a>
+                        </li>
+                        <li >
+                            <a href="http://hellostack.info/category/linux.html">Linux</a>
+                        </li>
+                        <li class="active">
+                            <a href="http://hellostack.info/category/misc.html">Misc</a>
+                        </li>
+                        <li >
+                            <a href="http://hellostack.info/category/openstack.html">Openstack</a>
+                        </li>
+                        <li >
+                            <a href="http://hellostack.info/category/python.html">Python</a>
+                        </li>
+            </ul>
+            <ul class="nav navbar-nav navbar-right">
+            </ul>
+        </div>
+        <!-- /.navbar-collapse -->
+    </div>
+</div> <!-- /.navbar -->
+<!-- Banner -->
+<!-- End Banner -->
+<div class="container">
+    <div class="row">
+        <div class="col-sm-9">
+    <section id="content">
+        <article>
+            <header class="page-header">
+                <h1>
+                    <a href="http://hellostack.info/salt-ssh-internal.html"
+                       rel="bookmark"
+                       title="Permalink to salt-ssh实现原理">
+                        salt-ssh实现原理
+                    </a>
+                </h1>
+            </header>
+            <div class="entry-content">
+                <div class="panel">
+                    <div class="panel-body">
+<footer class="post-info">
+    <span class="label label-default">Date</span>
+    <span class="published">
+        <i class="fa fa-calendar"></i><time datetime="2014-06-10T22:37:00+08:00"> Tue, 10 Jun 2014</time>
+    </span>
+
+
+
+
+
+<span class="label label-default">Tags</span>
+	<a href="http://hellostack.info/tag/python.html">python</a>
+        /
+	<a href="http://hellostack.info/tag/saltstack.html">saltstack</a>
+    
+</footer><!-- /.post-info -->                    </div>
+                </div>
+                <h2>salt-ssh</h2>
+<p>salt-ssh出现的理由是这么个逻辑。一般salt需要安装和启动minion，这样master才能控制minion。
+对于远程执行命令，最常见的方法是用ssh，因为直接启动远程的sshd服务即可。那么有没有一种方式
+可以集成两者的优点，同时免安装minion又同时可以使用saltstack的功能特点。salt-ssh的出现
+回答了这个问题。</p>
+<p>salt-ssh基本上是零配置。你想控制哪个host，直接把host的ip和用户密码或者keys告诉salt。剩下的
+就直接执行:</p>
+<ul>
+<li><code>salt-ssh &lt;ssh target&gt; -r &lt;raw cmd&gt;</code> 这个可以直接在远程机器运行命令</li>
+<li><code>salt-ssh &lt;ssh target&gt; state.highstate</code> 这个可以同步整个salt状态</li>
+<li>更多的salt执行的模块命令</li>
+</ul>
+<p>默认的配置文件位于<code>/etc/salt/roster</code>, 添加ssh机器即可，例如：</p>
+<div class="highlight"><pre><span></span>web1:
+  host: 192.168.42.1 # The IP addr or DNS hostname
+  user: fred         # Remote executions will be executed as user fred
+  passwd: foobarbaz  # The password to use for login, if omitted, keys are used
+  sudo: True         # Whether to sudo to root, not enabled by default
+web2:
+  host: 192.168.42.2
+</pre></div>
+
+
+<p>更多文档在这里:</p>
+<ul>
+<li><a href="http://docs.saltstack.com/en/latest/topics/ssh/">http://docs.saltstack.com/en/latest/topics/ssh/</a></li>
+<li><a href="http://docs.saltstack.com/topics/ssh/roster.html">http://docs.saltstack.com/topics/ssh/roster.html</a></li>
+</ul>
+<h2>原理</h2>
+<p>salt-ssh主要的代码路径位于<code>&lt;TOP&gt;/salt/client/ssh</code>目录</p>
+<div class="highlight"><pre><span></span>(vdev)[ray@fedora salt]$ tree salt/client/ssh/
+salt/client/ssh/
+|-- __init__.py
+|-- shell.py        # 利用ssh协议，安装部署key和shim脚本
+|-- ssh_py_shim.py  # shim脚本，在minion端实际运行。
+|-- state.py        # saltstack State的ssh方式现实
+`-- wrapper         # 此目录提供更多的salt支持
+    |-- config.py
+    |-- grains.py
+    |-- __init__.py
+    |-- pillar.py
+    |-- state.py
+</pre></div>
+
+
+<p>salt-ssh是不需要启动minion的，那么如何控制远程机器的呢？
+我们可以打开debug信息看看具体流程，<code>salt-ssh '*' test.ping</code></p>
+<ol>
+<li>
+<p>从roster配置文件中找到所有的minion和ssh登陆信息。生成类似
+<code>ssh host command</code>的命令行准备执行. 因为执行的命令很复杂，最好
+是用ssh执行一个脚本文件，那样自定义效果最好。这里其实就是<code>ssh_py_shim.py</code></p>
+</li>
+<li>
+<p>salt-ssh会打包一份精简的包含大部分salt核心模块并压缩成salt-thin.tgz，
+并发送给minion的<code>/tmp/.salt/</code>路径（默认路径，可以配置修改）。同时缓存一份
+在<code>/var/cache/salt/master/thin/</code>以备后需之用。</p>
+</li>
+<li>
+<p>为了让salt-ssh很顺利在远程机器执行<code>ssh_py_shim.py</code>，初始化过程中包含
+一个小型的shell代码。 shell的主要内容可以在<code>SSH_SH_SHIM</code>变量中看到。
+前期主要是探索python版本环境，进入到main函数后，实际上还是用python执行
+<code>ssh_py_shim.py</code>并传入参数。</p>
+</li>
+</ol>
+<div class="highlight"><pre><span></span>main()
+{
+    local py_cmd
+    local py_cmd_path
+    for py_cmd in $PYTHON_CMDS; do
+        if &quot;$py_cmd&quot; -c &#39;import sys; sys.exit(not sys.hexversion &gt;= 0x02060000);&#39; &gt;/dev/null 2&gt;&amp;1; then
+            local py_cmd_path
+            py_cmd_path=`&quot;$py_cmd&quot; -c &#39;import sys; print sys.executable;&#39;`
+            exec $SUDO &quot;$py_cmd_path&quot; -c &#39;exec &quot;&quot;&quot;{{SSH_SHIM_PY_CODE}}
+&quot;&quot;&quot;.decode(&quot;base64&quot;)&#39; -- \-\-config \{id\:\ ssh\-saltvm\,\ root_dir\:\ \/tmp\/\.salt\/running_data\} \-\-delimeter _edbc7885e4f9aac9b83b35999b68d015148caf467b78fa39c05f669c0ff89878 \-\-saltdir \/tmp\/\.salt \-\-checksum bb9df33affeafa50849c1a906c04ac09e4b5f22a \-\-hashfunc sha1 \-\-version 2014\.1\.0\-6968\-ga1d939d \-\- test\.ping
+            exit 0
+        else
+            continue
+        fi
+    done
+
+    echo &quot;ERROR: Unable to locate appropriate python command&quot; &gt;&amp;2
+    exit $EX_PYTHON_OLD
+}
+</pre></div>
+
+
+<ol>
+<li><code>ssh_py_shim.py</code>脚本是可以单独运行。看看help文档，就大致知道上面main
+函数传入参数的意思。</li>
+</ol>
+<div class="highlight"><pre><span></span>(vdev)[ray@fedora ssh]$ python ssh_py_shim.py -- --help
+Usage: ssh_py_shim.py -- [SHIM_OPTIONS] -- [SALT_OPTIONS]
+
+Options:
+  -h, --help            show this help message and exit
+  -c CONFIG, --config=CONFIG
+                        YAML configuration for salt thin
+  -d DELIMETER, --delimeter=DELIMETER
+                        Delimeter string (viz. magic string) to indicate
+                        beginning of salt output
+  -s SALTDIR, --saltdir=SALTDIR
+                        Directory where salt thin is or will be installed.
+  --sum=CHECKSUM, --checksum=CHECKSUM
+                        Salt thin checksum
+  --hashfunc=HASHFUNC   Hash function for computing checksum
+  -v VERSION, --version=VERSION
+                        Salt thin version to be deployed/verified
+</pre></div>
+
+
+<ol>
+<li>看看另外的例子<code>salt-ssh -l debug 'ssh-saltvm2' state.highstate test=True</code>。
+很明显，salt-ssh的原理就在此。依然是在远程环境中运行salt-call命令，只不过这时的
+工作路径是<code>/tmp/.salt</code>。结果返回给master端。两边的通信依赖ssh/scp协议。</li>
+</ol>
+<div class="highlight"><pre><span></span>SALT_ARGV: [&#39;/usr/bin/python2.7&#39;, &#39;/tmp/.salt/salt-call&#39;, &#39;--local&#39;, &#39;--out&#39;, &#39;json&#39;, &#39;-l&#39;, &#39;quiet&#39;, &#39;-c&#39;, &#39;/tmp/.salt&#39;, &#39;--&#39;, &#39;state.pkg /tmp/.salt/salt_state.tgz test=True pkg_sum=dd39c5804385befc3ac8d87aa5b40f56 hash_type=md5&#39;]
+</pre></div>
+
+
+<h2>总结</h2>
+<p>salt-ssh的原理, 依然是在远程环境中运行salt-call命令，此时远程机器已经被部署了
+salt运行环境。这样salt的很多特性和模块功能可以在本地调用。运行的结果用过ssh协议
+返回给master。</p>
+<p>这里附上我修改的一个salt-ssh bug。</p>
+<p><a href="https://github.com/saltstack/salt/pull/13292">https://github.com/saltstack/salt/pull/13292</a></p>
+            </div>
+            <!-- /.entry-content -->
+    <hr/>
+    <section class="comments" id="comments">
+        <h2>Comments</h2>
+
+        <div id="disqus_thread"></div>
+        <script type="text/javascript">
+            /* * * CONFIGURATION VARIABLES: EDIT BEFORE PASTING INTO YOUR WEBPAGE * * */
+            var disqus_shortname = 'hellostack'; // required: replace example with your forum shortname
+
+                    var disqus_identifier = 'salt-ssh-internal';
+                var disqus_url = 'http://hellostack.info/salt-ssh-internal.html';
+
+            var disqus_config = function () {
+                this.language = "en";
+            };
+
+            /* * * DON'T EDIT BELOW THIS LINE * * */
+            (function () {
+                var dsq = document.createElement('script');
+                dsq.type = 'text/javascript';
+                dsq.async = true;
+                dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+                (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+            })();
+        </script>
+        <noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by
+            Disqus.</a></noscript>
+        <a href="http://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+
+    </section>
+        </article>
+    </section>
+
+        </div>
+        <div class="col-sm-3" id="sidebar">
+            <aside>
+
+<section class="well well-sm">
+    <ul class="list-group list-group-flush">
+            <li class="list-group-item"><h4><i class="fa fa-home fa-lg"></i><span class="icon-label">Social</span></h4>
+              <ul class="list-group" id="social">
+                <li class="list-group-item"><a href="https://github.com/crook"><i class="fa fa-github-square fa-lg"></i> Github</a></li>
+                <li class="list-group-item"><a href="http://weibo.com/crookcrook/"><i class="fa fa-weibo fa-lg"></i> Weibo</a></li>
+                <li class="list-group-item"><a href="http://hellostack.info/feeds/all.atom.xml"><i class="fa fa-rss-square fa-lg"></i> RSS</a></li>
+              </ul>
+            </li>
+
+
+
+
+
+    <li class="list-group-item"><h4><i class="fa fa-external-link-square fa-lg"></i><span class="icon-label">Links</span></h4>
+      <ul class="list-group" id="links">
+        <li class="list-group-item">
+            <a href="http://chenrano2002.blog.chinaunix.net/" target="_blank">
+                小企鹅看大世界
+            </a>
+        </li>
+        <li class="list-group-item">
+            <a href="http://feisky.xyz" target="_blank">
+                Feisky's Blog
+            </a>
+        </li>
+        <li class="list-group-item">
+            <a href="http://wangxu.me" target="_blank">
+                Wang Xu's Blog
+            </a>
+        </li>
+        <li class="list-group-item">
+            <a href="http://www.hellospark.me/" target="_blank">
+                Lyndon's Blog
+            </a>
+        </li>
+        <li class="list-group-item">
+            <a href="http://www.openstack.org/" target="_blank">
+                Openstack
+            </a>
+        </li>
+      </ul>
+    </li>
+    </ul>
+</section>
+            </aside>
+        </div>
+    </div>
+</div>
+<footer>
+   <div class="container">
+      <hr>
+      <div class="row">
+         <div class="col-xs-10">&copy; 2016 Ray Chen
+            &middot; Powered by <a href="https://github.com/getpelican/pelican-themes/tree/master/pelican-bootstrap3" target="_blank">pelican-bootstrap3</a>,
+            <a href="http://docs.getpelican.com/" target="_blank">Pelican</a>,
+            <a href="http://getbootstrap.com" target="_blank">Bootstrap</a>         </div>
+         <div class="col-xs-2"><p class="pull-right"><i class="fa fa-arrow-up"></i> <a href="#">Back to top</a></p></div>
+      </div>
+   </div>
+</footer>
+<script src="http://hellostack.info/theme/js/jquery.min.js"></script>
+
+<!-- Include all compiled plugins (below), or include individual files as needed -->
+<script src="http://hellostack.info/theme/js/bootstrap.min.js"></script>
+
+<!-- Enable responsive features in IE8 with Respond.js (https://github.com/scottjehl/Respond) -->
+<script src="http://hellostack.info/theme/js/respond.min.js"></script>
+
+    <!-- Disqus -->
+    <script type="text/javascript">
+        /* * * CONFIGURATION VARIABLES: EDIT BEFORE PASTING INTO YOUR WEBPAGE * * */
+        var disqus_shortname = 'hellostack'; // required: replace example with your forum shortname
+
+        /* * * DON'T EDIT BELOW THIS LINE * * */
+        (function () {
+            var s = document.createElement('script');
+            s.async = true;
+            s.type = 'text/javascript';
+            s.src = '//' + disqus_shortname + '.disqus.com/count.js';
+            (document.getElementsByTagName('HEAD')[0] || document.getElementsByTagName('BODY')[0]).appendChild(s);
+        }());
+    </script>
+    <!-- End Disqus Code -->
+    <!-- Google Analytics -->
+    <script type="text/javascript">
+
+        var _gaq = _gaq || [];
+        _gaq.push(['_setAccount', 'UA-51314242-1']);
+        _gaq.push(['_trackPageview']);
+
+        (function () {
+            var ga = document.createElement('script');
+            ga.type = 'text/javascript';
+            ga.async = true;
+            ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+            var s = document.getElementsByTagName('script')[0];
+            s.parentNode.insertBefore(ga, s);
+        })();
+    </script>
+    <!-- End Google Analytics Code -->
+
+</body>
+</html>

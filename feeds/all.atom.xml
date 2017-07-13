@@ -1,0 +1,1223 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom"><title>Hello Stack</title><link href="http://hellostack.info/" rel="alternate"></link><link href="http://hellostack.info/feeds/all.atom.xml" rel="self"></link><id>http://hellostack.info/</id><updated>2016-10-08T16:49:00+08:00</updated><entry><title>Run Docker on VMware Fusion Mac</title><link href="http://hellostack.info/run-docker-machine-vmware-fusion.html" rel="alternate"></link><published>2016-10-08T16:49:00+08:00</published><author><name>Ray Chen</name></author><id>tag:hellostack.info,2016-10-08:run-docker-machine-vmware-fusion.html</id><summary type="html">&lt;h2&gt;What's docker-machine&lt;/h2&gt;
+&lt;p&gt;Docker Machine is a tool that lets you install Docker Engine on virtual hosts, and manage the hosts with docker-machine commands. You can use Machine to create Docker hosts on your local Mac or Windows box, on your company network, in your data center, or on cloud providers like AWS or Digital Ocean.&lt;/p&gt;
+&lt;p&gt;Using docker-machine commands, you can start, inspect, stop, and restart a managed host, upgrade the Docker client and daemon, and configure a Docker client to talk to your host.&lt;/p&gt;
+&lt;h2&gt;Create docker machine&lt;/h2&gt;
+&lt;p&gt;Create the default docker machine with 'vmwarefusion' driver:&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;docker-machine create --driver&lt;span class="o"&gt;=&lt;/span&gt;vmwarefusion default
+ranc-m01:~ ranc$ docker-machine create -d vmwarefusion default
+Creating CA: /Users/ranc/.docker/machine/certs/ca.pem
+Creating client certificate: /Users/ranc/.docker/machine/certs/cert.pem
+Running pre-create checks...
+&lt;span class="o"&gt;(&lt;/span&gt;default&lt;span class="o"&gt;)&lt;/span&gt; Image cache directory does not exist, creating it at /Users/ranc/.docker/machine/cache...
+&lt;span class="o"&gt;(&lt;/span&gt;default&lt;span class="o"&gt;)&lt;/span&gt; No default Boot2Docker ISO found locally, downloading the latest release...
+&lt;span class="o"&gt;(&lt;/span&gt;default&lt;span class="o"&gt;)&lt;/span&gt; Latest release &lt;span class="k"&gt;for&lt;/span&gt; github.com/boot2docker/boot2docker is v1.12.1
+&lt;span class="o"&gt;(&lt;/span&gt;default&lt;span class="o"&gt;)&lt;/span&gt; Downloading /Users/ranc/.docker/machine/cache/boot2docker.iso from https://github.com/boot2docker/boot2docker/releases/download/v1.12.1/boot2docker.iso...
+&lt;span class="o"&gt;(&lt;/span&gt;default&lt;span class="o"&gt;)&lt;/span&gt; 0%....10%....20%....30%....40%....50%....60%....70%....80%....90%....100%
+Creating machine...
+&lt;span class="o"&gt;(&lt;/span&gt;default&lt;span class="o"&gt;)&lt;/span&gt; Copying /Users/ranc/.docker/machine/cache/boot2docker.iso to /Users/ranc/.docker/machine/machines/default/boot2docker.iso...
+&lt;span class="o"&gt;(&lt;/span&gt;default&lt;span class="o"&gt;)&lt;/span&gt; Creating SSH key...
+&lt;span class="o"&gt;(&lt;/span&gt;default&lt;span class="o"&gt;)&lt;/span&gt; Creating VM...
+&lt;span class="o"&gt;(&lt;/span&gt;default&lt;span class="o"&gt;)&lt;/span&gt; Creating disk &lt;span class="s1"&gt;&amp;#39;/Users/ranc/.docker/machine/machines/default/default.vmdk&amp;#39;&lt;/span&gt;
+&lt;span class="o"&gt;(&lt;/span&gt;default&lt;span class="o"&gt;)&lt;/span&gt; Virtual disk creation successful.
+&lt;span class="o"&gt;(&lt;/span&gt;default&lt;span class="o"&gt;)&lt;/span&gt; Starting default...
+&lt;span class="o"&gt;(&lt;/span&gt;default&lt;span class="o"&gt;)&lt;/span&gt; Waiting &lt;span class="k"&gt;for&lt;/span&gt; VM to come online...
+Waiting &lt;span class="k"&gt;for&lt;/span&gt; machine to be running, this may take a few minutes...
+Detecting operating system of created instance...
+Waiting &lt;span class="k"&gt;for&lt;/span&gt; SSH to be available...
+Detecting the provisioner...
+Provisioning with boot2docker...
+Copying certs to the &lt;span class="nb"&gt;local&lt;/span&gt; machine directory...
+Copying certs to the remote machine...
+Setting Docker configuration on the remote daemon...
+Checking connection to Docker...
+Docker is up and running!
+To see how to connect your Docker Client to the Docker Engine running on this virtual machine, run: docker-machine env default
+ranc-m01:~ ranc$ docker-machine ls
+NAME      ACTIVE   DRIVER         STATE     URL                       SWARM   DOCKER    ERRORS
+default   -        vmwarefusion   Running   tcp://172.16.8.135:2376           v1.12.1
+ranc-m01:~ ranc$ docker-machine env default
+&lt;span class="nb"&gt;export&lt;/span&gt; &lt;span class="nv"&gt;DOCKER_TLS_VERIFY&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="s2"&gt;&amp;quot;1&amp;quot;&lt;/span&gt;
+&lt;span class="nb"&gt;export&lt;/span&gt; &lt;span class="nv"&gt;DOCKER_HOST&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="s2"&gt;&amp;quot;tcp://172.16.8.135:2376&amp;quot;&lt;/span&gt;
+&lt;span class="nb"&gt;export&lt;/span&gt; &lt;span class="nv"&gt;DOCKER_CERT_PATH&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="s2"&gt;&amp;quot;/Users/ranc/.docker/machine/machines/default&amp;quot;&lt;/span&gt;
+&lt;span class="nb"&gt;export&lt;/span&gt; &lt;span class="nv"&gt;DOCKER_MACHINE_NAME&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="s2"&gt;&amp;quot;default&amp;quot;&lt;/span&gt;
+&lt;span class="c1"&gt;# Run this command to configure your shell:&lt;/span&gt;
+&lt;span class="c1"&gt;# eval $(docker-machine env default)&lt;/span&gt;
+ranc-m01:~ ranc$ &lt;span class="nb"&gt;eval&lt;/span&gt; &lt;span class="k"&gt;$(&lt;/span&gt;docker-machine env default&lt;span class="k"&gt;)&lt;/span&gt;
+ranc-m01:~ ranc$ docker-machine ssh default
+                        &lt;span class="c1"&gt;##         .&lt;/span&gt;
+                  &lt;span class="c1"&gt;## ## ##        ==&lt;/span&gt;
+               &lt;span class="c1"&gt;## ## ## ## ##    ===&lt;/span&gt;
+           /&lt;span class="s2"&gt;&amp;quot;&amp;quot;&amp;quot;&amp;quot;&amp;quot;&amp;quot;&amp;quot;&amp;quot;&amp;quot;&amp;quot;&amp;quot;&amp;quot;&amp;quot;&amp;quot;&amp;quot;&amp;quot;&amp;quot;\___/ ===&lt;/span&gt;
+&lt;span class="s2"&gt;      ~~~ {~~ ~~~~ ~~~ ~~~~ ~~~ ~ /  ===- ~~~&lt;/span&gt;
+&lt;span class="s2"&gt;           \______ o           __/&lt;/span&gt;
+&lt;span class="s2"&gt;             \    \         __/&lt;/span&gt;
+&lt;span class="s2"&gt;              \____\_______/&lt;/span&gt;
+&lt;span class="s2"&gt; _                 _   ____     _            _&lt;/span&gt;
+&lt;span class="s2"&gt;| |__   ___   ___ | |_|___ \ __| | ___   ___| | _____ _ __&lt;/span&gt;
+&lt;span class="s2"&gt;| &amp;#39;_ \ / _ \ / _ \| __| __) / _` |/ _ \ / __| |/ / _ \ &amp;#39;__|&lt;/span&gt;
+&lt;span class="s2"&gt;| |_) | (_) | (_) | |_ / __/ (_| | (_) | (__|   &amp;lt;  __/ |&lt;/span&gt;
+&lt;span class="s2"&gt;|_.__/ \___/ \___/ \__|_____\__,_|\___/ \___|_|\_\___|_|&lt;/span&gt;
+&lt;span class="s2"&gt;Boot2Docker version 1.12.1, build HEAD : ef7d0b4 - Thu Aug 18 21:18:06 UTC 2016&lt;/span&gt;
+&lt;span class="s2"&gt;Docker version 1.12.1, build 23cf638&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;h2&gt;Run without proxy&lt;/h2&gt;
+&lt;p&gt;Add the '--no-proxy' part to tell docker not to use proxy&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;ranc-m01:~ ranc$ docker-machine env --no-proxy
+&lt;span class="nb"&gt;export&lt;/span&gt; &lt;span class="nv"&gt;DOCKER_TLS_VERIFY&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="s2"&gt;&amp;quot;1&amp;quot;&lt;/span&gt;
+&lt;span class="nb"&gt;export&lt;/span&gt; &lt;span class="nv"&gt;DOCKER_HOST&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="s2"&gt;&amp;quot;tcp://172.16.8.135:2376&amp;quot;&lt;/span&gt;
+&lt;span class="nb"&gt;export&lt;/span&gt; &lt;span class="nv"&gt;DOCKER_CERT_PATH&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="s2"&gt;&amp;quot;/Users/ranc/.docker/machine/machines/default&amp;quot;&lt;/span&gt;
+&lt;span class="nb"&gt;export&lt;/span&gt; &lt;span class="nv"&gt;DOCKER_MACHINE_NAME&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="s2"&gt;&amp;quot;default&amp;quot;&lt;/span&gt;
+&lt;span class="nb"&gt;export&lt;/span&gt; &lt;span class="nv"&gt;NO_PROXY&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="s2"&gt;&amp;quot;172.16.8.135&amp;quot;&lt;/span&gt;
+&lt;span class="c1"&gt;# Run this command to configure your shell:&lt;/span&gt;
+&lt;span class="c1"&gt;# eval $(docker-machine env --no-proxy)&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;h2&gt;Run with proxy&lt;/h2&gt;
+&lt;p&gt;Mostly we need proxy to pull down the docker images.&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;Use ssh to log in to the virtual machine (e.g., default).&lt;/li&gt;
+&lt;/ol&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt; $ docker-machine ssh default
+ docker@default:~$ sudo vi /var/lib/boot2docker/profile
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;ol&gt;
+&lt;li&gt;Add a NO_PROXY setting to the end of the file similar to the example below.&lt;/li&gt;
+&lt;/ol&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt; &lt;span class="c1"&gt;# replace with your office&amp;#39;s proxy environment&lt;/span&gt;
+ &lt;span class="nb"&gt;export&lt;/span&gt; &lt;span class="s2"&gt;&amp;quot;HTTP_PROXY=http://PROXY:PORT&amp;quot;&lt;/span&gt;
+ &lt;span class="nb"&gt;export&lt;/span&gt; &lt;span class="s2"&gt;&amp;quot;HTTPS_PROXY=http://PROXY:PORT&amp;quot;&lt;/span&gt;
+ &lt;span class="c1"&gt;# you can add more no_proxy with your environment.&lt;/span&gt;
+ &lt;span class="nb"&gt;export&lt;/span&gt; &lt;span class="s2"&gt;&amp;quot;NO_PROXY=192.168.99.*,*.local,169.254/16,*.example.com,192.168.59.*&amp;quot;&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;ol&gt;
+&lt;li&gt;Restart Docker. After you modify the profile on your VM, restart Docker and log out of the machine.&lt;/li&gt;
+&lt;/ol&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;docker@default:~$ sudo /etc/init.d/docker restart
+ docker@default:~$ &lt;span class="nb"&gt;exit&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;h2&gt;Port Forward in VMware Fusion&lt;/h2&gt;
+&lt;p&gt;Update the 'incomingtcp' secion in Vmware Fusion Nat conf file&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;sudo vi /Library/Preferences/VMware&lt;span class="se"&gt;\ &lt;/span&gt;Fusion/vmnet8/nat.conf
+ &lt;span class="m"&gt;55&lt;/span&gt; &lt;span class="o"&gt;[&lt;/span&gt;incomingtcp&lt;span class="o"&gt;]&lt;/span&gt;
+ 56
+ &lt;span class="m"&gt;57&lt;/span&gt; &lt;span class="c1"&gt;# Use these with care - anyone can enter into your VM through these...&lt;/span&gt;
+ &lt;span class="m"&gt;58&lt;/span&gt; &lt;span class="c1"&gt;# The format and example are as follows:&lt;/span&gt;
+ &lt;span class="m"&gt;59&lt;/span&gt; &lt;span class="c1"&gt;#&amp;lt;external port number&amp;gt; = &amp;lt;VM&amp;#39;s IP address&amp;gt;:&amp;lt;VM&amp;#39;s port number&amp;gt;&lt;/span&gt;
+ &lt;span class="m"&gt;60&lt;/span&gt; &lt;span class="nv"&gt;8080&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; 172.16.3.128:80
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;and then restart the network service&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;ranc-m01:~ ranc$ sudo /Applications/VMware&lt;span class="se"&gt;\ &lt;/span&gt;Fusion.app/Contents/Library/vmnet-cli --stop
+Stopped DHCP service on vmnet1
+Disabled hostonly virtual adapter on vmnet1
+Stopped DHCP service on vmnet8
+Stopped NAT service on vmnet8
+Disabled hostonly virtual adapter on vmnet8
+Stopped all configured services on all networks
+ranc-m01:~ ranc$ sudo /Applications/VMware&lt;span class="se"&gt;\ &lt;/span&gt;Fusion.app/Contents/Library/vmnet-cli --start
+Enabled hostonly virtual adapter on vmnet1
+Started DHCP service on vmnet1
+Started NAT service on vmnet8
+Enabled hostonly virtual adapter on vmnet8
+Started DHCP service on vmnet8
+Started all configured services on all networks
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;h2&gt;Reference&lt;/h2&gt;
+&lt;ol&gt;
+&lt;li&gt;&lt;a href="https://docs.docker.com/toolbox/faqs/troubleshoot/"&gt;https://docs.docker.com/toolbox/faqs/troubleshoot/&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href="https://github.com/docker/toolbox/issues/102"&gt;https://github.com/docker/toolbox/issues/102&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href="https://github.com/docker/machine/issues/1351"&gt;https://github.com/docker/machine/issues/1351&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href="https://github.com/docker/machine/issues/3099"&gt;https://github.com/docker/machine/issues/3099&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href="https://docs.docker.com/machine/drivers/vm-fusion/"&gt;https://docs.docker.com/machine/drivers/vm-fusion/&lt;/a&gt;&lt;/li&gt;
+&lt;/ol&gt;</summary><category term="docker"></category></entry><entry><title>超容器：虚拟机 or 容器</title><link href="http://hellostack.info/hyper-container-walk.html" rel="alternate"></link><published>2016-09-13T21:49:00+08:00</published><author><name>Ray Chen</name></author><id>tag:hellostack.info,2016-09-13:hyper-container-walk.html</id><summary type="html">&lt;h2&gt;什么是超容器&lt;/h2&gt;
+&lt;p&gt;容器大有取代虚拟机之势，但最大的缺点就是安全问题。要想从根本上解决安全问题，就是要做资源隔离，特别是共享的底层操作系统要做到逻辑上的隔离。然而这恰恰是docker容器引以为傲的特性之一：共享一个内核。&lt;/p&gt;
+&lt;p&gt;其实容器和虚拟机的应用场景大有不同。docker容器解决的问题就是部署，运维和分布软件的方式。VM在数据中心中依然占有统治地位，而且生态系统已经运行了很多年。docker容器出现之后，针对虚拟机的诟病是各大非标准化的iamge，而且体积巨大（上GB）。 hypervisor之间互不兼容。&lt;/p&gt;
+&lt;p&gt;可不可以既保证虚拟机的安全，又可以享用容器的轻便和方便部署。在我们平常的容器部署中，基本上是在虚拟机上运行容器。例如在AWS EC2上面搭建k8s集群。这种方式的缺点是资源浪费, 包含虚拟机的运行开销。比如申请了一台4GB的EC2.你在上面只跑了一个docker运行http服务。或者优化空间是在一台虚拟机上面多运行些容器。&lt;/p&gt;
+&lt;p&gt;另外一个优化方向是，申请虚拟机资源的时候，尽量申请小资源的EC2。 云服务提供商尽可能提供小的资源单位。例如virtustream的uVM &lt;a href="http://www.virtustream.com/software/micro-vms"&gt;http://www.virtustream.com/software/micro-vms&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;以上就是超容器这个概念出现的原因。 这里我看到一个新的方案 &lt;a href="http://www.hypercontainer.io/"&gt;http://www.hypercontainer.io/&lt;/a&gt;： &lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;* HyperContainer = Hypervisor + Guest Kernel + Data (image) *
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;容器利用虚拟机的硬件隔离提高安全系数，结合定制化的微内核，在hypervior直接运行Image（兼容docker image）。 容器启动运行之后，即是虚拟机又是容器。即可以继续使用虚拟机的生态工具，又可以提供容器运行环境。简单来说，就说用hypervisor带代替容器需要的运行时和命令空间。&lt;/p&gt;
+&lt;h2&gt;架构&lt;/h2&gt;
+&lt;p&gt;Hyper包含四个组件：&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;
+&lt;p&gt;HyperKernel:  定制化的linux kernel，可以直接被hypervior运行。可以理解成一个微型的container os&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;HyperDamon: 运行在主机上的后台agent。主要是提供REST API&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;CLI:  hyper的前端入口。通过REST跟Damon通信，调度后端具体哪个host来部署container&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;HyperStart: 基本就是initramfs 和 init服务&lt;/p&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;&lt;img alt="" src="http://thenewstack.io/wp-content/uploads/2015/07/image011.png" /&gt;&lt;/p&gt;
+&lt;p&gt;容器基础工作弄好之后，hyper基本就是一个docker的翻版。基本命令行跟docker一行，然后hyper可以直接运行docker hub上面的iamge。 为了更有效的管理hyper容器, 开发了支持k8s运行时的&lt;a href="https://github.com/hyperhq/hypernetes"&gt;https://github.com/hyperhq/hypernetes&lt;/a&gt;. 就是一个Caas，同时支持多租户。这个容器云已经开放，用户可以注册使用，按秒为单位计费。初始赠送20美元。有兴趣的可以去看看。&lt;/p&gt;
+&lt;h2&gt;容器标准化&lt;/h2&gt;
+&lt;p&gt;为了避免docker一家独大后的垄断行为（Docker的强推SWARM就好比微软捆绑IE销售，在容器编排器的百家争鸣下，google的k8s明显是开源社区的一致选择）， 开源社区推出标准化组织OCI&lt;a href="https://www.opencontainers.org/"&gt;https://www.opencontainers.org/&lt;/a&gt;, 在其&lt;a href="https://github.com/opencontainers/runtime-spec"&gt;github主页&lt;/a&gt;的自我介绍是： The Open Container Initiative develops specifications for standards on Operating System process and application containers.&lt;/p&gt;
+&lt;p&gt;hypercontainer有自己的实现： &lt;a href="https://blog.hyper.sh/a_step_towards_the_open_container_initiative.html"&gt;https://blog.hyper.sh/a_step_towards_the_open_container_initiative.html&lt;/a&gt;&lt;/p&gt;
+&lt;h2&gt;类似项目&lt;/h2&gt;
+&lt;ul&gt;
+&lt;li&gt;Interl的clearContainer: https://clearlinux.org/features/clear-containers&lt;/li&gt;
+&lt;li&gt;Vmware的VIC: https://github.com/vmware/vic &lt;a href="https://github.com/vmware/vic/blob/master/doc/design/arch/vic-container-abstraction.md"&gt;传统容器主机和VIC模式的比较&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h2&gt;黑马项目 unikernel/linuxkit (2017/06/04 update)&lt;/h2&gt;
+&lt;ul&gt;
+&lt;li&gt;介绍文章： &lt;a href="http://dockone.io/article/855"&gt;http://dockone.io/article/855&lt;/a&gt; &lt;/li&gt;
+&lt;li&gt;hyperd作者的点评&lt;a href="https://wangxu.me/container/2016/01/23/unikernel-critics/index.html"&gt;https://wangxu.me/container/2016/01/23/unikernel-critics/index.html&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;linuxkit: http://feisky.xyz/2017/04/19/LinuxKit/&lt;/li&gt;
+&lt;li&gt;https://yq.aliyun.com/articles/74440?spm=5176.100239.blogcont74404.46.x5hZPU&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h2&gt;资料&lt;/h2&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;a href="http://thenewstack.io/hyper-a-hypervisor-agnostic-docker-engine/"&gt;http://thenewstack.io/hyper-a-hypervisor-agnostic-docker-engine/&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href="https://blog.hyper.sh/hyper-and-the-art-of-containerization.html"&gt;https://blog.hyper.sh/hyper-and-the-art-of-containerization.html&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href="http://wangxu.me/zhihu/2016/05/20/how-about-hyper/index.html"&gt;http://wangxu.me/zhihu/2016/05/20/how-about-hyper/index.html&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href="https://m.douban.com/note/581584151/?bid=u39uR-VeuJs"&gt;https://m.douban.com/note/581584151/?bid=u39uR-VeuJs&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href="http://blog.kubernetes.io/2016/05/hypernetes-security-and-multi-tenancy-in-kubernetes.html"&gt;http://blog.kubernetes.io/2016/05/hypernetes-security-and-multi-tenancy-in-kubernetes.html&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;</summary><category term="docker"></category></entry><entry><title>openldap配置</title><link href="http://hellostack.info/openldap-config.html" rel="alternate"></link><published>2014-08-11T10:12:00+08:00</published><author><name>Ray Chen</name></author><id>tag:hellostack.info,2014-08-11:openldap-config.html</id><summary type="html">&lt;h2&gt;目录服务&lt;/h2&gt;
+&lt;p&gt;目录是一个专门的数据库，专门用于搜索和浏览，另外也支持基本的查询和更新功能。目录往往包含描述性的，基于属性的信息和支持先进的过滤功能。目录的更新通常是简单的全部或者全无的变更，如果变更被允许的话。目录一般都调整为快速反应大批量查找或者搜索操作。&lt;/p&gt;
+&lt;h2&gt;OPENLDAP&lt;/h2&gt;
+&lt;p&gt;LDAP表示轻型目录访问协议。它定义了一个简单协议，用来访问目录服务。什么样的信息可以存储在目录中？LDAP的信息模型是基于条目的。一个条目是一些属性的集合。有一个全球唯一的识别名(DN)，每个条目的有个类型和一个或多个值。每个条目下面属性和值就是明显的key-value模式。&lt;/p&gt;
+&lt;p&gt;例如：&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;dn: ou=People,dc=example,dc=com
+objectClass: organizationalUnit
+ou: People
+dn: ou=Groups,dc=example,dc=com
+objectClass: organizationalUnit
+ou: Groups
+dn: cn=miners,ou=Groups,dc=example,dc=com
+objectClass: posixGroup
+cn: miners
+gidNumber: 5000
+dn: uid=john,ou=People,dc=example,dc=com
+objectClass: inetOrgPerson
+objectClass: posixAccount
+objectClass: shadowAccount
+uid: john
+sn: Doe
+givenName: John
+cn: John Doe
+displayName: John Doe
+uidNumber: 10000
+gidNumber: 5000
+userPassword: johnldap
+gecos: John Doe
+loginShell: /bin/bash
+homeDirectory: /home/john
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;LDAP目录树的组织，被排列爱一个分层的树形结构。这个结果反映了地域或者组织界限。下面的图片是两种不同的组织命名。&lt;/p&gt;
+&lt;p&gt;&lt;a href="http://www.openldap.org/doc/admin24/intro_tree.png"&gt;http://www.openldap.org/doc/admin24/intro_tree.png&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;&lt;a href="http://www.openldap.org/doc/admin24/intro_dctree.png"&gt;http://www.openldap.org/doc/admin24/intro_dctree.png&lt;/a&gt;&lt;/p&gt;
+&lt;h2&gt;LDAP如何工作&lt;/h2&gt;
+&lt;p&gt;LDAP采用客户－服务器模式. 包含在一个或多个LDAP服务器中的数据组成了目录信息树(DIT). 客户端连接到服务器然后问一个问题. 服务器返回一个应答和/或一个指针告诉客户端去哪里获得更多的信息 (通常是另一台 LDAP 服务器). 客户端连接哪台LDAP服务器不重要, 目录的视图看起来都一样; 一个提交到某台LDAP服务器的名字在另一台LDAP服务器上也将指向相同的条目. 这是全球目录服务的一个重要功能.&lt;/p&gt;
+&lt;h2&gt;配置&lt;/h2&gt;
+&lt;p&gt;LDAP安装好之后，2.3版本之前必须要配置sldapd文件。但在2.3版本之后，完全允许LDAP利用LDIF数据库文件来管理LDAP。LDAP配置引擎允许所有的slapd配置选项在运行中改变，一把不需要重启sldapd使其生效。例如之前，我们想修改ldap的logging level，一般直接到slapd.conf文件直接修改。现在支持这样，先定义一个LDIF文件logging.ldif&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;dn: cn=config
+changetype: modify
+add: olcLogLevel
+olcLogLevel: stats
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;然后执行这个改变: &lt;code&gt;sudo ldapmodify -Q -Y EXTERNAL -H ldapi:/// -f logging.ldif&lt;/code&gt;&lt;/p&gt;
+&lt;p&gt;换句话说，新版的LDAP建议用户使用LDIF和ldap命令集合来管理LDAP。但是旧风格的dlapd.conf依旧是支持的，为了保持向前兼容。特别要注意的是，新风格采用了slapd后端数据库来存储配置，务必不能两个风格混用。&lt;/p&gt;
+&lt;p&gt;旧风格的slapd.conf配置在centos上&lt;/p&gt;
+&lt;p&gt;&lt;a href="http://www.centoscn.com/image-text/config/2013/0819/1367.html"&gt;http://www.centoscn.com/image-text/config/2013/0819/1367.html&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;新风格的IDIF配置在ubuntu&lt;/p&gt;
+&lt;p&gt;&lt;a href="https://help.ubuntu.com/12.04/serverguide/openldap-server.html#openldap-server-logging"&gt;https://help.ubuntu.com/12.04/serverguide/openldap-server.html#openldap-server-logging&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;另外，我们需要注意到，LDIF方式只是slapd的某一种数据库方式，因为它把信息保存在text文件当中。slapd本身支持很多数据库后端，常见的就是Berkeley DB backends，配置文件中看到的hdb即是。&lt;/p&gt;
+&lt;h2&gt;调试&lt;/h2&gt;
+&lt;p&gt;我们可以开启sldapd debug mode，方便看到更多的错误日志。运行&lt;code&gt;slapd -d 1&lt;/code&gt;即可。更多的调试级别：&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;级别|关键字|描述
+---|--------|---
+0||不调试
+1|(0x1 trace)|跟踪函数调用
+2|(0x2 packets)|调试包的处理
+4|(0x4 args)|重度跟踪调试
+8|(0x8 conns)|连接管理
+16|(0x10 BER)|打印发送和接收的包
+32|(0x20 filter)|搜索过滤器的处理
+64|(0x40 config)|配置处理
+128|(0x80 ACL)|访问控制列表处理
+256|(0x100 stats)|连接/操作/结果的统计日志
+512|(0x200 stats2)|发送的条目的统计日志
+1024|(0x400 shell)|打印和shell后端的通信
+2048|(0x800 parse)|打印条目解析调试
+16384|(0x4000 sync)|syncrepl消费者处理
+32768|(0x8000 none)|只显示那些不受日志级别设置影响的消息
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;h2&gt;参考&lt;/h2&gt;
+&lt;ol&gt;
+&lt;li&gt;&lt;a href="http://wiki.jabbercn.org/OpenLDAP2.4%E7%AE%A1%E7%90%86%E5%91%98%E6%8C%87%E5%8D%97#.E4.BB.80.E4.B9.88.E6.98.AF.E7.9B.AE.E5.BD.95.E6.9C.8D.E5.8A.A1.3F"&gt;http://wiki.jabbercn.org/OpenLDAP2.4%E7%AE%A1%E7%90%86%E5%91%98%E6%8C%87%E5%8D%97#.E4.BB.80.E4.B9.88.E6.98.AF.E7.9B.AE.E5.BD.95.E6.9C.8D.E5.8A.A1.3F&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href="http://www.openldap.org/doc/admin24/"&gt;http://www.openldap.org/doc/admin24/&lt;/a&gt;&lt;/li&gt;
+&lt;/ol&gt;</summary><category term="ldap"></category></entry><entry><title>openstack默认关闭文件注入功能</title><link href="http://hellostack.info/openstack-disable-file-injection.html" rel="alternate"></link><published>2014-07-03T23:32:00+08:00</published><author><name>Ray Chen</name></author><id>tag:hellostack.info,2014-07-03:openstack-disable-file-injection.html</id><summary type="html">&lt;p&gt;openstack 从H版本默认不再支持文件注入，推荐使用ConfigDrive或metadata服务。如果要继续使用，
+需要配置inject_key=true，inject_partition，inject_password=true&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;inject_partition = -1 表示只注入文件&lt;/li&gt;
+&lt;li&gt;inject_partition = -2 表示disable此功能&lt;/li&gt;
+&lt;li&gt;inject_partition = $number 表示分区号码&lt;/li&gt;
+&lt;/ol&gt;
+&lt;h2&gt;Config Drive&lt;/h2&gt;
+&lt;p&gt;Config Drive的目的是，当nova实例启动后，可以mount一个元数据的文件系统，方便交换数据。&lt;/p&gt;
+&lt;p&gt;例如这样的命令行：&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;nova boot --config-drive=true --file test_file=/home/ray/.ssh/known_hosts --meta name=Ray --flavor 1 --key-name mykey --block-device-mapping vda=4f1f0e06-4bdf-4af3-b301-dd24d8395e5b --security_group default myOSWithKey2
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;想对应的log。 用到&lt;code&gt;genisoimage&lt;/code&gt;命令生成一个新的iso&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;2000 2014-07-03 22:39:16.244 INFO nova.virt.libvirt.driver [req-4d01bb41-3689-4143-a4c4-961fc86b3dd8 admin demo] [instance: af475750-2c58-48c8-9c2d-bd     13d2d0fb7f] Creating config drive at /opt/stack/data/nova/instances/af475750-2c58-48c8-9c2d-bd13d2d0fb7f/disk.config
+2001 2014-07-03 22:39:16.245 DEBUG nova.openstack.common.processutils [req-4d01bb41-3689-4143-a4c4-961fc86b3dd8 admin demo] Running cmd (subprocess):      genisoimage -o /opt/stack/data/nova/instances/af475750-2c58-48c8-9c2d-bd13d2d0fb7f/disk.config -ldots -allow-lowercase -allow-multidot -l -publis     her OpenStack Nova 2014.2 -quiet -J -r -V config-2 /tmp/cd_gen_oKkFq3 execute /opt/stack/nova/nova/openstack/common/processutils.py:160
+2002 2014-07-03 22:39:16.311 DEBUG nova.openstack.common.processutils [req-4d01bb41-3689-4143-a4c4-961fc86b3dd8 admin demo] Result was 0 execute /opt/     stack/nova/nova/openstack/common/processutils.py:194
+......
+2004 2014-07-03 22:39:16.623 DEBUG nova.openstack.common.processutils [req-4d01bb41-3689-4143-a4c4-961fc86b3dd8 admin demo] Running cmd (subprocess):      env LC_ALL=C LANG=C qemu-img info /opt/stack/data/nova/instances/af475750-2c58-48c8-9c2d-bd13d2d0fb7f/disk.config execute /opt/stack/nova/nova/op     enstack/common/processutils.py:160
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;等实例启动之后，登陆进去,可以mount这个config drive。 默认的disk label 是&lt;code&gt;config-2&lt;/code&gt;&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;$ sudo mkdir -p /mnt/config
+$ sudo mount /dev/disk/by-label/config-2 /mnt/config
+mount: mounting /dev/disk/by-label/config-2 on /mnt/config failed: No such file or directory
+$ sudo blkid -t LABEL=&amp;quot;config-2&amp;quot; -odevice
+/dev/sr0
+$ sudo mount /dev/sr0 /mnt/config
+$ cd /mnt/config
+$ ls -l
+total 4
+dr-xr-xr-x    4 root     root          2048 Jul  3 10:20 ec2
+dr-xr-xr-x    7 root     root          2048 Jul  3 10:20 openstack
+$ cat latest/meta_data.json 
+{&amp;quot;files&amp;quot;: [{&amp;quot;path&amp;quot;: &amp;quot;test_file&amp;quot;, &amp;quot;content_path&amp;quot;: &amp;quot;/content/0000&amp;quot;}], &amp;quot;admin_pass&amp;quot;: &amp;quot;uogP9pqkr9Tz&amp;quot;, &amp;quot;random_seed&amp;quot;: &amp;quot;wGxbuZ2CVfQpKvF5IoHLDss2YwQEBudGGSxhLXz0JWtF+FEBKnVPbudfNPJIINwPSrUPxsHbX1YUg+pnUv9Lqxc6YWjxsIDoxfh4Ybh/LVUjTIcr+AletrPF5/3DKvwjquqHN218LmEPx/l4H6eryf2S2GPE2CUJHjnEjIFL0cqb2EcCTFSVEw9Eve1RELVPpPMmIpPowumEz+ML0IvnLXpgyhUA4WsDIUCEXScPsnE7GuuLEJAN2D0NpggXZzMj2/kM6dr6ox07w7UMaLBzTwzrvqRgg6W+4oARk40IXp2j8KGRaoFAh6gO4eO2PzmrRSGDqXTTwpa5vBBXgy4qMHOWldaOdaA0p9+JrwqEbsPEceMPrUGEkqS/kiEqa2hUCp9uwTzeRkp19FSJ19FqqoSav6n5wDnsgnFB7JJ5pR037YM56riNOcmS8Xjh5Gg72rqz43I8mADqVCau84IqgIEVBqPWnE0CRYpinJhmslXdfg/GY13B7rtXtZKazt2W14zlHuHMa9R612C6hCYXams0bOWYIlGso81ae01TVH5p6f/4fm0Kq8GTz6YVeDl+mjYdp+6p75GXa0QdsvzbjNjAb/2hNmhpZ7tx26E3QMjJrNDC4DBNA81U5IoZxG8Ppwj8SiC2qtTpNDlKb7OuiQmpmGTBRAjdJ+/KVLPsmb0=&amp;quot;, &amp;quot;uuid&amp;quot;: &amp;quot;84c73cad-d8ec-4dad-aa75-a89b0ef11266&amp;quot;, &amp;quot;availability_zone&amp;quot;: &amp;quot;nova&amp;quot;, &amp;quot;hostname&amp;quot;: &amp;quot;myoswithkey2.novalocal&amp;quot;, &amp;quot;launch_index&amp;quot;: 0, &amp;quot;meta&amp;quot;: {&amp;quot;name&amp;quot;: &amp;quot;Ray&amp;quot;}, &amp;quot;public_keys&amp;quot;: {&amp;quot;mykey&amp;quot;: &amp;quot;ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQC3pipuritq3xYAy2dpGULD9jw+6IKJwe1UI/tuy5hsbgjOLjUU1xMjF00BsmRMnXu/W8G+l58yNsncwXc1TS8eq3brm9692cZmweJv23BcWRfVtVhqmsRsyA6FZf/fOGKJ/OlYt1/7pWZEiftQiLB2jusRBeGn0kWb9oD/q1O2Ii9eTI2Wzrtd3dSzGLP8PMqb0qwEfdYr7PJYO9LjcDqptk0yNTodsPpPyuuySwsdXu/qcV3+2aJBR32wB0z8GQ2vP1MeHpttsaze5462s36XtnYWaDmFTZl5GmlWg7izYNQovzplzWOmruF6S/v/S3sIK4PKcYwdwE6LnKgF2uYz ray@fedora20\n&amp;quot;}, &amp;quot;name&amp;quot;: &amp;quot;myOSWithKey2&amp;quot;}$ 
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;更多官方文档介绍：&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;a href="http://docs.openstack.org/grizzly/openstack-compute/admin/content/config-drive.html"&gt;http://docs.openstack.org/grizzly/openstack-compute/admin/content/config-drive.html&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href="http://docs.openstack.org/grizzly/openstack-compute/admin/content/instance-data.html"&gt;http://docs.openstack.org/grizzly/openstack-compute/admin/content/instance-data.html&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h2&gt;Metadata Service&lt;/h2&gt;
+&lt;p&gt;openstack元数据服务，用来给虚拟机实例传递数据。 服务端口地址是写死的： http://169.254.169.254 &lt;/p&gt;
+&lt;p&gt;为什么是这个地址，&lt;a href="http://www.pubyun.com/blog/openstack/%E4%BB%80%E4%B9%88%E6%98%AFopenstack%E7%9A%84-metadata/"&gt;再这里有介绍&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;官方文档有详细介绍用法。
+&lt;a href="http://docs.openstack.org/grizzly/openstack-compute/admin/content/metadata-service.html"&gt;http://docs.openstack.org/grizzly/openstack-compute/admin/content/metadata-service.html&lt;/a&gt;&lt;/p&gt;
+&lt;h2&gt;参考资料&lt;/h2&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;a href="https://blueprints.launchpad.net/nova/+spec/disable-file-injection-by-default"&gt;https://blueprints.launchpad.net/nova/+spec/disable-file-injection-by-default&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href="https://review.openstack.org/#/c/70239/"&gt;https://review.openstack.org/#/c/70239/&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href="https://bugzilla.redhat.com/show_bug.cgi?id=1056381"&gt;https://bugzilla.redhat.com/show_bug.cgi?id=1056381&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href="https://bugs.launchpad.net/nova/+bug/1221985"&gt;https://bugs.launchpad.net/nova/+bug/1221985&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;</summary><category term="python"></category><category term="openstack"></category></entry><entry><title>click介绍</title><link href="http://hellostack.info/click-intro.html" rel="alternate"></link><published>2014-06-18T21:12:00+08:00</published><author><name>Ray Chen</name></author><id>tag:hellostack.info,2014-06-18:click-intro.html</id><summary type="html">&lt;h2&gt;Click介绍&lt;/h2&gt;
+&lt;p&gt;&lt;a href="http://click.pocoo.org"&gt;Click&lt;/a&gt;是一个python库，用来写命令行接口的。默认python自带了&lt;a href="https://docs.python.org/2.7/library/argparse.html"&gt;argparse&lt;/a&gt;和&lt;a href="https://docs.python.org/2.7/library/optparse.html#module-optparse"&gt;optparse&lt;/a&gt;两个library来帮助用户很方便的写出用户友好的命令行接口。&lt;/p&gt;
+&lt;p&gt;&lt;a href="http://click.pocoo.org/why/"&gt;这里&lt;/a&gt; 解释了为什么推荐大家用Click。主要亮点是可以类似搭积木组合那样，生成复杂的类似UNix命令行。而且自带了很多辅助参数类似，比如说&lt;a href="http://click.pocoo.org/arguments/#file-arguments"&gt;文件参数&lt;/a&gt;， 还有彩色输出格式等等。&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;is lazily composable without restrictions&lt;/li&gt;
+&lt;li&gt;fully follows the Unix command line conventions&lt;/li&gt;
+&lt;li&gt;supports loading values from environment variables out of the box&lt;/li&gt;
+&lt;li&gt;supports for prompting of custom values&lt;/li&gt;
+&lt;li&gt;is fully nestable and composable&lt;/li&gt;
+&lt;li&gt;works the same in Python 2 and 3&lt;/li&gt;
+&lt;li&gt;supports file handling out of the box&lt;/li&gt;
+&lt;li&gt;comes with useful common helpers (getting terminal dimensions, ANSI colors, fetching direct keyboard input, screen clearing, finding config paths, launching apps and editors, etc.)&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;Click的作者&lt;a href="http://lucumr.pocoo.org/"&gt;Armin Ronacher&lt;/a&gt;其实就是&lt;a href="http://flask.pocoo.org"&gt;Flask&lt;/a&gt; Web开发框架的作者。所以Click的文档看起来跟&lt;a href="http://flask.pocoo.org/docs/"&gt;Flask&lt;/a&gt;的在线文档格式一样。文档看起来漂亮得很。&lt;/p&gt;
+&lt;h2&gt;实例&lt;/h2&gt;
+&lt;p&gt;&lt;a href="http://click.pocoo.org/"&gt;click文档首页&lt;/a&gt;写了一个例子。我根据文档说明很快也写出了包含子命令的接口程序。
+代码就这样。创建了一个命令组，可以理解成Base，有一些子命令共同的参数。然后建立了子命令，每个子命令添加自己的参数。&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="ch"&gt;#!/usr/bin/python&lt;/span&gt;
+
+&lt;span class="kn"&gt;import&lt;/span&gt; &lt;span class="nn"&gt;click&lt;/span&gt;
+
+
+&lt;span class="nd"&gt;@click.group&lt;/span&gt;&lt;span class="p"&gt;()&lt;/span&gt;
+&lt;span class="nd"&gt;@click.option&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s1"&gt;&amp;#39;--force&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="s1"&gt;&amp;#39;-f&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;is_flag&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="bp"&gt;True&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;help&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="s2"&gt;&amp;quot;Specify flavor name&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+&lt;span class="k"&gt;def&lt;/span&gt; &lt;span class="nf"&gt;flavor&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;force&lt;/span&gt;&lt;span class="p"&gt;):&lt;/span&gt;
+    &lt;span class="n"&gt;click&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;echo&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s2"&gt;&amp;quot;this is group cli&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+    &lt;span class="k"&gt;if&lt;/span&gt; &lt;span class="n"&gt;force&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;
+        &lt;span class="n"&gt;click&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;echo&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s2"&gt;&amp;quot;--force is set to &lt;/span&gt;&lt;span class="si"&gt;%s&lt;/span&gt;&lt;span class="s2"&gt;&amp;quot;&lt;/span&gt; &lt;span class="o"&gt;%&lt;/span&gt; &lt;span class="n"&gt;force&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+
+
+&lt;span class="nd"&gt;@flavor.command&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s1"&gt;&amp;#39;flavor-list&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;help&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="s2"&gt;&amp;quot;list flavor object&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+&lt;span class="nd"&gt;@click.option&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s1"&gt;&amp;#39;--name&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;help&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="s2"&gt;&amp;quot;specify flavor name&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+&lt;span class="k"&gt;def&lt;/span&gt; &lt;span class="nf"&gt;flavor_list&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;name&lt;/span&gt;&lt;span class="p"&gt;):&lt;/span&gt;
+    &lt;span class="k"&gt;if&lt;/span&gt; &lt;span class="n"&gt;name&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;
+        &lt;span class="n"&gt;click&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;echo&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s2"&gt;&amp;quot;only list &lt;/span&gt;&lt;span class="si"&gt;%s&lt;/span&gt;&lt;span class="s2"&gt; flavor&amp;quot;&lt;/span&gt; &lt;span class="o"&gt;%&lt;/span&gt; &lt;span class="n"&gt;name&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+    &lt;span class="k"&gt;else&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;
+        &lt;span class="n"&gt;click&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;echo&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s2"&gt;&amp;quot;list all flavor&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+
+
+&lt;span class="nd"&gt;@flavor.command&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s1"&gt;&amp;#39;flavor-create&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;help&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="s2"&gt;&amp;quot;create flavor object&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+&lt;span class="nd"&gt;@click.argument&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s1"&gt;&amp;#39;name&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+&lt;span class="nd"&gt;@click.argument&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s1"&gt;&amp;#39;cpu&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+&lt;span class="nd"&gt;@click.argument&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s1"&gt;&amp;#39;ram&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+&lt;span class="k"&gt;def&lt;/span&gt; &lt;span class="nf"&gt;flavor_create&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;name&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;cpu&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;ram&lt;/span&gt;&lt;span class="p"&gt;):&lt;/span&gt;
+    &lt;span class="n"&gt;click&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;echo&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s2"&gt;&amp;quot;flavor-create with param: &lt;/span&gt;&lt;span class="si"&gt;%s&lt;/span&gt;&lt;span class="s2"&gt; &lt;/span&gt;&lt;span class="si"&gt;%s&lt;/span&gt;&lt;span class="s2"&gt; &lt;/span&gt;&lt;span class="si"&gt;%s&lt;/span&gt;&lt;span class="s2"&gt;&amp;quot;&lt;/span&gt; &lt;span class="o"&gt;%&lt;/span&gt; &lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;name&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;cpu&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;ram&lt;/span&gt;&lt;span class="p"&gt;))&lt;/span&gt;
+
+
+&lt;span class="nd"&gt;@flavor.command&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s1"&gt;&amp;#39;flavor-delete&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;help&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="s2"&gt;&amp;quot;delete flavor object&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+&lt;span class="nd"&gt;@click.argument&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s1"&gt;&amp;#39;name&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+&lt;span class="k"&gt;def&lt;/span&gt; &lt;span class="nf"&gt;flavor_delete&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;name&lt;/span&gt;&lt;span class="p"&gt;):&lt;/span&gt;
+    &lt;span class="n"&gt;click&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;echo&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s2"&gt;&amp;quot;flavor-delete &lt;/span&gt;&lt;span class="si"&gt;%s&lt;/span&gt;&lt;span class="s2"&gt;&amp;quot;&lt;/span&gt; &lt;span class="o"&gt;%&lt;/span&gt; &lt;span class="n"&gt;name&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+
+
+&lt;span class="k"&gt;if&lt;/span&gt; &lt;span class="n"&gt;__name__&lt;/span&gt; &lt;span class="o"&gt;==&lt;/span&gt; &lt;span class="s2"&gt;&amp;quot;__main__&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;
+    &lt;span class="n"&gt;flavor&lt;/span&gt;&lt;span class="p"&gt;()&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;这个例子的运行结果。&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;[ray@fedora click]$ ./hello.py 
+Usage: hello.py [OPTIONS] COMMAND [ARGS]...
+
+Options:
+  -f, --force  specify flavor name
+  --help       Show this message and exit.
+
+Commands:
+  flavor-create  create flavor object
+  flavor-delete  delete flavor object
+  flavor-list    list flavor object
+[ray@fedora click]$ ./hello.py ^C
+[ray@fedora click]$ vim hello.py 
+[ray@fedora click]$ ./hello.py 
+Usage: hello.py [OPTIONS] COMMAND [ARGS]...
+
+Options:
+  -f, --force  Specify flavor name
+  --help       Show this message and exit.
+
+Commands:
+  flavor-create  create flavor object
+  flavor-delete  delete flavor object
+  flavor-list    list flavor object
+[ray@fedora click]$ ./hello.py flavor-create
+this is group cli
+Usage: hello.py flavor-create [OPTIONS] NAME CPU RAM
+
+Error: Missing argument &amp;quot;name&amp;quot;.
+[ray@fedora click]$ ./hello.py flavor-create name 1 1024
+this is group cli
+flavor-create with param: name 1 1024
+[ray@fedora click]$ ./hello.py flavor-delete
+this is group cli
+Usage: hello.py flavor-delete [OPTIONS] NAME
+
+Error: Missing argument &amp;quot;name&amp;quot;.
+[ray@fedora click]$ ./hello.py flavor-delete myFlavor
+this is group cli
+flavor-delete myFlavor
+[ray@fedora click]$ ./hello.py flavor-list
+this is group cli
+list all flavor
+[ray@fedora click]$ ./hello.py flavor-list myFlavor
+this is group cli
+Usage: hello.py flavor-list [OPTIONS]
+
+Error: Got unexpected extra argument (myFlavor)
+[ray@fedora click]$ ./hello.py flavor-list --name myFlavor
+this is group cli
+only list myFlavor flavor
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;h2&gt;参考资料&lt;/h2&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;a href="https://pypi.python.org/pypi/click/2.1"&gt;https://pypi.python.org/pypi/click/2.1&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href="http://click.pocoo.org/"&gt;http://click.pocoo.org/&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;</summary><category term="python"></category></entry><entry><title>salt-ssh实现原理</title><link href="http://hellostack.info/salt-ssh-internal.html" rel="alternate"></link><published>2014-06-10T22:37:00+08:00</published><author><name>Ray Chen</name></author><id>tag:hellostack.info,2014-06-10:salt-ssh-internal.html</id><summary type="html">&lt;h2&gt;salt-ssh&lt;/h2&gt;
+&lt;p&gt;salt-ssh出现的理由是这么个逻辑。一般salt需要安装和启动minion，这样master才能控制minion。
+对于远程执行命令，最常见的方法是用ssh，因为直接启动远程的sshd服务即可。那么有没有一种方式
+可以集成两者的优点，同时免安装minion又同时可以使用saltstack的功能特点。salt-ssh的出现
+回答了这个问题。&lt;/p&gt;
+&lt;p&gt;salt-ssh基本上是零配置。你想控制哪个host，直接把host的ip和用户密码或者keys告诉salt。剩下的
+就直接执行:&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;code&gt;salt-ssh &amp;lt;ssh target&amp;gt; -r &amp;lt;raw cmd&amp;gt;&lt;/code&gt; 这个可以直接在远程机器运行命令&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;salt-ssh &amp;lt;ssh target&amp;gt; state.highstate&lt;/code&gt; 这个可以同步整个salt状态&lt;/li&gt;
+&lt;li&gt;更多的salt执行的模块命令&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;默认的配置文件位于&lt;code&gt;/etc/salt/roster&lt;/code&gt;, 添加ssh机器即可，例如：&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;web1:
+  host: 192.168.42.1 # The IP addr or DNS hostname
+  user: fred         # Remote executions will be executed as user fred
+  passwd: foobarbaz  # The password to use for login, if omitted, keys are used
+  sudo: True         # Whether to sudo to root, not enabled by default
+web2:
+  host: 192.168.42.2
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;更多文档在这里:&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;a href="http://docs.saltstack.com/en/latest/topics/ssh/"&gt;http://docs.saltstack.com/en/latest/topics/ssh/&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href="http://docs.saltstack.com/topics/ssh/roster.html"&gt;http://docs.saltstack.com/topics/ssh/roster.html&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h2&gt;原理&lt;/h2&gt;
+&lt;p&gt;salt-ssh主要的代码路径位于&lt;code&gt;&amp;lt;TOP&amp;gt;/salt/client/ssh&lt;/code&gt;目录&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;(vdev)[ray@fedora salt]$ tree salt/client/ssh/
+salt/client/ssh/
+|-- __init__.py
+|-- shell.py        # 利用ssh协议，安装部署key和shim脚本
+|-- ssh_py_shim.py  # shim脚本，在minion端实际运行。
+|-- state.py        # saltstack State的ssh方式现实
+`-- wrapper         # 此目录提供更多的salt支持
+    |-- config.py
+    |-- grains.py
+    |-- __init__.py
+    |-- pillar.py
+    |-- state.py
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;salt-ssh是不需要启动minion的，那么如何控制远程机器的呢？
+我们可以打开debug信息看看具体流程，&lt;code&gt;salt-ssh '*' test.ping&lt;/code&gt;&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;
+&lt;p&gt;从roster配置文件中找到所有的minion和ssh登陆信息。生成类似
+&lt;code&gt;ssh host command&lt;/code&gt;的命令行准备执行. 因为执行的命令很复杂，最好
+是用ssh执行一个脚本文件，那样自定义效果最好。这里其实就是&lt;code&gt;ssh_py_shim.py&lt;/code&gt;&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;salt-ssh会打包一份精简的包含大部分salt核心模块并压缩成salt-thin.tgz，
+并发送给minion的&lt;code&gt;/tmp/.salt/&lt;/code&gt;路径（默认路径，可以配置修改）。同时缓存一份
+在&lt;code&gt;/var/cache/salt/master/thin/&lt;/code&gt;以备后需之用。&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;为了让salt-ssh很顺利在远程机器执行&lt;code&gt;ssh_py_shim.py&lt;/code&gt;，初始化过程中包含
+一个小型的shell代码。 shell的主要内容可以在&lt;code&gt;SSH_SH_SHIM&lt;/code&gt;变量中看到。
+前期主要是探索python版本环境，进入到main函数后，实际上还是用python执行
+&lt;code&gt;ssh_py_shim.py&lt;/code&gt;并传入参数。&lt;/p&gt;
+&lt;/li&gt;
+&lt;/ol&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;main()
+{
+    local py_cmd
+    local py_cmd_path
+    for py_cmd in $PYTHON_CMDS; do
+        if &amp;quot;$py_cmd&amp;quot; -c &amp;#39;import sys; sys.exit(not sys.hexversion &amp;gt;= 0x02060000);&amp;#39; &amp;gt;/dev/null 2&amp;gt;&amp;amp;1; then
+            local py_cmd_path
+            py_cmd_path=`&amp;quot;$py_cmd&amp;quot; -c &amp;#39;import sys; print sys.executable;&amp;#39;`
+            exec $SUDO &amp;quot;$py_cmd_path&amp;quot; -c &amp;#39;exec &amp;quot;&amp;quot;&amp;quot;{{SSH_SHIM_PY_CODE}}
+&amp;quot;&amp;quot;&amp;quot;.decode(&amp;quot;base64&amp;quot;)&amp;#39; -- \-\-config \{id\:\ ssh\-saltvm\,\ root_dir\:\ \/tmp\/\.salt\/running_data\} \-\-delimeter _edbc7885e4f9aac9b83b35999b68d015148caf467b78fa39c05f669c0ff89878 \-\-saltdir \/tmp\/\.salt \-\-checksum bb9df33affeafa50849c1a906c04ac09e4b5f22a \-\-hashfunc sha1 \-\-version 2014\.1\.0\-6968\-ga1d939d \-\- test\.ping
+            exit 0
+        else
+            continue
+        fi
+    done
+
+    echo &amp;quot;ERROR: Unable to locate appropriate python command&amp;quot; &amp;gt;&amp;amp;2
+    exit $EX_PYTHON_OLD
+}
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;ol&gt;
+&lt;li&gt;&lt;code&gt;ssh_py_shim.py&lt;/code&gt;脚本是可以单独运行。看看help文档，就大致知道上面main
+函数传入参数的意思。&lt;/li&gt;
+&lt;/ol&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;(vdev)[ray@fedora ssh]$ python ssh_py_shim.py -- --help
+Usage: ssh_py_shim.py -- [SHIM_OPTIONS] -- [SALT_OPTIONS]
+
+Options:
+  -h, --help            show this help message and exit
+  -c CONFIG, --config=CONFIG
+                        YAML configuration for salt thin
+  -d DELIMETER, --delimeter=DELIMETER
+                        Delimeter string (viz. magic string) to indicate
+                        beginning of salt output
+  -s SALTDIR, --saltdir=SALTDIR
+                        Directory where salt thin is or will be installed.
+  --sum=CHECKSUM, --checksum=CHECKSUM
+                        Salt thin checksum
+  --hashfunc=HASHFUNC   Hash function for computing checksum
+  -v VERSION, --version=VERSION
+                        Salt thin version to be deployed/verified
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;ol&gt;
+&lt;li&gt;看看另外的例子&lt;code&gt;salt-ssh -l debug 'ssh-saltvm2' state.highstate test=True&lt;/code&gt;。
+很明显，salt-ssh的原理就在此。依然是在远程环境中运行salt-call命令，只不过这时的
+工作路径是&lt;code&gt;/tmp/.salt&lt;/code&gt;。结果返回给master端。两边的通信依赖ssh/scp协议。&lt;/li&gt;
+&lt;/ol&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;SALT_ARGV: [&amp;#39;/usr/bin/python2.7&amp;#39;, &amp;#39;/tmp/.salt/salt-call&amp;#39;, &amp;#39;--local&amp;#39;, &amp;#39;--out&amp;#39;, &amp;#39;json&amp;#39;, &amp;#39;-l&amp;#39;, &amp;#39;quiet&amp;#39;, &amp;#39;-c&amp;#39;, &amp;#39;/tmp/.salt&amp;#39;, &amp;#39;--&amp;#39;, &amp;#39;state.pkg /tmp/.salt/salt_state.tgz test=True pkg_sum=dd39c5804385befc3ac8d87aa5b40f56 hash_type=md5&amp;#39;]
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;h2&gt;总结&lt;/h2&gt;
+&lt;p&gt;salt-ssh的原理, 依然是在远程环境中运行salt-call命令，此时远程机器已经被部署了
+salt运行环境。这样salt的很多特性和模块功能可以在本地调用。运行的结果用过ssh协议
+返回给master。&lt;/p&gt;
+&lt;p&gt;这里附上我修改的一个salt-ssh bug。&lt;/p&gt;
+&lt;p&gt;&lt;a href="https://github.com/saltstack/salt/pull/13292"&gt;https://github.com/saltstack/salt/pull/13292&lt;/a&gt;&lt;/p&gt;</summary><category term="python"></category><category term="saltstack"></category></entry><entry><title>cloud init和fedora云镜像登陆问题</title><link href="http://hellostack.info/cloud-init-fedora-boot.html" rel="alternate"></link><published>2014-05-31T21:12:00+08:00</published><author><name>Ray Chen</name></author><id>tag:hellostack.info,2014-05-31:cloud-init-fedora-boot.html</id><summary type="html">&lt;h2&gt;Cloud-Init&lt;/h2&gt;
+&lt;p&gt;cloudinit最初是ubuntu用来给自己的cloud image制作的工具，主要是解决cloud实例的初始化问题。比如:&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;设置默认的语言环境&lt;/li&gt;
+&lt;li&gt;设置云实例的hostname&lt;/li&gt;
+&lt;li&gt;自动产生实例的ssh密钥&lt;/li&gt;
+&lt;li&gt;自动给登陆用户注入ssh key从而免密码登陆&lt;/li&gt;
+&lt;li&gt;初始化临时的mount点&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;基本来说，cloudinit可以在云实例启动的事情传入用户数据。最典型的例子，在AWS中，我们只能用过ssh key的方式
+来登陆云主机。这个ssh key可以是用户import进来的。利用cloudinit服务。实例在启动过程，主动向AWS获取传入的
+ssh key，写入到用户目录下。这样主实例启动之后，就可以用ssh key的方式免密码登陆。&lt;/p&gt;
+&lt;p&gt;后来这个工具逐步扩展其他的云实例，意味着除了ubuntu云镜像，大部分的cloud image会预安装cloud init服务。
+openstack云平台为了兼容AWS，提供metadata service API，进而完成openstack云实例的初始化工作。&lt;/p&gt;
+&lt;h2&gt;Fedora Cloud Image&lt;/h2&gt;
+&lt;p&gt;fedora社区提供了云镜像，方便EC2或者openstack。从这里可以下载：&lt;/p&gt;
+&lt;p&gt;&lt;a href="http://fedoraproject.org/en/get-fedora#clouds"&gt;http://fedoraproject.org/en/get-fedora#clouds&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;这个云镜像可以直接给openstack使用的。我们这里下载下来，主要是给local的kvm使用。问题在于默认
+fedora云镜像屏蔽了root登陆，而且root和普通用户fedora的密码都没有设置。&lt;/p&gt;
+&lt;p&gt;cloudinit文档特别说明这种情况：  如何在非云环境中使用&lt;/p&gt;
+&lt;p&gt;&lt;a href="http://cloudinit.readthedocs.org/en/latest/topics/datasources.html#no-cloud"&gt;http://cloudinit.readthedocs.org/en/latest/topics/datasources.html#no-cloud&lt;/a&gt;&lt;/p&gt;
+&lt;h2&gt;操作步骤&lt;/h2&gt;
+&lt;p&gt;根据文档说明，我们先产生&lt;code&gt;meta-data&lt;/code&gt;和&lt;code&gt;user-data&lt;/code&gt;&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;[ray@fedora cloud-init]$ { echo instance-id: saltvm-f20; echo local-hostname: fedora20; } &amp;gt; meta-data
+[ray@fedora cloud-init]$ cat meta-data 
+instance-id: saltvm-f20
+local-hostname: fedora20
+[ray@fedora cloud-init]$ printf &amp;quot;#cloud-config\npassword: passw0rd\nchpasswd: { expire: False }\nssh_pwauth: True\n&amp;quot; &amp;gt; user-data
+[ray@fedora cloud-init]$ cat user-data 
+#cloud-config
+password: password
+chpasswd: { expire: False }
+ssh_pwauth: True
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;第二步，生成一个辅助的iso传递data&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;[ray@fedora cloud-init]$ genisoimage  -output seed.iso -volid cidata -joliet -rock user-data meta-data
+I: -input-charset not specified, using utf-8 (detected in locale settings)
+Total translation table size: 0
+Total rockridge attributes bytes: 331
+Total directory bytes: 0
+Path table size(bytes): 10
+Max brk space used 0
+183 extents written (0 MB)
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;最后启动，输入前面设置的密码即可登陆。 这里fedora20.img就是云镜像&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;qemu-kvm -m 1024 -net nic -net user -drive file=fedora20.img,if=virtio -drive file=seed.iso,if=virtio
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;以上是直接修改密码的方式。我们也可以传入用户的ssh key，下面的内容加入到&lt;code&gt;user-data&lt;/code&gt;即可&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;ssh_authorized_keys:
+  - ssh-rsa ... foo@foo.com (insert ~/.ssh/id_rsa.pub here)
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;更多示例请参考:&lt;/p&gt;
+&lt;p&gt;&lt;a href="http://cloudinit.readthedocs.org/en/latest/topics/examples.html#configure-instances-ssh-keys"&gt;http://cloudinit.readthedocs.org/en/latest/topics/examples.html#configure-instances-ssh-keys&lt;/a&gt;&lt;/p&gt;
+&lt;h2&gt;参考资料&lt;/h2&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;a href="https://help.ubuntu.com/community/CloudInit"&gt;https://help.ubuntu.com/community/CloudInit&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href="https://www.technovelty.org/linux/running-cloud-images-locally.html"&gt;https://www.technovelty.org/linux/running-cloud-images-locally.html&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;</summary><category term="cloud"></category></entry><entry><title>docker初探</title><link href="http://hellostack.info/first-look-docker.html" rel="alternate"></link><published>2014-05-27T16:04:00+08:00</published><author><name>Ray Chen</name></author><id>tag:hellostack.info,2014-05-27:first-look-docker.html</id><summary type="html">&lt;h2&gt;介绍&lt;/h2&gt;
+&lt;p&gt;要理解docker, 必须看明白什么是容器。Docker的后端使用的是&lt;a href="https://linuxcontainers.org/"&gt;LXC&lt;/a&gt;. 后者是linux的系统虚拟化工具。容器不同于一般的虚拟化软件(KVM, XEN, Vmware)，它是基于linux cgroup二次开发的OS层面的虚拟化。LXC容器之间共享底层的OS，相对XEN/KVM/VMWARE等完全虚拟化一个硬件抽象的虚拟机。LXC的轻量特性就体现在资源隔离。容器内部只是一个文件系统级别的独立系统空间。&lt;/p&gt;
+&lt;p&gt;Docker基于LXC做了大量的工作，不仅仅只是个LXC的管理工具。最大的亮点是定义了一个完整的容器生命周期，包含创建/删除容器，管理容器，还有共享和分发容器。docker index是个在线的容器APP共享站点。一个APP，里面可能只装上了wordpress，或者配置好了LAMP环境。比如这个例子mysql docker app： &lt;a href="https://index.docker.io/u/panamax/panamax-docker-mysql/"&gt;Mysql Docker&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;目前docker的三个组件：&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;Docker container&lt;/li&gt;
+&lt;li&gt;Docker images&lt;/li&gt;
+&lt;li&gt;Docker registries&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;&lt;a href="http://docs.docker.io/introduction/understanding-docker/#docker-versus-virtual-machines"&gt;docker和虚拟机的区别&lt;/a&gt;&lt;/p&gt;
+&lt;h2&gt;安装&lt;/h2&gt;
+&lt;p&gt;在Fedora平台，直接从yum仓库安装： &lt;code&gt;sudo yum install docker-io&lt;/code&gt; 更多安装文档，请参考： &lt;a href="http://docs.docker.io/installation/"&gt;http://docs.docker.io/installation/&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;安装docker之后，把docker服务启动。 &lt;code&gt;/etc/init.d/docker start&lt;/code&gt;&lt;/p&gt;
+&lt;p&gt;接着，运行&lt;code&gt;docker info&lt;/code&gt;  验证是否成功安装。&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;[root@ncvm9087109 ~]# docker info
+Containers: 10
+Images: 41
+Storage Driver: devicemapper
+ Pool Name: docker-253:0-1332588-pool
+ Data file: /var/lib/docker/devicemapper/devicemapper/data
+ Metadata file: /var/lib/docker/devicemapper/devicemapper/metadata
+ Data Space Used: 3635.9 Mb
+ Data Space Total: 102400.0 Mb
+ Metadata Space Used: 4.1 Mb
+ Metadata Space Total: 2048.0 Mb
+Execution Driver: lxc-0.9.0
+Kernel Version: 2.6.32-431.el6.x86_64
+[root@ncvm9087109 ~]# ps -ef | grep lxc
+root      1518 32566  0 May26 pts/1    00:00:00 lxc-start -n d5ccfc971616c968e958f1d3bdfd3806b37f7159cf0a5d7cb1f6a7430f1e4d14 -f /var/lib/docker/containers/d5ccfc971616c968e958f1d3bdfd3806b37f7159cf0a5d7cb1f6a7430f1e4d14/config.lxc -- /.dockerinit -driver lxc -g 172.17.42.1 -i 172.17.0.2/16 -mtu 1500 -- /bin/bash
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;h2&gt;Hello World&lt;/h2&gt;
+&lt;p&gt;现在开始环境，从docker index下载一个base的fedora image： &lt;a href="https://index.docker.io/_/fedora/"&gt;https://index.docker.io/_/fedora/&lt;/a&gt;. 这个fedora image只有100多MB，只包含了了最基本的运行环境。&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;[ray@ncvm9087109 ~]$ sudo docker pull fedora
+Pulling repository fedora
+5cc9e91966f7: Download complete 
+b7de3133ff98: Download complete 
+511136ea3c5a: Download complete 
+ef52fb1fe610: Download complete 
+[root@ncvm9087109 devicemapper]# docker images fedora
+REPOSITORY          TAG                 IMAGE ID            CREATED             VIRTUAL SIZE
+fedora              rawhide             5cc9e91966f7        2 weeks ago         372.7 MB
+fedora              20                  b7de3133ff98        4 weeks ago         372.7 MB
+fedora              heisenbug           b7de3133ff98        4 weeks ago         372.7 MB
+fedora              latest              b7de3133ff98        4 weeks ago         372.7 MB
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;运行下面的命令：&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;[root@ncvm9087109 ~]# docker run fedora /bin/echo hello world
+hello world
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;h2&gt;SSH示例&lt;/h2&gt;
+&lt;p&gt;我们看一个复杂的例子，首先定义个&lt;a href="http://docs.docker.io/reference/builder/"&gt;Dockerfile&lt;/a&gt;。 跟其他的配置工具(puppet/saltstack)类似，docker定义了一系统的关键字语法，让用户自动化创建image的步骤。看下面的文件。先下载ubuntu这个base image，接着添加软件源后同步系统到最新release。然后用apt安装了sshd server，同时修改了root的密码。最后告诉docker，这个容器需要暴露22端口，最后的命令用来启动sshd。&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;# sshd
+#
+# VERSION               0.0.1
+FROM     ubuntu
+MAINTAINER Thatcher R. Peskens &amp;quot;thatcher@dotcloud.com&amp;quot;
+# make sure the package repository is up to date
+RUN echo &amp;quot;deb http://archive.ubuntu.com/ubuntu precise main universe&amp;quot; &amp;gt; /etc/apt/sources.list
+RUN apt-get update
+RUN apt-get install -y openssh-server
+RUN mkdir /var/run/sshd  &amp;amp;&amp;amp; chmod 755 /var/run/sshd
+RUN echo &amp;#39;root:screencast&amp;#39; |chpasswd
+EXPOSE 22
+CMD    /usr/sbin/sshd -D
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;注意&lt;code&gt;chmod 755 /var/run/sshd&lt;/code&gt;不要忘记，不然会出现这个错误：可以用&lt;code&gt;docker logs &amp;lt;container&amp;gt;&lt;/code&gt;检查错误。&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;root@95de4d97ee3a:/var/run# /usr/sbin/sshd -D
+/var/run/sshd must be owned by root and not group or world-writable.
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;dockerfile文件准备好之后，用&lt;code&gt;docker build&lt;/code&gt;命令来build image&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;root@ncvm9087109 devicemapper]# docker build --rm -t eg_sshd - &amp;lt; docker_sshd
+Uploading context 2.048 kB
+Uploading context 
+Step 0 : FROM     ubuntu
+ ---&amp;gt; 99ec81b80c55
+Step 1 : MAINTAINER Thatcher R. Peskens &amp;quot;thatcher@dotcloud.com&amp;quot;
+ ---&amp;gt; Running in d9e8a48ff85a
+ ---&amp;gt; 5b880b2168aa
+Removing intermediate container d9e8a48ff85a
+Step 2 : RUN echo &amp;quot;deb http://archive.ubuntu.com/ubuntu precise main universe&amp;quot; &amp;gt; /etc/apt/sources.list
+ ---&amp;gt; Running in 5611f57e25e6
+ ---&amp;gt; da2fa697d676
+Removing intermediate container 5611f57e25e6
+Step 3 : RUN apt-get update
+ ---&amp;gt; Running in b313afedb3ad
+Ign http://archive.ubuntu.com precise InRelease
+Get:1 http://archive.ubuntu.com precise Release.gpg [198 B]
+Get:2 http://archive.ubuntu.com precise Release [49.6 kB]
+Get:3 http://archive.ubuntu.com precise/main amd64 Packages [1273 kB]
+Get:4 http://archive.ubuntu.com precise/universe amd64 Packages [4786 kB]
+Fetched 6109 kB in 5s (1182 kB/s)
+Reading package lists...
+ ---&amp;gt; 0140b777b50b
+Removing intermediate container b313afedb3ad
+Step 4 : RUN apt-get install -y openssh-server
+ ---&amp;gt; Running in e17e8919d7d1
+Reading package lists...
+Building dependency tree...
+Reading state information...
+The following extra packages will be installed:
+  ca-certificates krb5-locales libedit2 libgssapi-krb5-2 libidn11 libk5crypto3
+  libkeyutils1 libkrb5-3 libkrb5support0 libwrap0 libx11-6 libx11-data libxau6
+  libxcb1 libxdmcp6 libxext6 libxmuu1 openssh-client openssl ssh-import-id
+  tcpd wget xauth
+Suggested packages:
+  krb5-doc krb5-user ssh-askpass libpam-ssh keychain monkeysphere
+  openssh-blacklist openssh-blacklist-extra rssh molly-guard ufw
+The following NEW packages will be installed:
+  ca-certificates krb5-locales libedit2 libgssapi-krb5-2 libidn11 libk5crypto3
+  libkeyutils1 libkrb5-3 libkrb5support0 libwrap0 libx11-6 libx11-data libxau6
+  libxcb1 libxdmcp6 libxext6 libxmuu1 openssh-client openssl ssh-import-id
+  tcpd wget xauth
+Suggested packages:
+  krb5-doc krb5-user ssh-askpass libpam-ssh keychain monkeysphere
+  openssh-blacklist openssh-blacklist-extra rssh molly-guard ufw
+The following NEW packages will be installed:
+  ca-certificates krb5-locales libedit2 libgssapi-krb5-2 libidn11 libk5crypto3
+  libkeyutils1 libkrb5-3 libkrb5support0 libwrap0 libx11-6 libx11-data libxau6
+  libxcb1 libxdmcp6 libxext6 libxmuu1 openssh-client openssh-server openssl
+  ssh-import-id tcpd wget xauth
+0 upgraded, 24 newly installed, 0 to remove and 0 not upgraded.
+Need to get 4178 kB of archives.
+After this operation, 12.9 MB of additional disk space will be used.
+......
+Setting up tcpd (7.6.q-21) ...
+Setting up ssh-import-id (2.10-0ubuntu1) ...
+Processing triggers for libc-bin (2.19-0ubuntu6) ...
+Processing triggers for ureadahead (0.100.0-16) ...
+ ---&amp;gt; 6e430d647352
+Removing intermediate container e17e8919d7d1
+Step 5 : RUN mkdir /var/run/sshd
+ ---&amp;gt; Running in eee245ce4ee1
+ ---&amp;gt; 468ba80bb857
+Removing intermediate container eee245ce4ee1
+Step 6 : RUN echo &amp;#39;root:screencast&amp;#39; |chpasswd
+ ---&amp;gt; Running in bd6f65acaf7a
+ ---&amp;gt; 4a9fb44bd5df
+Removing intermediate container bd6f65acaf7a
+Step 7 : EXPOSE 22
+ ---&amp;gt; Running in dfccfd6cd0de
+ ---&amp;gt; f5b10cde65f7
+Removing intermediate container dfccfd6cd0de
+Step 8 : CMD    /usr/sbin/sshd -D
+ ---&amp;gt; Running in ffc41d6e7204
+ ---&amp;gt; 107b63fd863e
+Removing intermediate container ffc41d6e7204
+Successfully built 107b63fd863e
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;创建好image之后，可以启动这个image。&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;[root@ncvm9087109 devicemapper]# docker run -d -P -name test_sshd eg_sshd
+Warning: &amp;#39;-name&amp;#39; is deprecated, it will be replaced by &amp;#39;--name&amp;#39; soon. See usage.
+f1b631682b58e2c72c1677703f96dcfe619afa3b61b9796abbd30010b0b28fd0
+[root@ncvm9087109 devicemapper]# docker ps
+CONTAINER ID        IMAGE               COMMAND                CREATED             STATUS              PORTS                   NAMES
+f1b631682b58        eg_sshd:latest      /bin/sh -c &amp;#39;/usr/sbi   3 minutes ago       Up 3 minutes        0.0.0.0:49155-&amp;gt;22/tcp   test_sshd      
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;ps可以看到刚才的container在运行，同时ssh的22 port映射到内部的49155， 也可以用&lt;code&gt;docker port&lt;/code&gt;看出来。&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;[root@ncvm9087109 devicemapper]# docker port test_sshd 22
+0.0.0.0:49155
+[root@ncvm9087109 devicemapper]# docker inspect test_sshd
+[{
+    &amp;quot;ID&amp;quot;: &amp;quot;f1b631682b58e2c72c1677703f96dcfe619afa3b61b9796abbd30010b0b28fd0&amp;quot;,
+    &amp;quot;Created&amp;quot;: &amp;quot;2014-05-27T06:50:11.800415844Z&amp;quot;,
+    &amp;quot;Path&amp;quot;: &amp;quot;/bin/sh&amp;quot;,
+    &amp;quot;Args&amp;quot;: [
+        &amp;quot;-c&amp;quot;,
+        &amp;quot;/usr/sbin/sshd -D&amp;quot;
+    ],
+    &amp;quot;Config&amp;quot;: {
+        &amp;quot;Hostname&amp;quot;: &amp;quot;f1b631682b58&amp;quot;,
+        &amp;quot;Domainname&amp;quot;: &amp;quot;&amp;quot;,
+        &amp;quot;User&amp;quot;: &amp;quot;&amp;quot;,
+        &amp;quot;Memory&amp;quot;: 0,
+        &amp;quot;MemorySwap&amp;quot;: 0,
+        &amp;quot;CpuShares&amp;quot;: 0,
+        &amp;quot;AttachStdin&amp;quot;: false,
+        &amp;quot;AttachStdout&amp;quot;: false,
+        &amp;quot;AttachStderr&amp;quot;: false,
+        &amp;quot;PortSpecs&amp;quot;: null,
+        &amp;quot;ExposedPorts&amp;quot;: {
+            &amp;quot;22/tcp&amp;quot;: {}
+        },
+        &amp;quot;Tty&amp;quot;: false,
+        &amp;quot;OpenStdin&amp;quot;: false,
+        &amp;quot;StdinOnce&amp;quot;: false,
+        &amp;quot;Env&amp;quot;: [
+            &amp;quot;HOME=/&amp;quot;,
+            &amp;quot;PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin&amp;quot;
+        ],
+        &amp;quot;Cmd&amp;quot;: [
+            &amp;quot;/bin/sh&amp;quot;,
+            &amp;quot;-c&amp;quot;,
+            &amp;quot;/usr/sbin/sshd -D&amp;quot;
+        ],
+        &amp;quot;Image&amp;quot;: &amp;quot;eg_sshd&amp;quot;,
+        &amp;quot;Volumes&amp;quot;: null,
+        &amp;quot;WorkingDir&amp;quot;: &amp;quot;&amp;quot;,
+        &amp;quot;Entrypoint&amp;quot;: null,
+        &amp;quot;NetworkDisabled&amp;quot;: false,
+        &amp;quot;OnBuild&amp;quot;: null
+    },
+    &amp;quot;State&amp;quot;: {
+        &amp;quot;Running&amp;quot;: true,
+        &amp;quot;Pid&amp;quot;: 16375,
+        &amp;quot;ExitCode&amp;quot;: 0,
+        &amp;quot;StartedAt&amp;quot;: &amp;quot;2014-05-27T06:50:12.007032752Z&amp;quot;,
+        &amp;quot;FinishedAt&amp;quot;: &amp;quot;0001-01-01T00:00:00Z&amp;quot;
+    },
+    &amp;quot;Image&amp;quot;: &amp;quot;923a1ba95ae16047a0bf3a5430fc4cc858267fdca90b3c939cbcf6747ccfd595&amp;quot;,
+    &amp;quot;NetworkSettings&amp;quot;: {
+        &amp;quot;IPAddress&amp;quot;: &amp;quot;172.17.0.2&amp;quot;,
+        &amp;quot;IPPrefixLen&amp;quot;: 16,
+        &amp;quot;Gateway&amp;quot;: &amp;quot;172.17.42.1&amp;quot;,
+        &amp;quot;Bridge&amp;quot;: &amp;quot;docker0&amp;quot;,
+        &amp;quot;PortMapping&amp;quot;: null,
+        &amp;quot;Ports&amp;quot;: {
+            &amp;quot;22/tcp&amp;quot;: [
+                {
+                    &amp;quot;HostIp&amp;quot;: &amp;quot;0.0.0.0&amp;quot;,
+                    &amp;quot;HostPort&amp;quot;: &amp;quot;49155&amp;quot;
+                }
+            ]
+        }
+    },
+    &amp;quot;ResolvConfPath&amp;quot;: &amp;quot;/etc/resolv.conf&amp;quot;,
+    &amp;quot;HostnamePath&amp;quot;: &amp;quot;/var/lib/docker/containers/f1b631682b58e2c72c1677703f96dcfe619afa3b61b9796abbd30010b0b28fd0/hostname&amp;quot;,
+    &amp;quot;HostsPath&amp;quot;: &amp;quot;/var/lib/docker/containers/f1b631682b58e2c72c1677703f96dcfe619afa3b61b9796abbd30010b0b28fd0/hosts&amp;quot;,
+    &amp;quot;Name&amp;quot;: &amp;quot;/test_sshd&amp;quot;,
+    &amp;quot;Driver&amp;quot;: &amp;quot;devicemapper&amp;quot;,
+    &amp;quot;ExecDriver&amp;quot;: &amp;quot;lxc-0.9.0&amp;quot;,
+    &amp;quot;MountLabel&amp;quot;: &amp;quot;&amp;quot;,
+    &amp;quot;ProcessLabel&amp;quot;: &amp;quot;&amp;quot;,
+    &amp;quot;Volumes&amp;quot;: {},
+    &amp;quot;VolumesRW&amp;quot;: {},
+    &amp;quot;HostConfig&amp;quot;: {
+        &amp;quot;Binds&amp;quot;: null,
+        &amp;quot;ContainerIDFile&amp;quot;: &amp;quot;&amp;quot;,
+        &amp;quot;LxcConf&amp;quot;: [],
+        &amp;quot;Privileged&amp;quot;: false,
+        &amp;quot;PortBindings&amp;quot;: {
+            &amp;quot;22/tcp&amp;quot;: [
+                {
+                    &amp;quot;HostIp&amp;quot;: &amp;quot;0.0.0.0&amp;quot;,
+                    &amp;quot;HostPort&amp;quot;: &amp;quot;49155&amp;quot;
+                }
+            ]
+        },
+        &amp;quot;Links&amp;quot;: null,
+        &amp;quot;PublishAllPorts&amp;quot;: true,
+        &amp;quot;Dns&amp;quot;: null,
+        &amp;quot;DnsSearch&amp;quot;: null,
+        &amp;quot;VolumesFrom&amp;quot;: null,
+        &amp;quot;NetworkMode&amp;quot;: &amp;quot;bridge&amp;quot;
+    }
+}]
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;最后可以ssh连接到这个运行的容器。IP是docker在主机上daemon的ip，从ipconfig可以看出来：&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;[root@ncvm9087109 devicemapper]# ip a
+7: docker0: &amp;lt;BROADCAST,MULTICAST,UP,LOWER_UP&amp;gt; mtu 1500 qdisc noqueue state UNKNOWN 
+    link/ether fe:bc:7d:30:93:cb brd ff:ff:ff:ff:ff:ff
+    inet 172.17.42.1/16 scope global docker0
+    inet6 fe80::2c64:f0ff:feb8:d96e/64 scope link 
+       valid_lft forever preferred_lft forever
+[root@ncvm9087109 devicemapper]# ssh  root@172.17.42.1 -p 49155
+The authenticity of host &amp;#39;[172.17.42.1]:49155 ([172.17.42.1]:49155)&amp;#39; can&amp;#39;t be established.
+RSA key fingerprint is d7:1c:11:ed:a2:03:76:54:7b:32:53:c6:b1:d3:ef:33.
+Are you sure you want to continue connecting (yes/no)? yes
+Warning: Permanently added &amp;#39;[172.17.42.1]:49155&amp;#39; (RSA) to the list of known hosts.
+root@172.17.42.1&amp;#39;s password: 
+Last login: Tue May 27 06:55:29 2014 from 172.17.42.1
+root@f1b631682b58:~# netstat -anp
+Active Internet connections (servers and established)
+Proto Recv-Q Send-Q Local Address           Foreign Address         State       PID/Program name
+tcp        0      0 0.0.0.0:22              0.0.0.0:*               LISTEN      7/sshd          
+tcp        0      0 172.17.0.2:22           172.17.42.1:49690       ESTABLISHED 32/0            
+tcp6       0      0 :::22                   :::*                    LISTEN      7/sshd   
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;h2&gt;总结&lt;/h2&gt;
+&lt;p&gt;docker提供了一个迅速部署linux容器的方案。一份docker image，可以放在装有docker的任何平台运行。特别应用于部署开发测试环境。占用系统主机资源少的同时，达到了资源隔离的效果（归功于cgroup）。
+基于docker做了PAAS平台： https://github.com/deis/deis&lt;/p&gt;
+&lt;h2&gt;参考&lt;/h2&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;a href="http://docs.docker.io/"&gt;http://docs.docker.io/&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href="https://log.qingcloud.com/?p=129"&gt;https://log.qingcloud.com/?p=129&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href="http://www.vpsee.com/2013/07/use-docker-and-lxc-to-build-a-desktop/"&gt;http://www.vpsee.com/2013/07/use-docker-and-lxc-to-build-a-desktop/&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href="https://www.docker.io/the_whole_story/"&gt;https://www.docker.io/the_whole_story/&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;</summary><category term="docker"></category></entry><entry><title>把aliyun装进saltstack</title><link href="http://hellostack.info/aliyun-support-for-saltstack.html" rel="alternate"></link><published>2014-05-24T15:45:00+08:00</published><author><name>Ray Chen</name></author><id>tag:hellostack.info,2014-05-24:aliyun-support-for-saltstack.html</id><summary type="html">&lt;h2&gt;salt-cloud&lt;/h2&gt;
+&lt;p&gt;salt cloud 是一个轻量级的Cloud Orchestration工具，提供基于配置文件的云主机管理。利用它，我们可以在各个云服务提供商快速部署云主机。
+好处主要有：&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;可以自动安装salt到云主机，进而维护整个云主机的配置管理和生命流程&lt;/li&gt;
+&lt;li&gt;支持的云主机很多，常见看到的都支持。&lt;/li&gt;
+&lt;li&gt;轻量级配置简单, YAML格式。&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;下面的例子可以很快的启动一台openstack实例。&lt;/p&gt;
+&lt;p&gt;VM profile &lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;openstack_Fedora20:
+    provider: openstack-config
+    size: m1.small
+    image: Fedora20
+    ssh_key_name: myKey
+    ssh_key_file: /home/ray/.ssh/id_rsa.pub
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;cloud provider file&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;(vdev)[ray@fedora vdev]$ cat etc/salt/cloud.providers.d/openstack.conf 
+openstack-config:
+  # Configure the OpenStack driver
+  #
+  identity_url: http://192.168.1.111:5000
+  #compute_name: nova
+  protocol: ipv4
+
+  compute_region: RegionOne
+
+  # Configure Openstack authentication credentials
+  #
+  user: admin
+  password: password
+  # tenant is the project name
+  tenant: demo
+
+  provider: openstack
+
+  # skip SSL certificate validation (default false)
+  insecure: true
+
+  networks:
+      - fixed:
+          - a1ccde5d-6817-4c98-862b-f90bd0e8c922
+      - floating:
+          - public
+
+  ssh_interface: private_ips
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;更多的详细内容请参阅：
+&lt;a href="http://docs.saltstack.com/topics/cloud/"&gt;http://docs.saltstack.com/topics/cloud/&lt;/a&gt;&lt;/p&gt;
+&lt;h2&gt;aliyun&lt;/h2&gt;
+&lt;p&gt;阿里云应该算是国内市场上用户量最大的云主机厂商。基本架构和REST API设计跟AWS类似。市场上模仿AWS的一大堆，却从未超过AWS。
+这里能找到API文档： &lt;a href="http://help.aliyun.com/list/11113464.html?spm=5176.7224429.1997282881.55.J9XhVL"&gt;http://help.aliyun.com/list/11113464.html?spm=5176.7224429.1997282881.55.J9XhVL&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;我去申请了免费试用，只有5天的期限，跟亚马逊的一年免费使用比起来，呵呵呵。5天时间根本来不及体验更多的服务。
+没有ssh key的概念，API也没有支持。root访问密码直接发送到手机。支持WEB访问主机终端，应该是VNC做的。&lt;/p&gt;
+&lt;p&gt;再说Aliyun ECS API，官方的SDK只有java， PHP 版本的。有python版本的demo。官方给出的第三方工具很少，基本是一些主机管理工具
+和数据库管理工具，说明没有多少人在参与整个aliyun的生态建设。完全比不上taobao open API的规模。&lt;/p&gt;
+&lt;h2&gt;集成&lt;/h2&gt;
+&lt;p&gt;最近在看上面两个东西，所以很自然的想把aliyun集成到salt。salt的文档还行，照葫芦画瓢可以扩展salt cloud provider。大致的
+步骤都是发送http rest请求，然后分析返回的数据，整理成json格式的，让salt cloud输出。&lt;/p&gt;
+&lt;p&gt;除了查询aliyun的基本信息，最重要的功能当然是创建一个主机实例出来，根据模板信息。openstack heat和AWS cloudformation都是一样的东西。&lt;/p&gt;
+&lt;p&gt;saltstack社区相当活跃，code review流程很快，而且几个core commiter人品很赞，很积极的帮你检查代码，给comment，
+毫不吝啬给你代码点赞，鼓励你多给saltstack做贡献&lt;/p&gt;
+&lt;p&gt;提交的PR， 已经合并到上游，&lt;a href="https://github.com/saltstack/salt/pull/12888"&gt;https://github.com/saltstack/salt/pull/12888&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;顺便贡献了我写的文档： &lt;a href="http://docs.saltstack.com/en/latest/topics/cloud/aliyun.html"&gt;Get Started with Aliyun&lt;/a&gt;&lt;/p&gt;</summary><category term="saltstack"></category><category term="python"></category><category term="cloud"></category></entry><entry><title>yum-axelget插件更新</title><link href="http://hellostack.info/yum-axelget-update.html" rel="alternate"></link><published>2014-05-13T00:12:00+08:00</published><author><name>Ray Chen</name></author><id>tag:hellostack.info,2014-05-13:yum-axelget-update.html</id><summary type="html">&lt;p&gt;周末花了一天时间，把 yum-axelget更新到Fedora20. 实现的基本原理就是：在Yum Code下载之前，用axel把所有需要的RPM/DRPM提前下载好。之前的版本有问题，主要是因为presto（Delta RPM）现在直接merge到Yum Core Code。&lt;/p&gt;
+&lt;p&gt;远期计划支持多种下载工具，让用户自己选择&lt;/p&gt;
+&lt;p&gt;项目地址：&lt;a href="https://github.com/crook/yum-axelget/"&gt;https://github.com/crook/yum-axelget/&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;目前yum-axelget已经在Fedora官方库，可以直接&lt;code&gt;yum install yum-axelget&lt;/code&gt; 安装&lt;/p&gt;
+&lt;p&gt;截图：&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;(vdev)[ray@fedora yum-axelget]$ sudo yum install ddd
+Loaded plugins: axelget, fastestmirror, priorities
+No metadata available for fedora
+No metadata available for rpmfusion-free
+No metadata available for rpmfusion-free-updates
+No metadata available for rpmfusion-nonfree
+No metadata available for rpmfusion-nonfree-updates
+No metadata available for updates
+Loading mirror speeds from cached hostfile
+ * fedora: mirrors.hustunique.com
+ * rpmfusion-free: mirror.bjtu.edu.cn
+ * rpmfusion-free-updates: mirror.switch.ch
+ * rpmfusion-nonfree: mirror.bjtu.edu.cn
+ * rpmfusion-nonfree-updates: mirror.bjtu.edu.cn
+ * updates: mirrors.hustunique.com
+Resolving Dependencies
+--&amp;gt; Running transaction check
+---&amp;gt; Package ddd.x86_64 0:3.3.12-16.fc20 will be installed
+--&amp;gt; Finished Dependency Resolution
+
+Dependencies Resolved
+
+==============================================================================================================================================
+ Package                Arch                              Version                                    Repository                          Size
+==============================================================================================================================================
+Installing:
+ ddd                    x86_64                            3.3.12-16.fc20                             updates                            1.5 M
+
+Transaction Summary
+=============================================================================================================================================
+Install  1 Package
+
+Total download size: 1.5 M
+Installed size: 4.5 M
+Is this ok [y/d/N]: y
+Downloading packages:
+ddd-3.3.12-16.fc20.x86_64.rpm                                                                                             | 1.5 MB  00:00:05     
+Running transaction check
+Running transaction test
+Transaction test succeeded
+Running transaction
+  Installing : ddd-3.3.12-16.fc20.x86_64                                                                                                 1/1 
+  Verifying  : ddd-3.3.12-16.fc20.x86_64                                                                                                 1/1 
+
+Installed:
+  ddd.x86_64 0:3.3.12-16.fc20                                                                                                                         
+
+Complete!
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;跟没有axelget插件的安装界面完全一样。但是这里的ddd rpm实质是axel安装的。 可用&lt;code&gt;yum -d 3 install ddd&lt;/code&gt;看实际的效果。&lt;/p&gt;
+&lt;p&gt;全文完。&lt;/p&gt;</summary><category term="yum"></category><category term="python"></category></entry><entry><title>Openstack Mistral 工作流组件介绍</title><link href="http://hellostack.info/openstack-mistral-intro.html" rel="alternate"></link><published>2014-05-12T23:59:00+08:00</published><author><name>Ray Chen</name></author><id>tag:hellostack.info,2014-05-12:openstack-mistral-intro.html</id><summary type="html">&lt;h2&gt;Mistral是什么&lt;/h2&gt;
+&lt;p&gt;Mistral是mirantis公司为openstack开发的工作流组件，提供WorkFlow as a service。 典型的用户用例包括云平台的任务计划服务（Cloud Cron），任务调度（Task Scheduling）， 复杂的运行时间长的业务流程服务。目前项目还在开始阶段。对应的是AWS的SWS（Simple WorkFlow Service）。&lt;/p&gt;
+&lt;p&gt;项目wiki: &lt;a href="https://wiki.openstack.org/wiki/Mistral"&gt;https://wiki.openstack.org/wiki/Mistral&lt;/a&gt;
+项目Code: &lt;a href="https://github.com/stackforge/mistral"&gt;https://github.com/stackforge/mistral&lt;/a&gt;&lt;/p&gt;
+&lt;h2&gt;基本术语&lt;/h2&gt;
+&lt;p&gt;Workbook: 工作本，用户的工作流接口，可以理解成一篇任务文档用来录入用户的工作流程，步骤，需要完成的任务。每个任务的执行顺序，依赖关系，以及每个任务完成之后产生的事件。站在用户的角度，这篇文档完整的记录了某项任务的流程，让执行者能够清楚怎么完成。站在开发人员的角度，为了方便编程。定义了一种新的语言DSL（下面会有介绍），用来描述整个工作流。&lt;/p&gt;
+&lt;p&gt;Task: 即工作流的具体步骤。可以是Action的集合。&lt;/p&gt;
+&lt;p&gt;Action: Mistral的最小单位。特指一个具体的工作，比如说发送一个HTTP请求，或者运行某条命令。&lt;/p&gt;
+&lt;p&gt;Flow：工作流。 指的是Mistral系统中如何执行task，解析task的依赖关系等等，从而让task顺利结束，并返回状态。&lt;/p&gt;
+&lt;p&gt;WorkFlow Execution: 工作流执行纪录。就是指某次具体的Flow，每次执行task产成的WorkFlow Execution会永久保存在数据库中，方便后续查询，或者重新执行Flow。&lt;/p&gt;
+&lt;h2&gt;DSL 介绍&lt;/h2&gt;
+&lt;p&gt;这是Mistral自定义的工作流定义语言。在业界，工作流程管理 已经存在某些语言，可参考:&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;a href="http://en.wikipedia.org/wiki/Business_Process_Execution_Language"&gt;http://en.wikipedia.org/wiki/Business_Process_Execution_Language&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href="http://en.wikipedia.org/wiki/YAWL"&gt;http://en.wikipedia.org/wiki/YAWL&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;Mistral 使用YAML 来定义工作流 wiki: &lt;a href="https://wiki.openstack.org/wiki/Mistral/DSL"&gt;https://wiki.openstack.org/wiki/Mistral/DSL&lt;/a&gt;&lt;/p&gt;
+&lt;h2&gt;实战&lt;/h2&gt;
+&lt;p&gt;从Github下载最新的代码，安装好运行环境。同时启动API和executor服务&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;tox -evenv -- python mistral/cmd/launch.py --server executor --config-file etc/mistral.conf
+tox -evenv -- python mistral/cmd/launch.py --server api --config-file etc/mistral.conf
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;然后运行“scripts/upload_workbook_and_run.py” 脚本，可以清楚看到整个流程。&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="o"&gt;[&lt;/span&gt;ray@fedora mistral&lt;span class="o"&gt;]&lt;/span&gt;$ python scripts/upload_workbook_and_run.py 
+Created workbook: Workbook &lt;span class="o"&gt;[&lt;/span&gt;&lt;span class="nv"&gt;description&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="s1"&gt;&amp;#39;My test workbook&amp;#39;&lt;/span&gt;, &lt;span class="nv"&gt;name&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="s1"&gt;&amp;#39;my_workbook&amp;#39;&lt;/span&gt;, &lt;span class="nv"&gt;tags&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="s1"&gt;&amp;#39;[u&amp;#39;&lt;/span&gt;test&lt;span class="s1"&gt;&amp;#39;]&amp;#39;&lt;/span&gt;&lt;span class="o"&gt;]&lt;/span&gt;
+
+Uploaded workbook:
+&lt;span class="s2"&gt;&amp;quot;&lt;/span&gt;
+&lt;span class="s2"&gt;Services:&lt;/span&gt;
+&lt;span class="s2"&gt;   MyRest:&lt;/span&gt;
+&lt;span class="s2"&gt;     type: REST_API&lt;/span&gt;
+&lt;span class="s2"&gt;     parameters:&lt;/span&gt;
+&lt;span class="s2"&gt;         baseUrl: http://localhost:8989/v1/&lt;/span&gt;
+&lt;span class="s2"&gt;     actions:&lt;/span&gt;
+&lt;span class="s2"&gt;         my-action:&lt;/span&gt;
+&lt;span class="s2"&gt;           parameters:&lt;/span&gt;
+&lt;span class="s2"&gt;               url: workbooks&lt;/span&gt;
+&lt;span class="s2"&gt;               method: GET&lt;/span&gt;
+
+&lt;span class="s2"&gt;Workflow:&lt;/span&gt;
+&lt;span class="s2"&gt;   tasks:&lt;/span&gt;
+&lt;span class="s2"&gt;     my_task:&lt;/span&gt;
+&lt;span class="s2"&gt;         action: MyRest:my-action&lt;/span&gt;
+
+&lt;span class="s2"&gt;#   events:&lt;/span&gt;
+&lt;span class="s2"&gt;#     my_event:&lt;/span&gt;
+&lt;span class="s2"&gt;#        type: periodic&lt;/span&gt;
+&lt;span class="s2"&gt;#        tasks: my_task&lt;/span&gt;
+&lt;span class="s2"&gt;#        parameters:&lt;/span&gt;
+&lt;span class="s2"&gt;#            cron-pattern: &amp;quot;&lt;/span&gt;* * * * *&lt;span class="s2"&gt;&amp;quot;&lt;/span&gt;
+&lt;span class="s2"&gt;&amp;quot;&lt;/span&gt;
+
+execution: Execution &lt;span class="o"&gt;[&lt;/span&gt;&lt;span class="nv"&gt;state&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="s1"&gt;&amp;#39;RUNNING&amp;#39;&lt;/span&gt;, &lt;span class="nv"&gt;task&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="s1"&gt;&amp;#39;my_task&amp;#39;&lt;/span&gt;, &lt;span class="nv"&gt;id&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="s1"&gt;&amp;#39;b5cf7e00-ef5d-46d7-b505-2d23809d29d0&amp;#39;&lt;/span&gt;, &lt;span class="nv"&gt;context&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="s1"&gt;&amp;#39;None&amp;#39;&lt;/span&gt;, &lt;span class="nv"&gt;workbook_name&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="s1"&gt;&amp;#39;my_workbook&amp;#39;&lt;/span&gt;&lt;span class="o"&gt;]&lt;/span&gt;
+execution: Execution &lt;span class="o"&gt;[&lt;/span&gt;&lt;span class="nv"&gt;state&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="s1"&gt;&amp;#39;RUNNING&amp;#39;&lt;/span&gt;, &lt;span class="nv"&gt;task&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="s1"&gt;&amp;#39;my_task&amp;#39;&lt;/span&gt;, &lt;span class="nv"&gt;id&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="s1"&gt;&amp;#39;b5cf7e00-ef5d-46d7-b505-2d23809d29d0&amp;#39;&lt;/span&gt;, &lt;span class="nv"&gt;context&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="s1"&gt;&amp;#39;None&amp;#39;&lt;/span&gt;, &lt;span class="nv"&gt;workbook_name&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="s1"&gt;&amp;#39;my_workbook&amp;#39;&lt;/span&gt;&lt;span class="o"&gt;]&lt;/span&gt;
+execution: Execution &lt;span class="o"&gt;[&lt;/span&gt;&lt;span class="nv"&gt;state&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="s1"&gt;&amp;#39;SUCCESS&amp;#39;&lt;/span&gt;, &lt;span class="nv"&gt;task&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="s1"&gt;&amp;#39;my_task&amp;#39;&lt;/span&gt;, &lt;span class="nv"&gt;id&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="s1"&gt;&amp;#39;b5cf7e00-ef5d-46d7-b505-2d23809d29d0&amp;#39;&lt;/span&gt;, &lt;span class="nv"&gt;context&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="s1"&gt;&amp;#39;None&amp;#39;&lt;/span&gt;, &lt;span class="nv"&gt;workbook_name&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="s1"&gt;&amp;#39;my_workbook&amp;#39;&lt;/span&gt;&lt;span class="o"&gt;]&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;我们可以装上&lt;a href="https://github.com/stackforge/python-mistralclient"&gt;Misttral client&lt;/a&gt;来看看到底发生了什么。首先看看系统中存在哪些workbook，已经刚刚运行的my-wokbook&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="o"&gt;[&lt;/span&gt;ray@fedora mistral&lt;span class="o"&gt;]&lt;/span&gt;$ mistral workbook-list
+Starting new HTTP connection &lt;span class="o"&gt;(&lt;/span&gt;1&lt;span class="o"&gt;)&lt;/span&gt;: localhost
++---------------+------------------+------+
+&lt;span class="p"&gt;|&lt;/span&gt; Name          &lt;span class="p"&gt;|&lt;/span&gt; Description      &lt;span class="p"&gt;|&lt;/span&gt; Tags &lt;span class="p"&gt;|&lt;/span&gt;
++---------------+------------------+------+
+&lt;span class="p"&gt;|&lt;/span&gt; echo_workbook &lt;span class="p"&gt;|&lt;/span&gt; My &lt;span class="nb"&gt;test&lt;/span&gt; workbook &lt;span class="p"&gt;|&lt;/span&gt; &lt;span class="nb"&gt;test&lt;/span&gt; &lt;span class="p"&gt;|&lt;/span&gt;
+&lt;span class="p"&gt;|&lt;/span&gt; my_workbook   &lt;span class="p"&gt;|&lt;/span&gt; My &lt;span class="nb"&gt;test&lt;/span&gt; workbook &lt;span class="p"&gt;|&lt;/span&gt; &lt;span class="nb"&gt;test&lt;/span&gt; &lt;span class="p"&gt;|&lt;/span&gt;
++---------------+------------------+------+
+&lt;span class="o"&gt;[&lt;/span&gt;ray@fedora mistral&lt;span class="o"&gt;]&lt;/span&gt;$ mistral workbook-get-definition my_workbook
+Starting new HTTP connection &lt;span class="o"&gt;(&lt;/span&gt;1&lt;span class="o"&gt;)&lt;/span&gt;: localhost
+Services:
+   MyRest:
+     type: REST_API
+     parameters:
+         baseUrl: http://localhost:8989/v1/
+     actions:
+         my-action:
+           parameters:
+               url: workbooks
+               method: GET
+
+Workflow:
+   tasks:
+     my_task:
+         action: MyRest:my-action
+
+&lt;span class="c1"&gt;#   events:&lt;/span&gt;
+&lt;span class="c1"&gt;#     my_event:&lt;/span&gt;
+&lt;span class="c1"&gt;#        type: periodic&lt;/span&gt;
+&lt;span class="c1"&gt;#        tasks: my_task&lt;/span&gt;
+&lt;span class="c1"&gt;#        parameters:&lt;/span&gt;
+&lt;span class="c1"&gt;#            cron-pattern: &amp;quot;* * * * *&amp;quot;&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;这个workbook，首先定义了一个服务（在系统中注册个新的服务，服务一般都包含定义好的action，这样用户就可以在task flow中指定运行这个action），这个服务类型是REST，然后参数有哪些等等。然后定义了一个工作流，其中的任务列表（tasks）第一个是my_task （taks名字），这个task做了一件事情，就是运行一次MyRest服务中的my_action动作。&lt;/p&gt;
+&lt;p&gt;在看看另外一个workbook， 就简单定义个一个ECHO type的服务。这个服务仅在内部测试使用，就直接返回ECHO值。&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="o"&gt;[&lt;/span&gt;ray@fedora mistral&lt;span class="o"&gt;]&lt;/span&gt;$ mistral workbook-get-definition echo_workbook
+Starting new HTTP connection &lt;span class="o"&gt;(&lt;/span&gt;1&lt;span class="o"&gt;)&lt;/span&gt;: localhost
+Services:
+  MyEcho:
+    type: ECHO
+    actions:
+        EchoWords:        
+          parameters:
+            word:
+                optional: False
+
+
+Workflow:
+    tasks:
+        logPassTask:
+            action: MyEcho:EchoWords
+            parameters:
+               word: &lt;span class="s2"&gt;&amp;quot;log pass&amp;quot;&lt;/span&gt; 
+        MyEchoTask:
+            action: MyEcho:EchoWords
+            parameters:
+               word: &lt;span class="s2"&gt;&amp;quot;hello, world&amp;quot;&lt;/span&gt; 
+            on-success: logPassTask
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;具体的运行log：&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="o"&gt;[&lt;/span&gt;ray@fedora mistral&lt;span class="o"&gt;]&lt;/span&gt;$ mistral execution-get echo_workbook bcf47b8c-6d44-4732-b32d-ebef92662f38
+Starting new HTTP connection &lt;span class="o"&gt;(&lt;/span&gt;1&lt;span class="o"&gt;)&lt;/span&gt;: localhost
++----------+--------------------------------------+
+&lt;span class="p"&gt;|&lt;/span&gt; Field    &lt;span class="p"&gt;|&lt;/span&gt; Value                                &lt;span class="p"&gt;|&lt;/span&gt;
++----------+--------------------------------------+
+&lt;span class="p"&gt;|&lt;/span&gt; ID       &lt;span class="p"&gt;|&lt;/span&gt; bcf47b8c-6d44-4732-b32d-ebef92662f38 &lt;span class="p"&gt;|&lt;/span&gt;
+&lt;span class="p"&gt;|&lt;/span&gt; Workbook &lt;span class="p"&gt;|&lt;/span&gt; echo_workbook                        &lt;span class="p"&gt;|&lt;/span&gt;
+&lt;span class="p"&gt;|&lt;/span&gt; Target   &lt;span class="p"&gt;|&lt;/span&gt; MyEchoTask                           &lt;span class="p"&gt;|&lt;/span&gt;
+&lt;span class="p"&gt;|&lt;/span&gt; State    &lt;span class="p"&gt;|&lt;/span&gt; SUCCESS                              &lt;span class="p"&gt;|&lt;/span&gt;
++----------+--------------------------------------+
+&lt;span class="o"&gt;[&lt;/span&gt;ray@fedora mistral&lt;span class="o"&gt;]&lt;/span&gt;$ mistral task-list echo_workbook bcf47b8c-6d44-4732-b32d-ebef92662f38
+Starting new HTTP connection &lt;span class="o"&gt;(&lt;/span&gt;1&lt;span class="o"&gt;)&lt;/span&gt;: localhost
++--------------------------------------+---------------+--------------------------------------+-------------+-------------+---------+--------+
+&lt;span class="p"&gt;|&lt;/span&gt; ID                                   &lt;span class="p"&gt;|&lt;/span&gt; Workbook      &lt;span class="p"&gt;|&lt;/span&gt; Execution                            &lt;span class="p"&gt;|&lt;/span&gt; Name        &lt;span class="p"&gt;|&lt;/span&gt; Description &lt;span class="p"&gt;|&lt;/span&gt; State   &lt;span class="p"&gt;|&lt;/span&gt; Tags   &lt;span class="p"&gt;|&lt;/span&gt;
++--------------------------------------+---------------+--------------------------------------+-------------+-------------+---------+--------+
+&lt;span class="p"&gt;|&lt;/span&gt; e5cb4a7a-b6c6-46ec-b62b-aa385bd3f8c2 &lt;span class="p"&gt;|&lt;/span&gt; echo_workbook &lt;span class="p"&gt;|&lt;/span&gt; bcf47b8c-6d44-4732-b32d-ebef92662f38 &lt;span class="p"&gt;|&lt;/span&gt; MyEchoTask  &lt;span class="p"&gt;|&lt;/span&gt; &amp;lt;none&amp;gt;      &lt;span class="p"&gt;|&lt;/span&gt; SUCCESS &lt;span class="p"&gt;|&lt;/span&gt; &amp;lt;none&amp;gt; &lt;span class="p"&gt;|&lt;/span&gt;
+&lt;span class="p"&gt;|&lt;/span&gt; 1c99cc02-e1b0-44c2-b961-8589164bb851 &lt;span class="p"&gt;|&lt;/span&gt; echo_workbook &lt;span class="p"&gt;|&lt;/span&gt; bcf47b8c-6d44-4732-b32d-ebef92662f38 &lt;span class="p"&gt;|&lt;/span&gt; logPassTask &lt;span class="p"&gt;|&lt;/span&gt; &amp;lt;none&amp;gt;      &lt;span class="p"&gt;|&lt;/span&gt; SUCCESS &lt;span class="p"&gt;|&lt;/span&gt; &amp;lt;none&amp;gt; &lt;span class="p"&gt;|&lt;/span&gt;
++--------------------------------------+---------------+--------------------------------------+-------------+-------------+---------+--------+
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;h2&gt;最近进展&lt;/h2&gt;
+&lt;p&gt;上面的实战例子可能没让大家意识到mistral跟openstack的关系，然后相信这个workbook 会让大家明白。&lt;/p&gt;
+&lt;p&gt;&lt;a href="https://wiki.openstack.org/wiki/Mistral/DSL#Full_YAML_example"&gt;https://wiki.openstack.org/wiki/Mistral/DSL#Full_YAML_example&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;关于VM的工作流，创建NOVA VM。 Mistral开发组正在实现这种类型的workbook，即集成openstack服务。这样用户就不需要用openstack CLI or API来操作，可以直接编写workbook（&lt;em&gt;简单编写文档，而不是写code&lt;/em&gt;），让mistral帮你做完整个工作流程。&lt;/p&gt;
+&lt;p&gt;另外关于Mistral和taskflow的集成：&lt;/p&gt;
+&lt;p&gt;Mistral在实现的过程中，需要开发大量的工作流代码。这跟openstack项目库中TaskFlow 目的有些类似。为了避免重复劳动，两边的开发者已经在讨论，在Mistral代码中，后端的工作流代码尽量采用taskflow作为后端。&lt;/p&gt;
+&lt;p&gt;这里有最近的讨论记录 &lt;a href="https://github.com/enykeev/mistral/pull/1"&gt;https://github.com/enykeev/mistral/pull/1&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;全文完。 转载请保留出处。&lt;/p&gt;</summary><category term="openstack"></category><category term="python"></category></entry><entry><title>Hello, World</title><link href="http://hellostack.info/hello-world.html" rel="alternate"></link><published>2014-05-11T00:12:00+08:00</published><author><name>Ray Chen</name></author><id>tag:hellostack.info,2014-05-11:hello-world.html</id><summary type="html">&lt;p&gt;Hello World from Ray Chen&lt;/p&gt;
+&lt;p&gt;&lt;a href="http://www.dongxf.com/3_Build_Personal_Blog_With_Pelican_And_GitHub_Pages.html"&gt;Pelican搭建静态博客&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;&lt;a href="http://wowubuntu.com/markdown/"&gt;Markdown 语法&lt;/a&gt;&lt;/p&gt;</summary><category term="python"></category></entry></feed>

@@ -1,0 +1,343 @@
+<!DOCTYPE html>
+<html lang="en" prefix="og: http://ogp.me/ns# fb: https://www.facebook.com/2008/fbml">
+<head>
+    <title>openldap配置 - Hello Stack</title>
+    <!-- Using the latest rendering mode for IE -->
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+
+
+<link rel="canonical" href="http://hellostack.info/openldap-config.html">
+
+        <meta name="author" content="Ray Chen" />
+        <meta name="keywords" content="ldap" />
+        <meta name="description" content="OpenLDAP表示轻量级目录访问协议。" />
+
+        <meta property="og:site_name" content="Hello Stack" />
+        <meta property="og:type" content="article"/>
+        <meta property="og:title" content="openldap配置"/>
+        <meta property="og:url" content="http://hellostack.info/openldap-config.html"/>
+        <meta property="og:description" content="OpenLDAP表示轻量级目录访问协议。"/>
+        <meta property="article:published_time" content="2014-08-11" />
+            <meta property="article:section" content="Linux" />
+            <meta property="article:tag" content="ldap" />
+            <meta property="article:author" content="Ray Chen" />
+
+
+    <!-- Bootstrap -->
+        <link rel="stylesheet" href="http://hellostack.info/theme/css/bootstrap.min.css" type="text/css"/>
+    <link href="http://hellostack.info/theme/css/font-awesome.min.css" rel="stylesheet">
+
+    <link href="http://hellostack.info/theme/css/pygments/manni.css" rel="stylesheet">
+    <link rel="stylesheet" href="http://hellostack.info/theme/css/style.css" type="text/css"/>
+
+        <link href="http://hellostack.info/feeds/all.atom.xml" type="application/atom+xml" rel="alternate"
+              title="Hello Stack ATOM Feed"/>
+
+
+
+        <link href="http://hellostack.info/feeds/linux.atom.xml" type="application/atom+xml" rel="alternate"
+              title="Hello Stack Linux ATOM Feed"/>
+
+</head>
+<body>
+
+<div class="navbar navbar-inverse navbar-fixed-top" role="navigation">
+	<div class="container">
+        <div class="navbar-header">
+            <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-ex1-collapse">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a href="http://hellostack.info/" class="navbar-brand">
+Hello Stack            </a>
+        </div>
+        <div class="collapse navbar-collapse navbar-ex1-collapse">
+            <ul class="nav navbar-nav">
+                        <li >
+                            <a href="http://hellostack.info/category/cloud.html">Cloud</a>
+                        </li>
+                        <li >
+                            <a href="http://hellostack.info/category/docker.html">Docker</a>
+                        </li>
+                        <li class="active">
+                            <a href="http://hellostack.info/category/linux.html">Linux</a>
+                        </li>
+                        <li >
+                            <a href="http://hellostack.info/category/misc.html">Misc</a>
+                        </li>
+                        <li >
+                            <a href="http://hellostack.info/category/openstack.html">Openstack</a>
+                        </li>
+                        <li >
+                            <a href="http://hellostack.info/category/python.html">Python</a>
+                        </li>
+            </ul>
+            <ul class="nav navbar-nav navbar-right">
+            </ul>
+        </div>
+        <!-- /.navbar-collapse -->
+    </div>
+</div> <!-- /.navbar -->
+<!-- Banner -->
+<!-- End Banner -->
+<div class="container">
+    <div class="row">
+        <div class="col-sm-9">
+    <section id="content">
+        <article>
+            <header class="page-header">
+                <h1>
+                    <a href="http://hellostack.info/openldap-config.html"
+                       rel="bookmark"
+                       title="Permalink to openldap配置">
+                        openldap配置
+                    </a>
+                </h1>
+            </header>
+            <div class="entry-content">
+                <div class="panel">
+                    <div class="panel-body">
+<footer class="post-info">
+    <span class="label label-default">Date</span>
+    <span class="published">
+        <i class="fa fa-calendar"></i><time datetime="2014-08-11T10:12:00+08:00"> Mon, 11 Aug 2014</time>
+    </span>
+
+
+
+
+
+<span class="label label-default">Tags</span>
+	<a href="http://hellostack.info/tag/ldap.html">ldap</a>
+    
+</footer><!-- /.post-info -->                    </div>
+                </div>
+                <h2>目录服务</h2>
+<p>目录是一个专门的数据库，专门用于搜索和浏览，另外也支持基本的查询和更新功能。目录往往包含描述性的，基于属性的信息和支持先进的过滤功能。目录的更新通常是简单的全部或者全无的变更，如果变更被允许的话。目录一般都调整为快速反应大批量查找或者搜索操作。</p>
+<h2>OPENLDAP</h2>
+<p>LDAP表示轻型目录访问协议。它定义了一个简单协议，用来访问目录服务。什么样的信息可以存储在目录中？LDAP的信息模型是基于条目的。一个条目是一些属性的集合。有一个全球唯一的识别名(DN)，每个条目的有个类型和一个或多个值。每个条目下面属性和值就是明显的key-value模式。</p>
+<p>例如：</p>
+<div class="highlight"><pre><span></span>dn: ou=People,dc=example,dc=com
+objectClass: organizationalUnit
+ou: People
+dn: ou=Groups,dc=example,dc=com
+objectClass: organizationalUnit
+ou: Groups
+dn: cn=miners,ou=Groups,dc=example,dc=com
+objectClass: posixGroup
+cn: miners
+gidNumber: 5000
+dn: uid=john,ou=People,dc=example,dc=com
+objectClass: inetOrgPerson
+objectClass: posixAccount
+objectClass: shadowAccount
+uid: john
+sn: Doe
+givenName: John
+cn: John Doe
+displayName: John Doe
+uidNumber: 10000
+gidNumber: 5000
+userPassword: johnldap
+gecos: John Doe
+loginShell: /bin/bash
+homeDirectory: /home/john
+</pre></div>
+
+
+<p>LDAP目录树的组织，被排列爱一个分层的树形结构。这个结果反映了地域或者组织界限。下面的图片是两种不同的组织命名。</p>
+<p><a href="http://www.openldap.org/doc/admin24/intro_tree.png">http://www.openldap.org/doc/admin24/intro_tree.png</a></p>
+<p><a href="http://www.openldap.org/doc/admin24/intro_dctree.png">http://www.openldap.org/doc/admin24/intro_dctree.png</a></p>
+<h2>LDAP如何工作</h2>
+<p>LDAP采用客户－服务器模式. 包含在一个或多个LDAP服务器中的数据组成了目录信息树(DIT). 客户端连接到服务器然后问一个问题. 服务器返回一个应答和/或一个指针告诉客户端去哪里获得更多的信息 (通常是另一台 LDAP 服务器). 客户端连接哪台LDAP服务器不重要, 目录的视图看起来都一样; 一个提交到某台LDAP服务器的名字在另一台LDAP服务器上也将指向相同的条目. 这是全球目录服务的一个重要功能.</p>
+<h2>配置</h2>
+<p>LDAP安装好之后，2.3版本之前必须要配置sldapd文件。但在2.3版本之后，完全允许LDAP利用LDIF数据库文件来管理LDAP。LDAP配置引擎允许所有的slapd配置选项在运行中改变，一把不需要重启sldapd使其生效。例如之前，我们想修改ldap的logging level，一般直接到slapd.conf文件直接修改。现在支持这样，先定义一个LDIF文件logging.ldif</p>
+<div class="highlight"><pre><span></span>dn: cn=config
+changetype: modify
+add: olcLogLevel
+olcLogLevel: stats
+</pre></div>
+
+
+<p>然后执行这个改变: <code>sudo ldapmodify -Q -Y EXTERNAL -H ldapi:/// -f logging.ldif</code></p>
+<p>换句话说，新版的LDAP建议用户使用LDIF和ldap命令集合来管理LDAP。但是旧风格的dlapd.conf依旧是支持的，为了保持向前兼容。特别要注意的是，新风格采用了slapd后端数据库来存储配置，务必不能两个风格混用。</p>
+<p>旧风格的slapd.conf配置在centos上</p>
+<p><a href="http://www.centoscn.com/image-text/config/2013/0819/1367.html">http://www.centoscn.com/image-text/config/2013/0819/1367.html</a></p>
+<p>新风格的IDIF配置在ubuntu</p>
+<p><a href="https://help.ubuntu.com/12.04/serverguide/openldap-server.html#openldap-server-logging">https://help.ubuntu.com/12.04/serverguide/openldap-server.html#openldap-server-logging</a></p>
+<p>另外，我们需要注意到，LDIF方式只是slapd的某一种数据库方式，因为它把信息保存在text文件当中。slapd本身支持很多数据库后端，常见的就是Berkeley DB backends，配置文件中看到的hdb即是。</p>
+<h2>调试</h2>
+<p>我们可以开启sldapd debug mode，方便看到更多的错误日志。运行<code>slapd -d 1</code>即可。更多的调试级别：</p>
+<div class="highlight"><pre><span></span>级别|关键字|描述
+---|--------|---
+0||不调试
+1|(0x1 trace)|跟踪函数调用
+2|(0x2 packets)|调试包的处理
+4|(0x4 args)|重度跟踪调试
+8|(0x8 conns)|连接管理
+16|(0x10 BER)|打印发送和接收的包
+32|(0x20 filter)|搜索过滤器的处理
+64|(0x40 config)|配置处理
+128|(0x80 ACL)|访问控制列表处理
+256|(0x100 stats)|连接/操作/结果的统计日志
+512|(0x200 stats2)|发送的条目的统计日志
+1024|(0x400 shell)|打印和shell后端的通信
+2048|(0x800 parse)|打印条目解析调试
+16384|(0x4000 sync)|syncrepl消费者处理
+32768|(0x8000 none)|只显示那些不受日志级别设置影响的消息
+</pre></div>
+
+
+<h2>参考</h2>
+<ol>
+<li><a href="http://wiki.jabbercn.org/OpenLDAP2.4%E7%AE%A1%E7%90%86%E5%91%98%E6%8C%87%E5%8D%97#.E4.BB.80.E4.B9.88.E6.98.AF.E7.9B.AE.E5.BD.95.E6.9C.8D.E5.8A.A1.3F">http://wiki.jabbercn.org/OpenLDAP2.4%E7%AE%A1%E7%90%86%E5%91%98%E6%8C%87%E5%8D%97#.E4.BB.80.E4.B9.88.E6.98.AF.E7.9B.AE.E5.BD.95.E6.9C.8D.E5.8A.A1.3F</a></li>
+<li><a href="http://www.openldap.org/doc/admin24/">http://www.openldap.org/doc/admin24/</a></li>
+</ol>
+            </div>
+            <!-- /.entry-content -->
+    <hr/>
+    <section class="comments" id="comments">
+        <h2>Comments</h2>
+
+        <div id="disqus_thread"></div>
+        <script type="text/javascript">
+            /* * * CONFIGURATION VARIABLES: EDIT BEFORE PASTING INTO YOUR WEBPAGE * * */
+            var disqus_shortname = 'hellostack'; // required: replace example with your forum shortname
+
+                    var disqus_identifier = 'openldap-config';
+                var disqus_url = 'http://hellostack.info/openldap-config.html';
+
+            var disqus_config = function () {
+                this.language = "en";
+            };
+
+            /* * * DON'T EDIT BELOW THIS LINE * * */
+            (function () {
+                var dsq = document.createElement('script');
+                dsq.type = 'text/javascript';
+                dsq.async = true;
+                dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+                (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+            })();
+        </script>
+        <noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by
+            Disqus.</a></noscript>
+        <a href="http://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+
+    </section>
+        </article>
+    </section>
+
+        </div>
+        <div class="col-sm-3" id="sidebar">
+            <aside>
+
+<section class="well well-sm">
+    <ul class="list-group list-group-flush">
+            <li class="list-group-item"><h4><i class="fa fa-home fa-lg"></i><span class="icon-label">Social</span></h4>
+              <ul class="list-group" id="social">
+                <li class="list-group-item"><a href="https://github.com/crook"><i class="fa fa-github-square fa-lg"></i> Github</a></li>
+                <li class="list-group-item"><a href="http://weibo.com/crookcrook/"><i class="fa fa-weibo fa-lg"></i> Weibo</a></li>
+                <li class="list-group-item"><a href="http://hellostack.info/feeds/all.atom.xml"><i class="fa fa-rss-square fa-lg"></i> RSS</a></li>
+              </ul>
+            </li>
+
+
+
+
+
+    <li class="list-group-item"><h4><i class="fa fa-external-link-square fa-lg"></i><span class="icon-label">Links</span></h4>
+      <ul class="list-group" id="links">
+        <li class="list-group-item">
+            <a href="http://chenrano2002.blog.chinaunix.net/" target="_blank">
+                小企鹅看大世界
+            </a>
+        </li>
+        <li class="list-group-item">
+            <a href="http://feisky.xyz" target="_blank">
+                Feisky's Blog
+            </a>
+        </li>
+        <li class="list-group-item">
+            <a href="http://wangxu.me" target="_blank">
+                Wang Xu's Blog
+            </a>
+        </li>
+        <li class="list-group-item">
+            <a href="http://www.hellospark.me/" target="_blank">
+                Lyndon's Blog
+            </a>
+        </li>
+        <li class="list-group-item">
+            <a href="http://www.openstack.org/" target="_blank">
+                Openstack
+            </a>
+        </li>
+      </ul>
+    </li>
+    </ul>
+</section>
+            </aside>
+        </div>
+    </div>
+</div>
+<footer>
+   <div class="container">
+      <hr>
+      <div class="row">
+         <div class="col-xs-10">&copy; 2016 Ray Chen
+            &middot; Powered by <a href="https://github.com/getpelican/pelican-themes/tree/master/pelican-bootstrap3" target="_blank">pelican-bootstrap3</a>,
+            <a href="http://docs.getpelican.com/" target="_blank">Pelican</a>,
+            <a href="http://getbootstrap.com" target="_blank">Bootstrap</a>         </div>
+         <div class="col-xs-2"><p class="pull-right"><i class="fa fa-arrow-up"></i> <a href="#">Back to top</a></p></div>
+      </div>
+   </div>
+</footer>
+<script src="http://hellostack.info/theme/js/jquery.min.js"></script>
+
+<!-- Include all compiled plugins (below), or include individual files as needed -->
+<script src="http://hellostack.info/theme/js/bootstrap.min.js"></script>
+
+<!-- Enable responsive features in IE8 with Respond.js (https://github.com/scottjehl/Respond) -->
+<script src="http://hellostack.info/theme/js/respond.min.js"></script>
+
+    <!-- Disqus -->
+    <script type="text/javascript">
+        /* * * CONFIGURATION VARIABLES: EDIT BEFORE PASTING INTO YOUR WEBPAGE * * */
+        var disqus_shortname = 'hellostack'; // required: replace example with your forum shortname
+
+        /* * * DON'T EDIT BELOW THIS LINE * * */
+        (function () {
+            var s = document.createElement('script');
+            s.async = true;
+            s.type = 'text/javascript';
+            s.src = '//' + disqus_shortname + '.disqus.com/count.js';
+            (document.getElementsByTagName('HEAD')[0] || document.getElementsByTagName('BODY')[0]).appendChild(s);
+        }());
+    </script>
+    <!-- End Disqus Code -->
+    <!-- Google Analytics -->
+    <script type="text/javascript">
+
+        var _gaq = _gaq || [];
+        _gaq.push(['_setAccount', 'UA-51314242-1']);
+        _gaq.push(['_trackPageview']);
+
+        (function () {
+            var ga = document.createElement('script');
+            ga.type = 'text/javascript';
+            ga.async = true;
+            ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+            var s = document.getElementsByTagName('script')[0];
+            s.parentNode.insertBefore(ga, s);
+        })();
+    </script>
+    <!-- End Google Analytics Code -->
+
+</body>
+</html>

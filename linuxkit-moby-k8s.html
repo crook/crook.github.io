@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en" prefix="og: http://ogp.me/ns# fb: https://www.facebook.com/2008/fbml">
 <head>
-    <title>yum-axelget插件更新 - Hello Stack</title>
+    <title>容器生态系统 - Hello Stack</title>
     <!-- Using the latest rendering mode for IE -->
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta charset="utf-8">
@@ -9,21 +9,22 @@
 
 
 
-<link rel="canonical" href="http://hellostack.info/yum-axelget-update.html">
+<link rel="canonical" href="http://hellostack.info/linuxkit-moby-k8s.html">
 
         <meta name="author" content="Ray Chen" />
-        <meta name="keywords" content="yum,python" />
-        <meta name="description" content="yum-axelget更新到Fedora20并且已经在官方库. 实现的基本原理就是：在Yum Code下载之前，用axel把所有需要的RPM/DRPM提前下载好。之前的版本有问题，主要是因为presto（Delta RPM）现在直接merge到Yum Core Code。" />
+        <meta name="keywords" content="docker,hyper,linuxkit" />
+        <meta name="description" content="容器生态系统渐成，大势所趋。" />
 
         <meta property="og:site_name" content="Hello Stack" />
         <meta property="og:type" content="article"/>
-        <meta property="og:title" content="yum-axelget插件更新"/>
-        <meta property="og:url" content="http://hellostack.info/yum-axelget-update.html"/>
-        <meta property="og:description" content="yum-axelget更新到Fedora20并且已经在官方库. 实现的基本原理就是：在Yum Code下载之前，用axel把所有需要的RPM/DRPM提前下载好。之前的版本有问题，主要是因为presto（Delta RPM）现在直接merge到Yum Core Code。"/>
-        <meta property="article:published_time" content="2014-05-13" />
-            <meta property="article:section" content="Python" />
-            <meta property="article:tag" content="yum" />
-            <meta property="article:tag" content="python" />
+        <meta property="og:title" content="容器生态系统"/>
+        <meta property="og:url" content="http://hellostack.info/linuxkit-moby-k8s.html"/>
+        <meta property="og:description" content="容器生态系统渐成，大势所趋。"/>
+        <meta property="article:published_time" content="2017-06-21" />
+            <meta property="article:section" content="Docker" />
+            <meta property="article:tag" content="docker" />
+            <meta property="article:tag" content="hyper" />
+            <meta property="article:tag" content="linuxkit" />
             <meta property="article:author" content="Ray Chen" />
 
 
@@ -39,8 +40,8 @@
 
 
 
-        <link href="http://hellostack.info/feeds/python.atom.xml" type="application/atom+xml" rel="alternate"
-              title="Hello Stack Python ATOM Feed"/>
+        <link href="http://hellostack.info/feeds/docker.atom.xml" type="application/atom+xml" rel="alternate"
+              title="Hello Stack Docker ATOM Feed"/>
 
 </head>
 <body>
@@ -62,7 +63,7 @@ Hello Stack            </a>
                         <li >
                             <a href="http://hellostack.info/category/cloud.html">Cloud</a>
                         </li>
-                        <li >
+                        <li class="active">
                             <a href="http://hellostack.info/category/docker.html">Docker</a>
                         </li>
                         <li >
@@ -74,7 +75,7 @@ Hello Stack            </a>
                         <li >
                             <a href="http://hellostack.info/category/openstack.html">Openstack</a>
                         </li>
-                        <li class="active">
+                        <li >
                             <a href="http://hellostack.info/category/python.html">Python</a>
                         </li>
             </ul>
@@ -93,10 +94,10 @@ Hello Stack            </a>
         <article>
             <header class="page-header">
                 <h1>
-                    <a href="http://hellostack.info/yum-axelget-update.html"
+                    <a href="http://hellostack.info/linuxkit-moby-k8s.html"
                        rel="bookmark"
-                       title="Permalink to yum-axelget插件更新">
-                        yum-axelget插件更新
+                       title="Permalink to 容器生态系统">
+                        容器生态系统
                     </a>
                 </h1>
             </header>
@@ -106,7 +107,7 @@ Hello Stack            </a>
 <footer class="post-info">
     <span class="label label-default">Date</span>
     <span class="published">
-        <i class="fa fa-calendar"></i><time datetime="2014-05-13T00:12:00+08:00"> Tue, 13 May 2014</time>
+        <i class="fa fa-calendar"></i><time datetime="2017-06-21T21:30:00+08:00"> Wed, 21 Jun 2017</time>
     </span>
 
 
@@ -114,70 +115,55 @@ Hello Stack            </a>
 
 
 <span class="label label-default">Tags</span>
-	<a href="http://hellostack.info/tag/yum.html">yum</a>
+	<a href="http://hellostack.info/tag/docker.html">docker</a>
         /
-	<a href="http://hellostack.info/tag/python.html">python</a>
+	<a href="http://hellostack.info/tag/hyper.html">hyper</a>
+        /
+	<a href="http://hellostack.info/tag/linuxkit.html">linuxkit</a>
     
 </footer><!-- /.post-info -->                    </div>
                 </div>
-                <p>周末花了一天时间，把 yum-axelget更新到Fedora20. 实现的基本原理就是：在Yum Code下载之前，用axel把所有需要的RPM/DRPM提前下载好。之前的版本有问题，主要是因为presto（Delta RPM）现在直接merge到Yum Core Code。</p>
-<p>远期计划支持多种下载工具，让用户自己选择</p>
-<p>项目地址：<a href="https://github.com/crook/yum-axelget/">https://github.com/crook/yum-axelget/</a></p>
-<p>目前yum-axelget已经在Fedora官方库，可以直接<code>yum install yum-axelget</code> 安装</p>
-<p>截图：</p>
-<div class="highlight"><pre><span></span>(vdev)[ray@fedora yum-axelget]$ sudo yum install ddd
-Loaded plugins: axelget, fastestmirror, priorities
-No metadata available for fedora
-No metadata available for rpmfusion-free
-No metadata available for rpmfusion-free-updates
-No metadata available for rpmfusion-nonfree
-No metadata available for rpmfusion-nonfree-updates
-No metadata available for updates
-Loading mirror speeds from cached hostfile
- * fedora: mirrors.hustunique.com
- * rpmfusion-free: mirror.bjtu.edu.cn
- * rpmfusion-free-updates: mirror.switch.ch
- * rpmfusion-nonfree: mirror.bjtu.edu.cn
- * rpmfusion-nonfree-updates: mirror.bjtu.edu.cn
- * updates: mirrors.hustunique.com
-Resolving Dependencies
---&gt; Running transaction check
----&gt; Package ddd.x86_64 0:3.3.12-16.fc20 will be installed
---&gt; Finished Dependency Resolution
-
-Dependencies Resolved
-
-==============================================================================================================================================
- Package                Arch                              Version                                    Repository                          Size
-==============================================================================================================================================
-Installing:
- ddd                    x86_64                            3.3.12-16.fc20                             updates                            1.5 M
-
-Transaction Summary
-=============================================================================================================================================
-Install  1 Package
-
-Total download size: 1.5 M
-Installed size: 4.5 M
-Is this ok [y/d/N]: y
-Downloading packages:
-ddd-3.3.12-16.fc20.x86_64.rpm                                                                                             | 1.5 MB  00:00:05     
-Running transaction check
-Running transaction test
-Transaction test succeeded
-Running transaction
-  Installing : ddd-3.3.12-16.fc20.x86_64                                                                                                 1/1 
-  Verifying  : ddd-3.3.12-16.fc20.x86_64                                                                                                 1/1 
-
-Installed:
-  ddd.x86_64 0:3.3.12-16.fc20                                                                                                                         
-
-Complete!
+                <ul>
+<li>
+<p>近期docker收回商标，开源项目docker改名为moby。这个无可厚非。docker期望复制redhat的成功模式，docker-moby的关系就对应着redhat linux-fedora。 <a href="https://github.com/moby/moby">Moby</a>包含很多容器化的后台组件（containerd, swramkit等）。docker希望借助moby搭积木的方式，让容器爱好者进行各种各样的组合。完全由开源社区驱动。</p>
+</li>
+<li>
+<p>docker公司推出linuxkit开源项目，剑指容器运行平台。容器诞生于linux平台，依赖LXC资源隔离。站稳linux后，docker进而想推广容器到win/mac平台。主要是依赖虚拟化软件，先创建linux vm，然后在vm里配置docker环境。比如说起初的docker for mac。参考<a href="https://docs.docker.com/machine/">docker machine</a>项目。主要目的就是支持各大虚拟机provider，方便部署docker 运行时。但这仅仅是解决了简单部署，用户使用起来感觉docker依赖虚拟机。而这点恰恰跟市场上的主流期望相反：docker不是下一个银弹，用来代替虚拟机的吗？</p>
+</li>
+</ul>
+<p>孰不可忍的情况下，docker推出linuxkit，希望借此一统容器运行平台的控制平面。最大的改变（亮点）有两种：</p>
+<p>1) everything service is container
+立足于linux平台，精简linux kernel和服务启动流程。让docker containd变身id为1号的根进程。后续所有系统服务都采用容器方式运行。再后续的方向，无非裸机启动。容器已然演变成一个操作系统（任务会很艰巨，因为设备管理等常见os功能，这是另一项工程。）. 同时采用moby的“积木”模块，可以让用户迅速启动一套复杂的容器系统。</p>
+<p>2) docker can run on all platform
+扩展至所有平台。三大主流linux/win/mac一网打尽。利用linuxkit打包linux kernel和initrd img，然后用平台虚拟化软件来启动这个docker os。这里容器和vm的界限已经很模糊，既是容器又是虚拟机。而linuxkit本身用go语言编程，运行在其他平台不是难事。
+linuxkit初探案例：<a href="http://feisky.xyz/2017/04/19/LinuxKit/">http://feisky.xyz/2017/04/19/LinuxKit/</a></p>
+<p>这种思路跟目前市场已经存在的<a href="https://hypercontainer.io/">hypercontainer</a>和<a href="https://vmware.github.io/vic/">vSphere vic</a>异曲同工。很难讲谁抄袭谁的思路。
+假如linuxkit的原生运行容器方式大获成功，目前市场的各大容器os没有生存空间。docker基本平台一统天下，后面就到来发展生态圈的时刻。</p>
+<ul>
+<li>kubernetes作为容器管理平台，完美的诠释来google的技术实力和战略眼光。但毕竟是容器的管理平台，需要定义在哪里运行容器。开源之后，各大IAAS平台纷纷支持，推出相应的cloud provider，方便k8s进行控制平面。但google留了心眼，从一开始的插件设计，就考虑到支持不同的容器运行时。就是说docker那套运行时可以替换成第三方。这也从着侧面反应docker的亮点在于标准化的image。同时主导社区推出OCI基金会，标准化容器运行时，避免docker运行时一家独大。</li>
+</ul>
+<div class="highlight"><pre><span></span>Established in June 2015 by Docker and other leaders in the container industry, the OCI currently contains two specifications: the Runtime Specification (runtime-spec) and the Image Specification (image-spec). The Runtime Specification outlines how to run a “filesystem bundle” that is unpacked on disk. At a high-level an OCI implementation would download an OCI Image then unpack that image into an OCI Runtime filesystem bundle. At this point the OCI Runtime Bundle would be run by an OCI Runtime.
 </pre></div>
 
 
-<p>跟没有axelget插件的安装界面完全一样。但是这里的ddd rpm实质是axel安装的。 可用<code>yum -d 3 install ddd</code>看实际的效果。</p>
-<p>全文完。</p>
+<ul>
+<li>容器运行时标准文档：<a href="https://github.com/opencontainers/runtime-spec/blob/master/runtime.md">https://github.com/opencontainers/runtime-spec/blob/master/runtime.md</a>
+各家厂商按照标准接口实现自己的runtime。 当然目前docker捐献的containerd是最主流支持。
+比如hypercontainer采用hypervisor方式的运行时：<a href="https://github.com/hyperhq/runv">https://github.com/hyperhq/runv</a></li>
+</ul>
+<p>采用标准意味着你可以用docker的命令来运行hyercontainer的容器方式。下面的例子实际上在运行hypercontainer。</p>
+<div class="highlight"><pre><span></span><span class="c1"># in terminal #1 </span>
+$ docker-containerd --debug -l /var/run/docker/libcontainerd/docker-containerd.sock <span class="se">\ </span>--runtime /path/to/runv --runtime-args --debug --runtime-args --driver<span class="o">=</span>libvirt <span class="se">\ </span>--runtime-args --kernel<span class="o">=</span>/opt/hyperstart/build/kernel <span class="se">\ </span>--runtime-args --initrd<span class="o">=</span>/opt/hyperstart/build/hyper-initrd.img <span class="se">\ </span>--start-timeout 2m 
+<span class="c1"># in terminal #2 </span>
+$ docker daemon -D -l debug --containerd<span class="o">=</span>/var/run/docker/libcontainerd/docker-containerd.sock 
+<span class="c1"># in terminal #3 for trying it </span>
+$ docker run busybox ls bin
+</pre></div>
+
+
+<ul>
+<li>Linuxkit+Moby+Kubernetes组合形成容器基础架构的闭环开源系统。正如docker自己所说：“if the ecosystem succeeds, we succeed.” 技术改变世界，结尾彩蛋：<a href="https://ruanyf.github.io/survivor/future/boundary.html">https://ruanyf.github.io/survivor/future/boundary.html</a></li>
+</ul>
             </div>
             <!-- /.entry-content -->
     <hr/>
@@ -189,8 +175,8 @@ Complete!
             /* * * CONFIGURATION VARIABLES: EDIT BEFORE PASTING INTO YOUR WEBPAGE * * */
             var disqus_shortname = 'hellostack'; // required: replace example with your forum shortname
 
-                    var disqus_identifier = 'yum-axelget-update';
-                var disqus_url = 'http://hellostack.info/yum-axelget-update.html';
+                    var disqus_identifier = 'linuxkit-moby-k8s';
+                var disqus_url = 'http://hellostack.info/linuxkit-moby-k8s.html';
 
             var disqus_config = function () {
                 this.language = "en";

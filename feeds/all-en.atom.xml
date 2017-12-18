@@ -1,5 +1,45 @@
 <?xml version="1.0" encoding="utf-8"?>
-<feed xmlns="http://www.w3.org/2005/Atom"><title>Hello Stack</title><link href="http://hellostack.info/" rel="alternate"></link><link href="http://hellostack.info/feeds/all-en.atom.xml" rel="self"></link><id>http://hellostack.info/</id><updated>2016-10-08T16:49:00+08:00</updated><entry><title>Run Docker on VMware Fusion Mac</title><link href="http://hellostack.info/run-docker-machine-vmware-fusion.html" rel="alternate"></link><published>2016-10-08T16:49:00+08:00</published><author><name>Ray Chen</name></author><id>tag:hellostack.info,2016-10-08:run-docker-machine-vmware-fusion.html</id><summary type="html">&lt;h2&gt;What's docker-machine&lt;/h2&gt;
+<feed xmlns="http://www.w3.org/2005/Atom"><title>Hello Stack</title><link href="http://hellostack.info/" rel="alternate"></link><link href="http://hellostack.info/feeds/all-en.atom.xml" rel="self"></link><id>http://hellostack.info/</id><updated>2017-06-21T21:30:00+08:00</updated><entry><title>容器生态系统</title><link href="http://hellostack.info/linuxkit-moby-k8s.html" rel="alternate"></link><published>2017-06-21T21:30:00+08:00</published><author><name>Ray Chen</name></author><id>tag:hellostack.info,2017-06-21:linuxkit-moby-k8s.html</id><summary type="html">&lt;ul&gt;
+&lt;li&gt;
+&lt;p&gt;近期docker收回商标，开源项目docker改名为moby。这个无可厚非。docker期望复制redhat的成功模式，docker-moby的关系就对应着redhat linux-fedora。 &lt;a href="https://github.com/moby/moby"&gt;Moby&lt;/a&gt;包含很多容器化的后台组件（containerd, swramkit等）。docker希望借助moby搭积木的方式，让容器爱好者进行各种各样的组合。完全由开源社区驱动。&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;docker公司推出linuxkit开源项目，剑指容器运行平台。容器诞生于linux平台，依赖LXC资源隔离。站稳linux后，docker进而想推广容器到win/mac平台。主要是依赖虚拟化软件，先创建linux vm，然后在vm里配置docker环境。比如说起初的docker for mac。参考&lt;a href="https://docs.docker.com/machine/"&gt;docker machine&lt;/a&gt;项目。主要目的就是支持各大虚拟机provider，方便部署docker 运行时。但这仅仅是解决了简单部署，用户使用起来感觉docker依赖虚拟机。而这点恰恰跟市场上的主流期望相反：docker不是下一个银弹，用来代替虚拟机的吗？&lt;/p&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;孰不可忍的情况下，docker推出linuxkit，希望借此一统容器运行平台的控制平面。最大的改变（亮点）有两种：&lt;/p&gt;
+&lt;p&gt;1) everything service is container
+立足于linux平台，精简linux kernel和服务启动流程。让docker containd变身id为1号的根进程。后续所有系统服务都采用容器方式运行。再后续的方向，无非裸机启动。容器已然演变成一个操作系统（任务会很艰巨，因为设备管理等常见os功能，这是另一项工程。）. 同时采用moby的“积木”模块，可以让用户迅速启动一套复杂的容器系统。&lt;/p&gt;
+&lt;p&gt;2) docker can run on all platform
+扩展至所有平台。三大主流linux/win/mac一网打尽。利用linuxkit打包linux kernel和initrd img，然后用平台虚拟化软件来启动这个docker os。这里容器和vm的界限已经很模糊，既是容器又是虚拟机。而linuxkit本身用go语言编程，运行在其他平台不是难事。
+linuxkit初探案例：&lt;a href="http://feisky.xyz/2017/04/19/LinuxKit/"&gt;http://feisky.xyz/2017/04/19/LinuxKit/&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;这种思路跟目前市场已经存在的&lt;a href="https://hypercontainer.io/"&gt;hypercontainer&lt;/a&gt;和&lt;a href="https://vmware.github.io/vic/"&gt;vSphere vic&lt;/a&gt;异曲同工。很难讲谁抄袭谁的思路。
+假如linuxkit的原生运行容器方式大获成功，目前市场的各大容器os没有生存空间。docker基本平台一统天下，后面就到来发展生态圈的时刻。&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;kubernetes作为容器管理平台，完美的诠释来google的技术实力和战略眼光。但毕竟是容器的管理平台，需要定义在哪里运行容器。开源之后，各大IAAS平台纷纷支持，推出相应的cloud provider，方便k8s进行控制平面。但google留了心眼，从一开始的插件设计，就考虑到支持不同的容器运行时。就是说docker那套运行时可以替换成第三方。这也从着侧面反应docker的亮点在于标准化的image。同时主导社区推出OCI基金会，标准化容器运行时，避免docker运行时一家独大。&lt;/li&gt;
+&lt;/ul&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;Established in June 2015 by Docker and other leaders in the container industry, the OCI currently contains two specifications: the Runtime Specification (runtime-spec) and the Image Specification (image-spec). The Runtime Specification outlines how to run a “filesystem bundle” that is unpacked on disk. At a high-level an OCI implementation would download an OCI Image then unpack that image into an OCI Runtime filesystem bundle. At this point the OCI Runtime Bundle would be run by an OCI Runtime.
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;ul&gt;
+&lt;li&gt;容器运行时标准文档：&lt;a href="https://github.com/opencontainers/runtime-spec/blob/master/runtime.md"&gt;https://github.com/opencontainers/runtime-spec/blob/master/runtime.md&lt;/a&gt;
+各家厂商按照标准接口实现自己的runtime。 当然目前docker捐献的containerd是最主流支持。
+比如hypercontainer采用hypervisor方式的运行时：&lt;a href="https://github.com/hyperhq/runv"&gt;https://github.com/hyperhq/runv&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;采用标准意味着你可以用docker的命令来运行hyercontainer的容器方式。下面的例子实际上在运行hypercontainer。&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="c1"&gt;# in terminal #1 &lt;/span&gt;
+$ docker-containerd --debug -l /var/run/docker/libcontainerd/docker-containerd.sock &lt;span class="se"&gt;\ &lt;/span&gt;--runtime /path/to/runv --runtime-args --debug --runtime-args --driver&lt;span class="o"&gt;=&lt;/span&gt;libvirt &lt;span class="se"&gt;\ &lt;/span&gt;--runtime-args --kernel&lt;span class="o"&gt;=&lt;/span&gt;/opt/hyperstart/build/kernel &lt;span class="se"&gt;\ &lt;/span&gt;--runtime-args --initrd&lt;span class="o"&gt;=&lt;/span&gt;/opt/hyperstart/build/hyper-initrd.img &lt;span class="se"&gt;\ &lt;/span&gt;--start-timeout 2m 
+&lt;span class="c1"&gt;# in terminal #2 &lt;/span&gt;
+$ docker daemon -D -l debug --containerd&lt;span class="o"&gt;=&lt;/span&gt;/var/run/docker/libcontainerd/docker-containerd.sock 
+&lt;span class="c1"&gt;# in terminal #3 for trying it &lt;/span&gt;
+$ docker run busybox ls bin
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;ul&gt;
+&lt;li&gt;Linuxkit+Moby+Kubernetes组合形成容器基础架构的闭环开源系统。正如docker自己所说：“if the ecosystem succeeds, we succeed.” 技术改变世界，结尾彩蛋：&lt;a href="https://ruanyf.github.io/survivor/future/boundary.html"&gt;https://ruanyf.github.io/survivor/future/boundary.html&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;</summary><category term="docker"></category><category term="hyper"></category><category term="linuxkit"></category></entry><entry><title>Run Docker on VMware Fusion Mac</title><link href="http://hellostack.info/run-docker-machine-vmware-fusion.html" rel="alternate"></link><published>2016-10-08T16:49:00+08:00</published><author><name>Ray Chen</name></author><id>tag:hellostack.info,2016-10-08:run-docker-machine-vmware-fusion.html</id><summary type="html">&lt;h2&gt;What's docker-machine&lt;/h2&gt;
 &lt;p&gt;Docker Machine is a tool that lets you install Docker Engine on virtual hosts, and manage the hosts with docker-machine commands. You can use Machine to create Docker hosts on your local Mac or Windows box, on your company network, in your data center, or on cloud providers like AWS or Digital Ocean.&lt;/p&gt;
 &lt;p&gt;Using docker-machine commands, you can start, inspect, stop, and restart a managed host, upgrade the Docker client and daemon, and configure a Docker client to talk to your host.&lt;/p&gt;
 &lt;h2&gt;Create docker machine&lt;/h2&gt;
